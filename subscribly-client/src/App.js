@@ -1,11 +1,26 @@
+import { useEffect, useState } from 'react';
 import './App.scss';
+import axios from 'axios';
+import LandingPage from './components/LandingPage';
 
-import Navbar from './components/includes/Navbar';
+
 
 function App() {
+ // const appName = 'Subscriby';
+  const [appName , setAppName]=useState('');
+ useEffect(()=>{
+  axios.get("http://127.0.0.1:8000/api/get-appname")
+       .then(response=>{
+          setAppName(response.data.name);
+       })
+         .catch(error => console.error('Error loading project name', error));
+}, []);
+      
+
+ 
   return (
     <div className="App">
-     <Navbar />
+      <LandingPage appName={appName} />
     </div>
   );
 }
