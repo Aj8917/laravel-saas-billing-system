@@ -229,3 +229,60 @@ footer {
     margin-right: 0;
   }
 }
+
+//----------------------------------------------- singup ----------------------------------
+.signup-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f4f6f8;
+  padding: 2rem;
+}
+
+.signup-box {
+  background-color: #fff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+}
+
+.form-floating-label {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem 0.75rem 0.25rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: transparent;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: #007bff;
+}
+
+.form-floating-label label {
+  position: absolute;
+  top: 1rem;
+  left: 0.75rem;
+  color: #777;
+  font-size: 1rem;
+  transition: 0.2s ease all;
+  pointer-events: none;
+  background-color: white;
+  padding: 0 4px;
+}
+
+.form-input:focus + label,
+.form-input:not(:placeholder-shown):valid + label {
+  top: -0.6rem;
+  left: 0.5rem;
+  font-size: 0.75rem;
+  color: #007bff;
+}
