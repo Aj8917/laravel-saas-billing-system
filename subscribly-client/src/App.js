@@ -5,12 +5,15 @@ import LandingPage from './components/LandingPage';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Signup from './components/Signup';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+axios.defaults.baseURL = 'http://localhost:8000/api';
 
 function App() {
  // const appName = 'Subscriby';
   const [appName , setAppName]=useState('');
  useEffect(()=>{
-  axios.get("http://127.0.0.1:8000/api/get-appname")
+  axios.get("get-appname")  
        .then(response=>{
           setAppName(response.data.name);
           document.title=response.data.name
@@ -22,6 +25,7 @@ function App() {
  
   return (
     <div className="App">
+      <ToastContainer />
       <Router>
         <Routes>
           <Route path='/' element={ <LandingPage appName={appName} />}/>

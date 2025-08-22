@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -10,3 +11,5 @@ Route::get('/user', function (Request $request) {
 Route::get('/get-appname',function(){
     return response()->json(['name'=>config('app.name','app.env')]);
 });
+
+Route::post('/signup',[UserController::class,'signup']);

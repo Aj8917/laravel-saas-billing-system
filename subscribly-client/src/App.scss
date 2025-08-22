@@ -286,3 +286,13 @@ footer {
   font-size: 0.75rem;
   color: #007bff;
 }
+
+.is-invalid {
+  border: 1px solid red;
+  background-color: #ffe5e5;
+}
+.error-text{
+  color: red;
+   font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
