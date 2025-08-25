@@ -10,18 +10,28 @@ const Signup = () => {
   const [company_name, setCompanyName] = useState();
   const [agree, setAgree] = useState('false');
   const [errors, setErrors] = useState({});
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const register = asyncHandler(async (e) => {
     e.preventDefault()
-    //console.log('inside'+name,email,password,agree)
-    try {
-      const response = await axios.post('signup', { name, email, password, company_name, agree })
-      
-      messageHandler(response.data.success,"success");
-    } catch (error) {
-      
-      setErrors(error.response?.data?.errors || {});
-      //console.log(error.response?.data?.errors)
+    if (password !== confirmPassword) {
+
+      setErrors(prev => ({
+        ...prev,
+        confirmPassword: ['Passwords do not match!']
+      }));
+      messageHandler("Confirm Password and password dosen't match !", "error");
+
+
+    } else {
+      //console.log('inside'+name,email,password,agree)
+      try {
+        const response = await axios.post('signup', { name, email, password, company_name, agree })
+        messageHandler(response.data.success, "success");
+      } catch (error) {
+        setErrors(error.response?.data?.errors || {});
+        //console.log(error.response?.data?.errors)
+      }
     }
   }
   )
@@ -36,8 +46,9 @@ const Signup = () => {
               id="fullName"
               className={`form-input ${errors.name ? 'is-valid' : ''}`}
               value={name}
-              onChange={e => {setName(e.target.value)
-                              setErrors(prev=>({...prev,name:null}))
+              onChange={e => {
+                setName(e.target.value)
+                setErrors(prev => ({ ...prev, name: null }))
               }}
               required />
             <label htmlFor="fullName">Full Name</label>
@@ -66,23 +77,37 @@ const Signup = () => {
               id="password"
               className={`form-input ${errors.password ? 'is-valid' : ''}`}
               value={password}
-              onChange={e => {setPassword(e.target.value)
-                              setErrors(prev=>({...prev,password:null}))
+              onChange={e => {
+                setPassword(e.target.value)
+                setErrors(prev => ({ ...prev, password: null }))
               }}
               required />
             <label htmlFor="password">Password</label>
 
             {errors.password && <div className="error-text">{errors.password[0]}</div>}
           </div>
+          <div className="form-floating-label mb-4">
+            <input type="password"
+              id="confirmPassword"
+              className={`form-input ${errors.confirmPassword ? 'is-valid' : ''}`}
+              value={confirmPassword || ''}
+              onChange={e => {
+                setConfirmPassword(e.target.value)
+                setErrors(prev => ({ ...prev, confirmPassword: null }))
+              }}
+              required />
+            <label htmlFor="confirmPassword">Confirm Password</label>
 
+          </div>
           <div className="form-floating-label mb-4">
             <input
               type="text"
               id="company"
               className={`form-input ${errors.company ? 'is-valid' : ''}`}
               value={company_name}
-              onChange={e => {setCompanyName(e.target.value)
-                              setErrors(prev=>({...prev,company_name:null}))
+              onChange={e => {
+                setCompanyName(e.target.value)
+                setErrors(prev => ({ ...prev, company_name: null }))
               }}
               required />
             <label htmlFor="company">Company Name</label>

@@ -28,7 +28,7 @@ const Navbar = ({appName}) => {
                     </li>
                 </ul>
                 <div className="ms-3 d-flex">
-                    <a href="#" className="btn btn-sm btn-outline-primary me-2">Login</a>
+                    <a href="/signin" className="btn btn-sm btn-outline-primary me-2">Login</a>
                     <a href="/singup" className="btn btn-sm btn-primary">Sign Up</a>
                 </div>
             </div>
