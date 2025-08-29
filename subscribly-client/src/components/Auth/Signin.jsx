@@ -1,23 +1,34 @@
-import React, { useState } from 'react'
-import asyncHandler from '../util/asyncHandler';
+import { useState } from 'react'
+import asyncHandler from '../../util/asyncHandler';
+import axios, { Axios } from 'axios';
+import messageHandler from '../../util/messageHandler';
 
 
 
 const Signin = () => {
 
-    const [email, setEmail] = useState();
-    const [password, setPassword] = useState();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
+
 
     const login = asyncHandler(async (e) => {
         e.preventDefault()
-        console.log("login", email, password);
+        //  console.log("login", email, password);
 
         try {
-
+            const response = await axios.post('/signin', { email, password });
+           // console.log("response", response.data);
+            messageHandler("success","Login Successfully!"+response.user);
         } catch (error) {
-
+            console.log("error response", error.response);
+            if (error.response && error.response.status === 401) {
+                messageHandler("error", error.response.data.errors);
+            } else {
+                messageHandler("error", error.message || "Something went wrong");
+            }
         }
+
     });
     return (
         <div>
@@ -27,10 +38,11 @@ const Signin = () => {
                     <form onSubmit={login}>
 
                         <div className="form-floating-label mb-4">
-                            <input type="email"
+                            <input
+                                type="email"
                                 id="email"
                                 className={`form-input ${errors.email ? 'is-valid' : ''}`}
-                                value={email}
+                                value={email || " "}
                                 onChange={e => {
                                     setEmail(e.target.value);
                                     setErrors(prev => ({ ...prev, email: null }));

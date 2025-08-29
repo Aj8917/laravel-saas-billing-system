@@ -13,7 +13,7 @@ return new class extends Migration
     {
         
         Schema::table('users', function (Blueprint $table) {
-            $table->string('company_name')->nullable()->after('email');    
+            $table->string('company_name')->after('email');    
         });
     }
 

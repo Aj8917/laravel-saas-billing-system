@@ -280,7 +280,7 @@ footer {
 }
 
 .form-input:focus + label,
-.form-input:not(:placeholder-shown):valid + label {
+.form-input:not(:placeholder-shown) + label {
   top: -0.6rem;
   left: 0.5rem;
   font-size: 0.75rem;

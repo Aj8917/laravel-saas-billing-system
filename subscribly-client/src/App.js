@@ -6,8 +6,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Signup from './components/Signup';
-import Signin from './components/Signin.jsx';
+import Signup from './components/Auth/Signup';
+import Signin from './components/Auth/Signin.jsx';
 import LandingPage from './components/LandingPage';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import asyncHandler from '../util/asyncHandler';
-import messageHandler from '../util/messageHandler';
+import asyncHandler from '../../util/asyncHandler';
+import messageHandler from '../../util/messageHandler';
 const Signup = () => {
 
-  const [name, setName] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-  const [company_name, setCompanyName] = useState();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [company_name, setCompanyName] = useState('');
   const [agree, setAgree] = useState('false');
   const [errors, setErrors] = useState({});
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -60,6 +60,7 @@ const Signup = () => {
               id="email"
               className={`form-input ${errors.email ? 'is-valid' : ''}`}
               value={email}
+              
               onChange={e => {
                 setEmail(e.target.value);
                 setErrors(prev => ({ ...prev, email: null }));

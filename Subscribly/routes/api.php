@@ -12,4 +12,6 @@ Route::get('/get-appname',function(){
     return response()->json(['name'=>config('app.name','app.env')]);
 });
 
+
 Route::post('/signup',[UserController::class,'signup']);
+Route::post('/signin',[UserController::class,'singin']);

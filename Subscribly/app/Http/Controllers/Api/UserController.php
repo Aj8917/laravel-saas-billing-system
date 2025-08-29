@@ -4,15 +4,44 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Auth;
 use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Email;
 use Validator;
 
 class UserController extends Controller
 {
+    public function singin(Request $request)
+    {
+    //   dd($request->all())  ;
+       $credentials = $request->only('email', 'password');
+     //   return response()->json(['credentials'=>$credentials]);
+
+    
+        if(Auth::attempt($credentials))
+        {
+            $user=Auth::user();
+            $token=$user->createToken('auth_token')->plainTextToken;
+            
+            return response()->json([
+                'access_token'=>$token,
+                'token_type'=>'Bearer',
+                'user'=>$user->name,
+                'company_name'=>$user->company_name
+
+            ]);
+
+        }
+
+        return response()->json(['errors'=>'Invalid Credential please check again!'],401);
+        
+
+    }//singin
     public function signup(Request $request)
     {
-        //dd($request->all());
+        //return response()->json($request->all());
+       // dd($request->all());
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'regex:/^[A-Za-z\s]+$/'],
             'email' => ['required', 'email', 'unique:users,email'],
