@@ -9,6 +9,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import Signup from './components/Auth/Signup';
 import Signin from './components/Auth/Signin.jsx';
 import LandingPage from './components/LandingPage';
+import PlanSelection from './components/CompanyOnboarding/PlanSelection.jsx';
+import CompanyDetails from './components/CompanyOnboarding/CompanyDetails.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -34,6 +36,8 @@ function App() {
           <Route path='/' element={<LandingPage appName={appName} />} />
           <Route path='/singup' element={<Signup />} />
           <Route path='/signin' element={<Signin />} />
+          <Route path='/PlanSelection' element={<PlanSelection />} />
+           <Route path='/companyDetails' element={<CompanyDetails />} />
         </Routes>
       </Router>
 

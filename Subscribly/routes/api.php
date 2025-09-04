@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,3 +16,7 @@ Route::get('/get-appname',function(){
 
 Route::post('/signup',[UserController::class,'signup']);
 Route::post('/signin',[UserController::class,'singin']);
+
+Route::get('/countries', [LocationController::class, 'getCountries']);
+Route::post('/states', [LocationController::class, 'getStates']);
+Route::post('/cities', [LocationController::class, 'getCities']);

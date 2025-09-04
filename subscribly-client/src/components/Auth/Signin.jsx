@@ -34,7 +34,7 @@ const Signin = () => {
         <div>
             <section className="signup-wrapper">
                 <div className="signup-box">
-                    <h2 className="text-center mb-4">Signin</h2>
+                    <h2 className="text-center mb-4 form-header">Signin</h2>
                     <form onSubmit={login}>
 
                         <div className="form-floating-label mb-4">

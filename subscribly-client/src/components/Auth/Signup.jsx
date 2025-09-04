@@ -39,7 +39,7 @@ const Signup = () => {
   return (
     <section className="signup-wrapper">
       <div className="signup-box">
-        <h2 className="text-center mb-4">Create Your Account</h2>
+        <h2 className="text-center mb-4 form-header">Create Your Account</h2>
         <form onSubmit={register}>
           <div className="form-floating-label mb-4">
             <input type="text"
