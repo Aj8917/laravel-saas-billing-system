@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import {useNavigate} from 'react-router-dom';
 import asyncHandler from '../../util/asyncHandler';
 import messageHandler from '../../util/messageHandler';
 const Signup = () => {
@@ -11,6 +12,8 @@ const Signup = () => {
   const [agree, setAgree] = useState('false');
   const [errors, setErrors] = useState({});
   const [confirmPassword, setConfirmPassword] = useState('');
+   const navigate = useNavigate();
+
 
   const register = asyncHandler(async (e) => {
     e.preventDefault()
@@ -28,6 +31,8 @@ const Signup = () => {
       try {
         const response = await axios.post('signup', { name, email, password, company_name, agree })
         messageHandler(response.data.success, "success");
+        navigate('/PlanSelection');
+
       } catch (error) {
         setErrors(error.response?.data?.errors || {});
         //console.log(error.response?.data?.errors)

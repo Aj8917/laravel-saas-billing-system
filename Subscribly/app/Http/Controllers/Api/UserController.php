@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant;
 use App\Models\User;
 use Auth;
 use Hash;
@@ -64,11 +65,13 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        $tenant =Tenant::create(['business_name'=>$request->company_name]);
+
        // Hash the password before storing
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'company_name'=>$request->company_name,
+            'tenant_id'=>$tenant->id,
             'password' => Hash::make($request->password),
         ]);
 
