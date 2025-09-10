@@ -1,67 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import asyncHandler from '../../util/asyncHandler';
 import messageHandler from '../../util/messageHandler';
+
 const PlanSelection = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
-  const plans = [
-    {
-      id: 'free',
-      name: 'Free',
-      price: {
-        monthly: 0,
-        annually: 0
-      },
-      features: [
-        '7 Days Free trail',
-        'Basic Analytics',
-        'Email Support'
-      ],
-      cta: 'Start Free Trial',
-      variant: 'outline-primary'
-    },
-    {
-      id: 'pro',
-      name: 'Pro',
-      price: {
-        monthly: 29,
-        annually: 24 // discounted price per month
-      },
-      features: [
+  const [plans, setPlans] = useState([]);
 
-        'Advanced Analytics',
-        'Priority Support',
-        'Team Collaboration'
-      ],
-      cta: 'Purcahse Now !',
-      variant: 'primary',
-      popular: true
-    },
-    {
-      id: 'business',
-      name: 'Premimum',
-      price: {
-        monthly: 99,
-        annually: 79
-      },
-      features: [
-        ,
-        'Custom Reports',
-        'Dedicated Support',
-        'Team Management'
-      ],
-      cta: 'Contact Sales',
-      variant: 'outline-primary'
-    }
-  ];
-  const handlePlanSelect = asyncHandler(async (planId) => {
-    // You can replace this with your API logic
-    messageHandler('success', `You selected the ${planId} plan (${billingCycle})`);
+  // Fetch plans from backend
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/api/plans'); // Adjust the URL if needed
+        const data = await res.json();
+
+        // Decode features JSON (if needed)
+        const formattedPlans = data.map(plan => ({
+          id: plan.id,
+          name: plan.name,
+          price: {
+            monthly: plan.price,
+            annually: plan.price * 0.8, // Example: 20% discount for annual
+          },
+          features: typeof plan.features === 'string' ? JSON.parse(plan.features) : plan.features,
+          cta: plan.name === 'Basic' ? 'Start Free Trial' : plan.name === 'Pro' ? 'Purchase Now!' : 'Contact Sales',
+          variant: plan.name === 'Pro' ? 'primary' : 'outline-primary',
+          popular: plan.name === 'Pro',
+        }));
+
+        setPlans(formattedPlans);
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+  const handlePlanSelect = asyncHandler(async (planName) => {
+    messageHandler('success', `You selected the ${planName} plan (${billingCycle})`);
   });
 
   return (
     <section className="form-wrapper">
       <div className="form-box">
-
         <h2 className="text-center mb-4 form-header">Choose Your Plan</h2>
 
         {/* Billing Toggle */}
@@ -73,7 +54,9 @@ const PlanSelection = () => {
               type="checkbox"
               id="billingToggle"
               checked={billingCycle === 'annually'}
-              onChange={() => setBillingCycle(prev => prev === 'monthly' ? 'annually' : 'monthly')}
+              onChange={() =>
+                setBillingCycle(prev => (prev === 'monthly' ? 'annually' : 'monthly'))
+              }
             />
           </div>
           <span className="ms-2">Annually <small className="text-success">(Save 20%)</small></span>
@@ -110,9 +93,8 @@ const PlanSelection = () => {
           ))}
         </div>
       </div>
-
     </section>
-  )
-}
+  );
+};
 
-export default PlanSelection
+export default PlanSelection;
