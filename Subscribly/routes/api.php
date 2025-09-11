@@ -23,3 +23,4 @@ Route::post('/states', [LocationController::class, 'getStates']);
 Route::post('/cities', [LocationController::class, 'getCities']);
 
 Route::get('/plans',PlanController::class);
+Route::post('/subscriptions',[UserController::class,'planSelection']);

@@ -6,56 +6,56 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
 use Auth;
+use DB;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Email;
 use Validator;
-
+use Carbon\Carbon;
 class UserController extends Controller
 {
     public function singin(Request $request)
     {
-    //   dd($request->all())  ;
-       $credentials = $request->only('email', 'password');
-     //   return response()->json(['credentials'=>$credentials]);
+        //   dd($request->all())  ;
+        $credentials = $request->only('email', 'password');
+        //   return response()->json(['credentials'=>$credentials]);
 
-    
-        if(Auth::attempt($credentials))
-        {
-            $user=Auth::user();
-            $token=$user->createToken('auth_token')->plainTextToken;
-            
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $token = $user->createToken('auth_token')->plainTextToken;
+
             return response()->json([
-                'access_token'=>$token,
-                'token_type'=>'Bearer',
-                'user'=>$user->name,
-                'company_name'=>$user->company_name
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user->name,
+                'company_name' => $user->company_name
 
             ]);
 
         }
 
-        return response()->json(['errors'=>'Invalid Credential please check again!'],401);
-        
+        return response()->json(['errors' => 'Invalid Credential please check again!'], 401);
+
 
     }//singin
     public function signup(Request $request)
     {
         //return response()->json($request->all());
-       // dd($request->all());
+        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'regex:/^[A-Za-z\s]+$/'],
             'email' => ['required', 'email', 'unique:users,email'],
             'company_name' => ['required', 'string'],
             'password' => [
-                'required',
-                'string',
-                'min:8',
-                'regex:/[A-Z]/',         // at least one uppercase
-                'regex:/[a-z]/',         // at least one lowercase
-                'regex:/[0-9]/',         // at least one digit
-                'regex:/[@$!%*?&\-]/'    // at least one special char (hyphen included safely)
-            ],
+                    'required',
+                    'string',
+                    'min:8',
+                    'regex:/[A-Z]/',         // at least one uppercase
+                    'regex:/[a-z]/',         // at least one lowercase
+                    'regex:/[0-9]/',         // at least one digit
+                    'regex:/[@$!%*?&\-]/'    // at least one special char (hyphen included safely)
+                ],
         ], [
             'name.regex' => 'Name must only contain letters and spaces.',
             'password.regex' => 'Password must have at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.',
@@ -65,16 +65,62 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $tenant =Tenant::create(['business_name'=>$request->company_name]);
+        $tenant = Tenant::create(['business_name' => $request->company_name]);
 
-       // Hash the password before storing
+        // Hash the password before storing
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'tenant_id'=>$tenant->id,
+            'tenant_id' => $tenant->id,
             'password' => Hash::make($request->password),
         ]);
 
         return response()->json(['success' => 'User Created!'], 201);
     }//signup
+
+    public function planSelection(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'tenant_id' => ['required', 'integer'],
+            'plan_id' => ['required', 'integer'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Fetch the plan from the database
+        $plan = DB::table('plans')->where('id', $request->plan_id)->first();
+
+        if (!$plan) {
+            return response()->json(['error' => 'Plan not found'], 404);
+        }
+
+        $now = Carbon::now(); // Server time
+        $startDate = $now;
+
+        // Set end date based on plan name
+        if(strtolower($plan->name) === 'basic') {
+            $endDate = $now->copy()->addDays(7);
+        } else {
+            $endDate = $now->copy()->addMonth();
+        }
+
+        $nextBillingDate = $endDate->copy();
+
+        // Insert subscription into the database
+        DB::table('subscriptions')->insert([
+            'tenant_id' => $request->tenant_id,
+            'plan_id' => $request->plan_id,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'next_billing_date' => $nextBillingDate,
+            'is_active' => true,
+            'status' => $request->status,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['success' => 'Plan selected successfully'], 200);
+    }//planselection
 }//UserController

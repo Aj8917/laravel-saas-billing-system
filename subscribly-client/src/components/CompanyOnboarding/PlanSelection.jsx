@@ -5,7 +5,7 @@ import messageHandler from '../../util/messageHandler';
 const PlanSelection = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [plans, setPlans] = useState([]);
-
+const [selectedPlan, setSelectedPlan] = useState(null);
   // Fetch plans from backend
   useEffect(() => {
     const fetchPlans = async () => {
@@ -37,7 +37,8 @@ const PlanSelection = () => {
   }, []);
 
   const handlePlanSelect = asyncHandler(async (planName) => {
-    messageHandler('success', `You selected the ${planName} plan (${billingCycle})`);
+    //alert(planName)
+     messageHandler('success',"You selected the ${planName} plan (${billingCycle})");
   });
 
   return (
@@ -65,8 +66,10 @@ const PlanSelection = () => {
         {/* Plans */}
         <div className="row g-4 justify-content-center">
           {plans.map(plan => (
-            <div key={plan.id} className="col-md-4">
-              <div className={`pricing-card p-4 text-center h-100 ${plan.popular ? 'border border-primary' : 'border'}`}>
+            <div key={plan.id} className="col-md-4"  onClick={() => setSelectedPlan(plan.id)}>
+              <div className={`pricing-card p-4 text-center h-100 ${
+              selectedPlan === plan.id ? 'border border-primary' : 'border'
+            }`}>
                 <div className="bg-light py-3 mb-3 rounded">
                   <h5>{plan.name} {plan.popular && <span className="badge bg-primary ms-2">Popular</span>}</h5>
                   <div className="fs-3 text-primary">
