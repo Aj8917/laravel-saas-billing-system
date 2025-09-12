@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import asyncHandler from '../../util/asyncHandler';
 import messageHandler from '../../util/messageHandler';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const PlanSelection = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [plans, setPlans] = useState([]);
-const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const navigate = useNavigate();
+
   // Fetch plans from backend
   useEffect(() => {
     const fetchPlans = async () => {
@@ -37,8 +41,29 @@ const [selectedPlan, setSelectedPlan] = useState(null);
   }, []);
 
   const handlePlanSelect = asyncHandler(async (planName) => {
-    //alert(planName)
-     messageHandler('success',"You selected the ${planName} plan (${billingCycle})");
+    try {
+      const tenant_id = localStorage.getItem('tenantId');
+      const status = "pending";
+      
+      if (!selectedPlan) {
+        messageHandler('error', 'Please select a plan first.');
+        return;
+      }
+      const response = await axios.post('/subscriptions', {
+        tenant_id,
+        plan_id: selectedPlan,
+        planName,
+        status
+      });
+
+      messageHandler(response.data.success, planName ,"successfuly activated! ");
+      navigate('/companyDetails');
+
+    } catch (error) {
+      const errors = error.response?.data?.errors;
+      const firstError = errors && Object.values(errors)[0]?.[0];
+      messageHandler('error', firstError || 'Something went wrong.');
+    }
   });
 
   return (
@@ -66,10 +91,9 @@ const [selectedPlan, setSelectedPlan] = useState(null);
         {/* Plans */}
         <div className="row g-4 justify-content-center">
           {plans.map(plan => (
-            <div key={plan.id} className="col-md-4"  onClick={() => setSelectedPlan(plan.id)}>
-              <div className={`pricing-card p-4 text-center h-100 ${
-              selectedPlan === plan.id ? 'border border-primary' : 'border'
-            }`}>
+            <div key={plan.id} className="col-md-4" onClick={() => setSelectedPlan(plan.id)}>
+              <div className={`pricing-card p-4 text-center h-100 ${selectedPlan === plan.id ? 'border border-primary' : 'border'
+                }`}>
                 <div className="bg-light py-3 mb-3 rounded">
                   <h5>{plan.name} {plan.popular && <span className="badge bg-primary ms-2">Popular</span>}</h5>
                   <div className="fs-3 text-primary">
