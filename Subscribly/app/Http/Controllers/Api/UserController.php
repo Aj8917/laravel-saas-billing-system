@@ -75,14 +75,17 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json(['success' => 'User Created!'], 201);
+        return response()->json(['success' => 'User Created!',
+                                        'tenant_id'=>encrypt($tenant->id)
+                                      ], 201);
     }//signup
 
     public function planSelection(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tenant_id' => ['required', 'integer'],
-            'plan_id' => ['required', 'integer'],
+            'tenant_id' => ['required'],
+            'plan_id' => ['required','exists:plans,id'],
+            'status' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -90,7 +93,10 @@ class UserController extends Controller
         }
 
         // Fetch the plan from the database
-        $plan = DB::table('plans')->where('id', $request->plan_id)->first();
+        $plan = DB::table('plans')
+                ->where('id', $request->plan_id)
+                ->where('name',$request->planName)
+                ->first();
 
         if (!$plan) {
             return response()->json(['error' => 'Plan not found'], 404);
@@ -110,7 +116,7 @@ class UserController extends Controller
 
         // Insert subscription into the database
         DB::table('subscriptions')->insert([
-            'tenant_id' => $request->tenant_id,
+            'tenant_id' => decrypt($request->tenant_id),
             'plan_id' => $request->plan_id,
             'start_date' => $startDate,
             'end_date' => $endDate,
