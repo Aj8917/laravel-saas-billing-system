@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import asyncHandler from '../../util/asyncHandler';
 import messageHandler from '../../util/messageHandler';
 const Signup = () => {
@@ -12,7 +12,7 @@ const Signup = () => {
   const [agree, setAgree] = useState('false');
   const [errors, setErrors] = useState({});
   const [confirmPassword, setConfirmPassword] = useState('');
-   const navigate = useNavigate();
+  const navigate = useNavigate();
 
 
   const register = asyncHandler(async (e) => {
@@ -29,7 +29,9 @@ const Signup = () => {
     } else {
       //console.log('inside'+name,email,password,agree)
       try {
-        const response = await axios.post('signup', { name, email, password, company_name, agree })
+        const response = await axios.post('/signup', { name, email, password, company_name, agree })
+        const tenantId = response.data.tenant_id;
+        localStorage.setItem('tenantId', tenantId);
         messageHandler(response.data.success, "success");
         navigate('/PlanSelection');
 
@@ -65,7 +67,7 @@ const Signup = () => {
               id="email"
               className={`form-input ${errors.email ? 'is-valid' : ''}`}
               value={email}
-              
+
               onChange={e => {
                 setEmail(e.target.value);
                 setErrors(prev => ({ ...prev, email: null }));
