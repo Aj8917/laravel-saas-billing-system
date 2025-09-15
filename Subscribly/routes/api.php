@@ -10,17 +10,22 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/get-appname',function(){
-    return response()->json(['name'=>config('app.name','app.env')]);
+Route::get('/get-appname', function () {
+    return response()->json(['name' => config('app.name', 'app.env')]);
+});
+
+Route::controller(UserController::class)->group(function () {
+    Route::post('/signup', 'signup');
+    Route::post('/signin', 'singin');
+    Route::post('/subscriptions', 'planSelection');
+});
+
+Route::controller(LocationController::class)->group(function(){
+    Route::get('/countries','getCountries');
+    Route::post('/states',  'getStates');
+    Route::post('/cities', 'getCities');
 });
 
 
-Route::post('/signup',[UserController::class,'signup']);
-Route::post('/signin',[UserController::class,'singin']);
 
-Route::get('/countries', [LocationController::class, 'getCountries']);
-Route::post('/states', [LocationController::class, 'getStates']);
-Route::post('/cities', [LocationController::class, 'getCities']);
-
-Route::get('/plans',PlanController::class);
-Route::post('/subscriptions',[UserController::class,'planSelection']);
+Route::get('/plans', PlanController::class);

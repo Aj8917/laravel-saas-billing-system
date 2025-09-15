@@ -19,13 +19,13 @@ const Signin = () => {
         try {
             const response = await axios.post('/signin', { email, password });
            // console.log("response", response.data);
-            messageHandler("success","Login Successfully!"+response.user);
+            messageHandler("Login Successfully! " + response.user, "success");
         } catch (error) {
             console.log("error response", error.response);
             if (error.response && error.response.status === 401) {
-                messageHandler("error", error.response.data.errors);
+                messageHandler( error.response.data.errors,"error");
             } else {
-                messageHandler("error", error.message || "Something went wrong");
+                messageHandler( error.message || "Something went wrong","error");
             }
         }
 

@@ -1,17 +1,16 @@
 import { toast } from 'react-toastify';
 
-const messageHandler=(response,message)=>{
+const messageHandler=(response,messageType)=>{
    
-    if(message==="success")
-    {
-
-        toast.success(response);
+    switch (messageType) {
+        case "success":
+            toast.success(response);
+            break;
+        case "error":
+            toast.error(response);
+            break;
+        default:
+            toast.info(response); // fallback
     }
-    if(message==="error")
-    {
-
-        toast.error(response);
-    }
-
 }
 export default messageHandler;
