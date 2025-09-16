@@ -70,9 +70,7 @@ class LocationController extends Controller
 
             // Check for success
             if ($response->successful()) {
-                return response()->json([
-                    'data' => $response->json()['data']
-                ]);
+               return response()->json($response->json()['data']);
             } else {
                 return response()->json([
                     'error' => 'Failed to fetch cities.',

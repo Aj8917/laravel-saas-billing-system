@@ -18,6 +18,7 @@ Route::controller(UserController::class)->group(function () {
     Route::post('/signup', 'signup');
     Route::post('/signin', 'singin');
     Route::post('/subscriptions', 'planSelection');
+    Route::post('/company-details', 'companyDetails');
 });
 
 Route::controller(LocationController::class)->group(function(){
