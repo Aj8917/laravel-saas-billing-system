@@ -11,6 +11,8 @@ import Signin from './components/Auth/Signin.jsx';
 import LandingPage from './components/LandingPage';
 import PlanSelection from './components/CompanyOnboarding/PlanSelection.jsx';
 import CompanyDetails from './components/CompanyOnboarding/CompanyDetails.jsx';
+import VendorDashboard from './components/Vendor/VendorDashboard.jsx';
+import DashboardLayout from './components/DashboardLayout.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -33,11 +35,19 @@ function App() {
       <ToastContainer />
       <Router>
         <Routes>
+          {/* Public,  Routes */}
           <Route path='/' element={<LandingPage appName={appName} />} />
           <Route path='/singup' element={<Signup />} />
           <Route path='/signin' element={<Signin />} />
           <Route path='/PlanSelection' element={<PlanSelection />} />
-           <Route path='/companyDetails' element={<CompanyDetails />} />
+          <Route path='/companyDetails' element={<CompanyDetails />} />
+
+
+          {/* vendor */}
+          <Route element={<DashboardLayout appName={appName} />}>
+            <Route path="/VendorDashboard" element={<VendorDashboard />} />
+          </Route>
+
         </Routes>
       </Router>
 

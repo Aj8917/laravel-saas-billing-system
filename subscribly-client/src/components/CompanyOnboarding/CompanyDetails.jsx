@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import asyncHandler from '../../util/asyncHandler';
 import messageHandler from '../../util/messageHandler';
 import axios from 'axios';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const CompanyDetails = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +20,7 @@ const CompanyDetails = () => {
   const [errors, setErrors] = useState({});
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
-
+  const naviagte=useNavigate();
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,8 +92,9 @@ const CompanyDetails = () => {
       await axios.post('/company-details', payload);
 
       messageHandler('Company details submitted successfully!', 'success');
+      naviagte('/VendorDashboard');
       setErrors({}); // clear previous errors
-
+      
       // Optionally reset form
       // setFormData(initialState);
 

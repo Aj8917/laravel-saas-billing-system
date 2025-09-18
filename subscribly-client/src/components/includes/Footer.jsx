@@ -7,7 +7,7 @@ const Footer = ({ appName }) => {
                 <div className="container">
                     <div className="row">
                         <div className="col-md-3 mb-4">
-                            <h5 className="text-white mb-4">{appName} Pro</h5>
+                            <h5 className="text-white mb-4">{appName}</h5>
                             <p>The complete CRM solution for growing businesses. Manage relationships, automate sales, and boost revenue.</p>
                             <div className="mt-4">
                                 <a href="#" className="social-icon"><i className="fab fa-facebook-f"></i></a>
@@ -50,7 +50,7 @@ const Footer = ({ appName }) => {
                     <hr className="my-4 bg-secondary" />
                     <div className="row">
                         <div className="col-md-6 text-center text-md-start">
-                            <p className="mb-0">© 2025 {appName}Pro. All rights reserved.</p>
+                            <p className="mb-0">© 2025 {appName}. All rights reserved.</p>
                         </div>
                         <div className="col-md-6 text-center text-md-end">
                             <p className="mb-0">Made with <i className="fas fa-heart text-danger"></i> for businesses</p>
