@@ -22,7 +22,8 @@ const Signin = () => {
             const serverErrors = result.payload?.errors;
             if (serverErrors) {
                 setErrors(serverErrors); // Backend errors like: { email: ['Required'], password: ['Invalid'] }
-                messageHandler('Login failed: ' + Object.values(serverErrors).flat().join(', '), 'error');
+               //messageHandler('Login failed: ' + Object.values(serverErrors).flat().join(', '), 'error');
+               messageHandler('Login failed: '+serverErrors, 'error');
             } else {
                 messageHandler(result.payload || 'Login failed', 'error');
             }

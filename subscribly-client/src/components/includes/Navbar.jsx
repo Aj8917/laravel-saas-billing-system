@@ -1,6 +1,15 @@
 import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { signout } from '../Auth/authSlice';
 
 const Navbar = ({appName}) => {
+   
+   const dispatch=useDispatch();
+   const isSingnined = useSelector((state) => state.auth?.isAuthenticated || localStorage.getItem('isAuthenticated'));
+   const handleSignOut=()=>{
+        dispatch(signout());
+   }
+
   return (
     <div>
          <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top">
@@ -31,7 +40,17 @@ const Navbar = ({appName}) => {
                     </li>
                 </ul>
                 <div className="ms-3 d-flex">
-                    <a href="/signin" className="btn btn-sm btn-outline-primary me-2">Login</a>
+                    {isSingnined ? (
+                          <button onClick={handleSignOut} 
+                            className="btn btn-sm btn-outline-primary me-2">
+                            Logout
+                           </button>
+                    )
+                    
+                    :(
+                          <a href="/signin" className="btn btn-sm btn-outline-primary me-2">Login</a>
+                    )}
+                    
                     <a href="/singup" className="btn btn-sm btn-primary">Sign Up</a>
                 </div>
             </div>
