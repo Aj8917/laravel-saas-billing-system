@@ -1,4 +1,5 @@
 @import '~bootstrap/scss/bootstrap';
+
 .App {
   text-align: center;
 }
@@ -279,8 +280,8 @@ footer {
   padding: 0 4px;
 }
 
-.form-input:focus + label,
-.form-input:not(:placeholder-shown) + label {
+.form-input:focus+label,
+.form-input:not(:placeholder-shown)+label {
   top: -0.6rem;
   left: 0.5rem;
   font-size: 0.75rem;
@@ -291,21 +292,23 @@ footer {
   border: 1px solid red;
   background-color: #ffe5e5;
 }
-.error-text{
+
+.error-text {
   color: red;
-   font-size: 0.875rem;
+  font-size: 0.875rem;
   margin-top: 0.25rem;
 }
+
 /* Optional enhancements */
 .pricing-card {
-    border-radius: 8px;
-    background-color: #fff;
-    transition: transform 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  background-color: #fff;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .pricing-card:hover {
-    transform: scale(1.02);
+  transform: scale(1.02);
 }
 
 .form-wrapper {
@@ -325,12 +328,56 @@ footer {
   max-width: 95%;
   width: 100%;
 }
+
 .form-header {
   background-color: #2c6bbe;
   padding: 2.5rem;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   text-align: center;
-  color: var(--light-color); /* corrected from text-style */
+  color: var(--light-color);
+  /* corrected from text-style */
 }
 
+//------------------------------------------------SIDE BAR--------------------------------------------------------------------
+/* Sidebar layout for desktop */
+.dashboard-wrapper {
+  min-height: 100vh;
+  margin-top: 70px;
+  /* Adjust to match your Navbar height */
+}
+
+.sidebar {
+  width: 250px;
+  min-height: calc(100vh - 70px);
+  /* Fill screen under navbar */
+  border-right: 1px solid #ddd;
+  position: fixed;
+  top: 70px;
+  /* Height of navbar */
+  left: 0;
+  z-index: 100;
+  background-color: #f8f9fa;
+}
+
+/* Push content right to make space for sidebar */
+.content-area {
+  margin-left: 0;
+  margin-top: 70px;
+  /* Match navbar height */
+}
+
+@media (min-width: 992px) {
+  .content-area {
+    margin-left: 250px;
+    /* Width of sidebar */
+  }
+}
+
+/* to show on mobile  */
+@media (max-width: 991.98px) {
+  .mobile-menu-button {
+    margin-top: 70px;
+    /* Adjust if navbar height is different */
+  }
+}

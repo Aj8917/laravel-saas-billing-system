@@ -1,13 +1,65 @@
-import Navbar from './includes/Navbar';
-import Footer from './includes/Footer';
+import React, { useState, useEffect } from 'react';
+import { Button, Offcanvas, Nav } from 'react-bootstrap';
 import { Outlet } from 'react-router-dom';
+import Footer from './includes/Footer';
+import Navbar from './includes/Navbar';
 
-const DashboardLayout = ({appName}) => {
+
+const DashboardLayout = ({ appName }) => {
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
+  const handleShowSidebar = () => setShowMobileSidebar(true);
+  const handleCloseSidebar = () => setShowMobileSidebar(false);
+
   return (
     <>
-       <Navbar appName={appName} />
-            <Outlet />
-       <Footer appName={appName} />
+      <Navbar appName={appName} />
+
+      {/* Mobile Sidebar Toggle Button */}
+      <div className="d-lg-none mobile-menu-button text-center">
+        <Button variant="primary" onClick={handleShowSidebar}>
+          Open Sidebar
+        </Button>
+      </div>
+
+
+
+      {/* Main layout wrapper */}
+      <div className="dashboard-wrapper d-flex">
+        {/* Sidebar for large screens */}
+        <div className="sidebar d-none d-lg-block bg-light">
+          <Nav className="flex-column p-3">
+            <Nav.Link href="#dashboard">Dashboard</Nav.Link>
+            <Nav.Link href="#orders">Orders</Nav.Link>
+            <Nav.Link href="#products">Products</Nav.Link>
+            <Nav.Link href="#account">Account</Nav.Link>
+            <Nav.Link href="#logout">Logout</Nav.Link>
+          </Nav>
+        </div>
+
+        {/* Mobile Offcanvas Sidebar */}
+        <Offcanvas show={showMobileSidebar} onHide={handleCloseSidebar} placement="start" className="d-lg-none">
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Menu</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <Nav className="flex-column">
+              <Nav.Link href="#dashboard">Dashboard</Nav.Link>
+              <Nav.Link href="#orders">Orders</Nav.Link>
+              <Nav.Link href="#products">Products</Nav.Link>
+              <Nav.Link href="#account">Account</Nav.Link>
+              <Nav.Link href="#logout">Logout</Nav.Link>
+            </Nav>
+          </Offcanvas.Body>
+        </Offcanvas>
+
+        {/* Main Content */}
+        <div className="content-area flex-grow-1 p-3">
+          <Outlet />
+        </div>
+      </div>
+
+      <Footer appName={appName} />
     </>
   );
 };
