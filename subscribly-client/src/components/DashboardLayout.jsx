@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Offcanvas, Nav } from 'react-bootstrap';
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import Footer from './includes/Footer';
 import Navbar from './includes/Navbar';
 
@@ -29,7 +29,9 @@ const DashboardLayout = ({ appName }) => {
         {/* Sidebar for large screens */}
         <div className="sidebar d-none d-lg-block bg-light">
           <Nav className="flex-column p-3">
-            <Nav.Link href="#dashboard">Dashboard</Nav.Link>
+            <Nav.Link as={Link} to="/VendorDashboard">Dashboard</Nav.Link>
+            <Nav.Link href="#products"></Nav.Link>
+            <Nav.Link as={Link} to="/invoice">Invoice</Nav.Link>
             <Nav.Link href="#orders">Orders</Nav.Link>
             <Nav.Link href="#products">Products</Nav.Link>
             <Nav.Link href="#account">Account</Nav.Link>
@@ -45,6 +47,7 @@ const DashboardLayout = ({ appName }) => {
           <Offcanvas.Body>
             <Nav className="flex-column">
               <Nav.Link href="#dashboard">Dashboard</Nav.Link>
+              <Nav.Link href="#invoices">Invoice</Nav.Link>
               <Nav.Link href="#orders">Orders</Nav.Link>
               <Nav.Link href="#products">Products</Nav.Link>
               <Nav.Link href="#account">Account</Nav.Link>

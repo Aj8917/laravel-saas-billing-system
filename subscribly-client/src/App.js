@@ -13,6 +13,8 @@ import PlanSelection from './components/CompanyOnboarding/PlanSelection.jsx';
 import CompanyDetails from './components/CompanyOnboarding/CompanyDetails.jsx';
 import VendorDashboard from './components/Vendor/VendorDashboard.jsx';
 import DashboardLayout from './components/DashboardLayout.jsx';
+import Invoice from './components/Vendor/Invoice.jsx';
+import PrivateRoute from './components/PrivateRoute.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -27,7 +29,7 @@ function App() {
       })
       .catch(error => console.error('Error loading project name', error));
   }, []);
-
+  const isAuthenticated = !!localStorage.getItem('token');
 
 
   return (
@@ -44,8 +46,12 @@ function App() {
 
 
           {/* vendor */}
-          <Route element={<DashboardLayout appName={appName} />}>
-            <Route path="/VendorDashboard" element={<VendorDashboard />} />
+          {/* Protected Routes */}
+          <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
+            <Route element={<DashboardLayout appName={appName} isAuthenticated={isAuthenticated} />}>
+              <Route path="/VendorDashboard" element={<VendorDashboard />} />
+              <Route path="/invoice" element={<Invoice />} />
+            </Route>
           </Route>
 
         </Routes>
