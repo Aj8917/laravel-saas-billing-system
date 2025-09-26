@@ -6,7 +6,7 @@ const initialState = {
         user: JSON.parse(localStorage.getItem('user')) || null,
     },
     token: localStorage.getItem('token') || null,
-    isAuthenticated:localStorage.getItem('isAuthenticated') || false,
+    isAuthenticated: localStorage.getItem('isAuthenticated') || false,
     loading: false,
     error: null
 };
@@ -21,12 +21,14 @@ export const signin = createAsyncThunk(
                 name: response.data.user,
                 role: response.data.role,
             };
-
+            const token = response.data.access_token;
             // Store token and user in localStorage
-            localStorage.setItem('token', response.data.access_token);
+            localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(userData));
-            localStorage.setItem('isAuthenticated','true');
-            return userData;
+            localStorage.setItem('isAuthenticated', 'true');
+
+            // Return to reducer
+            return { userData, token };
         } catch (error) {
 
             return thunkAPI.rejectWithValue(error.response?.data || 'Login failed');
@@ -40,8 +42,11 @@ const authSlice = createSlice({
         signout: (state) => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            state.userData.user = null;
+            localStorage.removeItem('tenantId');
             localStorage.removeItem('isAuthenticated');
+
+            state.userData.user = null;
+            state.token = null;
             state.isAuthenticated = false;
             state.error = null;
         }

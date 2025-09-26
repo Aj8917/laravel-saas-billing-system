@@ -1,71 +1,78 @@
-import React from 'react'
+
 import { useDispatch, useSelector } from 'react-redux'
 import { signout } from '../Auth/authSlice';
 
-const Navbar = ({appName}) => {
-   
-   const dispatch=useDispatch();
-   const isSingnined = useSelector((state) => state.auth?.isAuthenticated || localStorage.getItem('isAuthenticated'));
-   const handleSignOut=()=>{
-        dispatch(signout());
-   }
+const Navbar = ({ appName }) => {
 
-  return (
-    <div>
-         <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top">
-        <div className="container">
-            <a className="navbar-brand" href="#">{appName}
-                <span className="text-dark">
-                    {/* Pro */}
-                </span></a>
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbarNav">
-                <ul className="navbar-nav ms-auto">
-                    <li className="nav-item">
-                          {
-                            isSingnined ? (
-                                <a className="nav-link active" href="/VendorDashboard">Dashboard</a>
+    const dispatch = useDispatch();
+    const isSingnined = useSelector((state) => state.auth?.isAuthenticated || localStorage.getItem('isAuthenticated'));
+    const handleSignOut = () => {
+        dispatch(signout());
+    }
+
+    return (
+        <div>
+            <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+                <div className="container">
+                    <a className="navbar-brand" href="#">{appName}
+                        <span className="text-dark">
+                            {/* Pro */}
+                        </span></a>
+                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span className="navbar-toggler-icon"></span>
+                    </button>
+                    <div className="collapse navbar-collapse" id="navbarNav">
+                        <ul className="navbar-nav ms-auto">
+
+                            {
+                                isSingnined ? (
+                                    <li className="nav-item">
+                                        <a className="nav-link active" href="/VendorDashboard">Dashboard</a>
+                                    </li>
+                                )
+                                    :
+                                    (
+                                        <>
+                                            <li className="nav-item">
+                                                <a className="nav-link active" href="/">Home</a>
+                                            </li>
+
+                                            <li className="nav-item">
+                                                <a className="nav-link" href="#features">Features</a>
+                                            </li>
+                                            <li className="nav-item">
+                                                <a className="nav-link" href="#priceing">Pricing</a>
+                                            </li>
+                                            <li className="nav-item">
+                                                <a className="nav-link" href="#">About</a>
+                                            </li>
+                                            <li className="nav-item">
+                                                <a className="nav-link" href="#footer">Contact</a>
+                                            </li>
+                                        </>
+                                    )
+                            }
+
+                        </ul>
+                        <div className="ms-3 d-flex">
+                            {isSingnined ? (
+                                <button onClick={handleSignOut}
+                                    className="btn btn-sm btn-outline-primary me-2">
+                                    Logout
+                                </button>
                             )
-                          :
-                          (
-                             <a className="nav-link active" href="/">Home</a>
-                          )}
-                      
-                    </li>
-                    <li className="nav-item">
-                        <a className="nav-link" href="#features">Features</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className="nav-link" href="#priceing">Pricing</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className="nav-link" href="#">About</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className="nav-link" href="#footer">Contact</a>
-                    </li>
-                </ul>
-                <div className="ms-3 d-flex">
-                    {isSingnined ? (
-                          <button onClick={handleSignOut} 
-                            className="btn btn-sm btn-outline-primary me-2">
-                            Logout
-                           </button>
-                    )
-                    
-                    :(
-                          <a href="/signin" className="btn btn-sm btn-outline-primary me-2">Login</a>
-                    )}
-                    
-                    <a href="/singup" className="btn btn-sm btn-primary">Sign Up</a>
+
+                                : (
+                                    <a href="/signin" className="btn btn-sm btn-outline-primary me-2">Login</a>
+                                )}
+
+                            <a href="/singup" className="btn btn-sm btn-primary">Sign Up</a>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </nav>
         </div>
-    </nav>
-    </div>
-  )
+    )
 }
 
 export default Navbar
