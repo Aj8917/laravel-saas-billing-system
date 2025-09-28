@@ -22,7 +22,7 @@ class PlanSeeder extends Seeder
             [
                 'name' => 'Pro',
                 'price' => 8000.00,
-                'features' => '["Billing cycle: 1 month", "Up to 2 users", "Monthly billing reports"]',
+                'features' => '["Billing cycle: 1 month", "Up to 2 users", "Stock Maintaince","Monthly billing reports"]',
                 'is_active' => true,
             ],
             [

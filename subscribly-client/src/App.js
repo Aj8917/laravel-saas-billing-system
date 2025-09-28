@@ -11,9 +11,9 @@ import Signin from './components/Auth/Signin.jsx';
 import LandingPage from './components/LandingPage';
 import PlanSelection from './components/CompanyOnboarding/PlanSelection.jsx';
 import CompanyDetails from './components/CompanyOnboarding/CompanyDetails.jsx';
-import VendorDashboard from './components/Vendor/VendorDashboard.jsx';
+import VendorDashboard from './components/Features/VendorDashboard.jsx';
 import DashboardLayout from './components/DashboardLayout.jsx';
-import Invoice from './components/Vendor/Invoice.jsx';
+import Invoice from './components/Features/Basic/Invoice.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';

@@ -381,3 +381,26 @@ footer {
     /* Adjust if navbar height is different */
   }
 }
+
+//----------------------------------------invoices ---------------------------------------------------------------
+
+.dash-form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 10vh;
+  background: #f4f6f8;
+  padding: 2rem;
+}
+
+.btn-green {
+  background-color: #15df51 !important;
+  text-decoration: underline;
+  text-decoration-thickness: 0.3em;
+  font-weight: bold;
+  color: #fff;
+}
+.btn-green:hover {
+  background-color: #13c74a;
+  text-decoration-color: #fff;
+}
