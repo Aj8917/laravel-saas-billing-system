@@ -2,40 +2,75 @@ import React, { useState } from 'react';
 import asyncHandler from '../../../util/asyncHandler';
 
 const Invoice = () => {
-    const [productName, setProductName] = useState('');
-    const [price, setPrice] = useState('');
-    const [quantity, setQuantity] = useState('');
+    const [customerName, setCustomerName] = useState('');
+    const [customerMobile, setCustomerMobile] = useState('');
+    const [products, setProducts] = useState([
+        { productName: '', quantity: 1, price: '' }
+    ]);
     const [errors, setErrors] = useState({});
+
+    const handleProductChange = (index, field, value) => {
+        const updatedProducts = [...products];
+        updatedProducts[index][field] = value;
+        setProducts(updatedProducts);
+
+        setErrors(prev => ({
+            ...prev,
+            [`${field}-${index}`]: null
+        }));
+    };
+
+    const handleAddProduct = () => {
+        setProducts([...products, { productName: '', quantity: 1, price: '' }]);
+    };
+
+    const handleRemoveProduct = (index) => {
+        const updatedProducts = [...products];
+        updatedProducts.splice(index, 1);
+        setProducts(updatedProducts);
+    };
 
     const createInvoice = asyncHandler(async (e) => {
         e.preventDefault();
-        console.log('Invoice submitted');
 
-        // Example validation (you can expand this)
         const newErrors = {};
-        if (!productName.trim()) newErrors.productName = ['Product name is required'];
-        if (!price || price < 1 || price > 5000) {
-            newErrors.price = ['Price must be between 1 and 5000'];
+
+        if (!customerName.trim()) {
+            newErrors.customerName = ['Customer name is required'];
         }
 
-        if (!quantity || quantity < 1 || quantity > 100) {
-            newErrors.quantity = ['Quantity must be between 1 and 100'];
+        if (!/^[6-9]\d{9}$/.test(customerMobile)) {
+            newErrors.customerMobile = ['Enter a valid 10-digit Indian mobile number'];
         }
 
-
+        products.forEach((p, index) => {
+            if (!p.productName.trim()) {
+                newErrors[`productName-${index}`] = ['Product name is required'];
+            }
+            if (!p.quantity || p.quantity < 1 || p.quantity > 100) {
+                newErrors[`quantity-${index}`] = ['Quantity must be between 1 and 100'];
+            }
+            if (!p.price || p.price < 1 || p.price > 5000) {
+                newErrors[`price-${index}`] = ['Price must be between 1 and 5000'];
+            }
+        });
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
 
-        // Submit logic here (e.g., send to backend)
-        console.log({ productName, price, quantity });
+        // Submit logic here
+        console.log({
+            customerName,
+            customerMobile,
+            products
+        });
 
-        // Reset form
-        setProductName('');
-        setPrice('');
-        setQuantity('');
+        // Reset
+        setCustomerName('');
+        setCustomerMobile('');
+        setProducts([{ productName: '', quantity: 1, price: '' }]);
         setErrors({});
     });
 
@@ -47,71 +82,129 @@ const Invoice = () => {
                         <h2 className="text-center mb-4 form-header">Invoice</h2>
 
                         <form onSubmit={createInvoice}>
-                            {/* Product Name */}
+                            {/* Customer Name */}
                             <div className="form-floating-label mb-4">
                                 <input
                                     type="text"
-                                    id="productName"
-                                    className={`form-input ${errors.productName ? 'is-invalid' : ''}`}
-                                    value={productName}
+                                    id="customerName"
+                                    className={`form-input ${errors.customerName ? 'is-invalid' : ''}`}
+                                    value={customerName}
                                     onChange={(e) => {
-                                        setProductName(e.target.value);
-                                        setErrors(prev => ({ ...prev, productName: null }));
+                                        setCustomerName(e.target.value);
+                                        setErrors(prev => ({ ...prev, customerName: null }));
                                     }}
                                     required
                                 />
-                                <label htmlFor="productName">Product Name</label>
-                                {errors.productName && (
-                                    <div className="error-text">{errors.productName[0]}</div>
+                                <label htmlFor="customerName">Customer Name</label>
+                                {errors.customerName && (
+                                    <div className="error-text">{errors.customerName[0]}</div>
                                 )}
                             </div>
 
-                            {/* Quantity */}
+                            {/* Mobile */}
                             <div className="form-floating-label mb-4">
                                 <input
                                     type="number"
-                                    id="quantity"
-                                    className={`form-input ${errors.quantity ? 'is-invalid' : ''}`}
-                                    value={quantity}
+                                    id="customerMobile"
+                                    className={`form-input ${errors.customerMobile ? 'is-invalid' : ''}`}
+                                    value={customerMobile}
                                     onChange={(e) => {
-                                        setQuantity(e.target.value);
-                                        setErrors(prev => ({ ...prev, quantity: null }));
+                                        let value = e.target.value;
+                                        if (!/^\d*$/.test(value)) return;
+                                        if (value.length <= 10) {
+                                            setCustomerMobile(value);
+                                            setErrors(prev => ({ ...prev, customerMobile: null }));
+                                        }
                                     }}
-                                    min={1}
-                                    max={50}
                                     required
                                 />
-                                <label htmlFor="quantity">Quantity</label>
-                                {errors.quantity && (
-                                    <div className="error-text">{errors.quantity[0]}</div>
+                                <label htmlFor="customerMobile">Mobile</label>
+                                {errors.customerMobile && (
+                                    <div className="error-text">{errors.customerMobile[0]}</div>
                                 )}
                             </div>
 
-                            {/* Price */}
-                            <div className="form-floating-label mb-4">
-                                <input
-                                    type="number"
-                                    id="price"
-                                    min={1}
-                                    max={1000}
+                            {/* Dynamic Product Fields */}
+                            <div className="product-section mb-4">
+                                {products.map((product, index) => (
+                                    <div key={index} className="mb-4 p-3 border rounded position-relative">
+                                        <div className="form-floating-label mb-3">
+                                            <input
+                                                type="text"
+                                                id={`productName-${index}`}
+                                                className={`form-input ${errors[`productName-${index}`] ? 'is-invalid' : ''}`}
+                                                value={product.productName}
+                                                onChange={(e) => handleProductChange(index, 'productName', e.target.value)}
+                                                required
+                                            />
+                                            <label htmlFor={`productName-${index}`}>Product Name</label>
+                                            {errors[`productName-${index}`] && (
+                                                <div className="error-text">{errors[`productName-${index}`][0]}</div>
+                                            )}
+                                        </div>
 
-                                    className={`form-input ${errors.price ? 'is-invalid' : ''}`}
-                                    value={price}
-                                    onChange={(e) => {
-                                        setPrice(e.target.value);
-                                        setErrors(prev => ({ ...prev, price: null }));
-                                    }}
+                                        <div className="form-floating-label mb-3">
+                                            <input
+                                                type="number"
+                                                id={`quantity-${index}`}
+                                                className={`form-input ${errors[`quantity-${index}`] ? 'is-invalid' : ''}`}
+                                                value={product.quantity}
+                                                onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
+                                                min={1}
+                                                max={100}
+                                                required
+                                            />
+                                            <label htmlFor={`quantity-${index}`}>Quantity</label>
+                                            {errors[`quantity-${index}`] && (
+                                                <div className="error-text">{errors[`quantity-${index}`][0]}</div>
+                                            )}
+                                        </div>
 
-                                    required
-                                />
-                                <label htmlFor="price">Price</label>
-                                {errors.price && (
-                                    <div className="error-text">{errors.price[0]}</div>
-                                )}
+                                        <div className="form-floating-label mb-3">
+                                            <input
+                                                type="number"
+                                                id={`price-${index}`}
+                                                className={`form-input ${errors[`price-${index}`] ? 'is-invalid' : ''}`}
+                                                value={product.price}
+                                                onChange={(e) => handleProductChange(index, 'price', e.target.value)}
+                                                min={1}
+                                                max={5000}
+                                                required
+                                            />
+                                            <label htmlFor={`price-${index}`}>Price</label>
+                                            {errors[`price-${index}`] && (
+                                                <div className="error-text">{errors[`price-${index}`][0]}</div>
+                                            )}
+                                        </div>
+
+                                        {/* Remove product button */}
+                                        {products.length > 1 && (
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger btn-sm position-absolute"
+                                                style={{ top: '10px', right: '10px' }}
+                                                onClick={() => handleRemoveProduct(index)}
+                                            >
+                                                <i class="bi bi-dash-circle-fill"></i>
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {/* Add new product */}
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary mt-2 d-flex align-items-center gap-2"
+                                    onClick={handleAddProduct}
+                                >
+                                    <i className="bi bi-plus-circle"></i>
+                                    Add Another Product
+                                </button>
+
                             </div>
 
                             <button type="submit" className="btn btn-green w-100">
-                                Submit
+                                Submit Invoice
                             </button>
                         </form>
                     </div>
