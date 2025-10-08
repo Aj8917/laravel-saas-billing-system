@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BasicInvoice extends Model
 {
-    protected $fillable = ['products', 'customer_id'];
+    protected $fillable = ['products', 'cust_id','vendor_id','product_name','sell_quantity','issued_at','price','subtotal','tax_total','total'];
 
     protected $casts = [
         'products' => 'array', // Automatically cast JSON to PHP array

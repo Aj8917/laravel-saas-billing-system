@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import asyncHandler from '../../../util/asyncHandler';
+import axios from 'axios';
 
 const Invoice = () => {
+    const token = localStorage.getItem('token');
     const [customerName, setCustomerName] = useState('');
     const [customerMobile, setCustomerMobile] = useState('');
     const [products, setProducts] = useState([
@@ -61,18 +63,47 @@ const Invoice = () => {
         }
 
         // Submit logic here
-        console.log({
+        // console.log({
+        //     customerName,
+        //     customerMobile,
+        //     products
+        // });
+        const data = {
             customerName,
             customerMobile,
             products
+        };
+        const response = await axios.post('/basic-invoice', data, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         });
 
+        console.log(response);
         // Reset
         setCustomerName('');
         setCustomerMobile('');
         setProducts([{ productName: '', quantity: 1, price: '' }]);
         setErrors({});
     });
+    const calculateTotals = () => {
+        let subTotal = 0;
+
+        products.forEach(p => {
+            const quantity = parseFloat(p.quantity) || 0;
+            const price = parseFloat(p.price) || 0;
+            subTotal += quantity * price;
+        });
+
+        const tax = +(subTotal * 0.18).toFixed(2);  // 18% GST
+        const total = +(subTotal + tax).toFixed(2);
+
+        return {
+            subTotal: subTotal.toFixed(2),
+            tax,
+            total
+        };
+    };
 
     return (
         <section className="py-1">
@@ -201,6 +232,30 @@ const Invoice = () => {
                                     Add Another Product
                                 </button>
 
+                            </div>
+                            {/* Invoice Summary */}
+                            <div className="invoice-summary p-3 mb-4 border rounded bg-light">
+                                <h5 className="mb-3">Invoice Summary</h5>
+                                {(() => {
+                                    const { subTotal, tax, total } = calculateTotals();
+                                    return (
+                                        <>
+                                            <div className="d-flex justify-content-between">
+                                                <span>Subtotal:</span>
+                                                <strong>₹ {subTotal}</strong>
+                                            </div>
+                                            <div className="d-flex justify-content-between">
+                                                <span>Tax (18%):</span>
+                                                <strong>₹ {tax}</strong>
+                                            </div>
+                                            <hr />
+                                            <div className="d-flex justify-content-between fs-5">
+                                                <span>Total:</span>
+                                                <strong>₹ {total}</strong>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
                             </div>
 
                             <button type="submit" className="btn btn-green w-100">

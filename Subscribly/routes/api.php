@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Invoice\InvoiceController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\UserController;
@@ -27,6 +28,6 @@ Route::controller(LocationController::class)->group(function(){
     Route::post('/cities', 'getCities');
 });
 
-
-
 Route::get('/plans', PlanController::class);
+
+Route::post('/basic-invoice', [InvoiceController::class, 'storeBasic'])->middleware('auth:sanctum');

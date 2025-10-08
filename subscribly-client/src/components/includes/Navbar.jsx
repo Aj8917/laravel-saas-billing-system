@@ -6,6 +6,8 @@ const Navbar = ({ appName }) => {
 
     const dispatch = useDispatch();
     const isSingnined = useSelector((state) => state.auth?.isAuthenticated || localStorage.getItem('isAuthenticated'));
+    const user = useSelector((state) => state.auth?.user || JSON.parse(localStorage.getItem('user'))
+);
     const handleSignOut = () => {
         dispatch(signout());
     }
@@ -27,7 +29,7 @@ const Navbar = ({ appName }) => {
                             {
                                 isSingnined ? (
                                     <li className="nav-item">
-                                        <a className="nav-link active" href="/VendorDashboard">Dashboard</a>
+                                        <a className="nav-link active" href="/VendorDashboard">{user ? (user.name).charAt(0).toUpperCase() + (user.name).slice(1) : 'Dashboard'}</a>
                                     </li>
                                 )
                                     :
