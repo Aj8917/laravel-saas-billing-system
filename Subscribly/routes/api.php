@@ -30,4 +30,8 @@ Route::controller(LocationController::class)->group(function(){
 
 Route::get('/plans', PlanController::class);
 
-Route::post('/basic-invoice', [InvoiceController::class, 'storeBasic'])->middleware('auth:sanctum');
+Route::controller(InvoiceController::class)->group(function(){
+    Route::post('/basic-invoice','storeBasic');
+    Route::get('/invoice/{encryptedId}',  'showBasicInvoice');
+})->middleware('auth:sanctum');
+

@@ -9,6 +9,9 @@ class Tenant extends Model
     protected $fillable = [
         'business_name',
     ];
+    protected $casts = [
+    'last_invoice_reset_at' => 'datetime',
+];
 
     public function users()
     {

@@ -411,3 +411,65 @@ footer {
     background: #f8f9fa;
     border-radius: 6px;
 }
+
+/* === Invoice Styles === */
+
+.invoice {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 40px;
+  font-family: Arial, sans-serif;
+  border: 1px solid #ddd;
+  border-radius: 8px;              /* Rounded corners */
+  background-color: #fff;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Card-like shadow */
+  transition: box-shadow 0.3s ease;
+}
+
+.invoice:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Slight shadow on hover */
+}
+
+.invoice__header {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 32px;
+}
+
+.invoice__customer-info {
+  margin-bottom: 30px;
+}
+
+.invoice__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.invoice__table-header {
+  border: 1px solid #ddd;
+  padding: 12px;
+  background-color: #f4f4f4;
+  text-align: left;
+  font-weight: bold;
+}
+
+.invoice__table-cell {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.invoice__totals {
+  text-align: right;
+  font-size: 16px;
+  line-height: 1.8;
+}
+.invoice__print-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Card-like shadow */
+  border-radius: 8px; 
+}

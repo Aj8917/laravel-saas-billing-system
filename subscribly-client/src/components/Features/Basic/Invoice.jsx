@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import asyncHandler from '../../../util/asyncHandler';
-import axios from 'axios';
-
+import messageHandler from '../../../util/messageHandler';
+import { useNavigate } from 'react-router-dom';
+import axiosAuth from '../../../api/axiosAuth';
 const Invoice = () => {
-    const token = localStorage.getItem('token');
+   
+    const navigate=useNavigate();
     const [customerName, setCustomerName] = useState('');
     const [customerMobile, setCustomerMobile] = useState('');
     const [products, setProducts] = useState([
@@ -68,18 +70,24 @@ const Invoice = () => {
         //     customerMobile,
         //     products
         // });
-        const data = {
-            customerName,
-            customerMobile,
-            products
-        };
-        const response = await axios.post('/basic-invoice', data, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        try {
+            const data = {
+                customerName,
+                customerMobile,
+                products
+            }; 
+            const response = await axiosAuth.post('/basic-invoice', data);
+            //console.log(response);
+            messageHandler(response.data.message, 'success');
+            //console.log('Invoice No:', response.data.invoiceNo);
+            navigate(`/PrintInvoice/${response.data.invoiceNo}`);
 
-        console.log(response);
+        } catch (error) {
+          //   console.log('error',error);
+            messageHandler('Something went wrong!' + error, 'error');
+        }
+
+        // console.log(response);
         // Reset
         setCustomerName('');
         setCustomerMobile('');

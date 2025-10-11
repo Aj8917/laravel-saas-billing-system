@@ -1,20 +1,19 @@
 <?php
 
 namespace App\Http\Controllers\Api\Invoice;
-
 use App\Http\Controllers\Controller;
 use App\Models\BasicInvoice;
 use App\Models\Customer;
-use App\Models\products;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\DB;
+use App\Services\InvoiceNumberGenerator;
 
 class InvoiceController extends Controller
 {
-    
-    public function storeBasic(Request $request)
+
+    public function storeBasic(Request $request, InvoiceNumberGenerator $generator)
     {
         $user = Auth::user();
 
@@ -36,41 +35,95 @@ class InvoiceController extends Controller
             ->where('mobile', $validated['customerMobile'])
             ->first();
 
-        if (!$customer) {
-            //  Create new customer if not found
-            $customer = Customer::create([
-                'name' => $validated['customerName'],
-                'mobile' => $validated['customerMobile'],
-                'vendor_id' => $user->id,
-            ]);
+        $tenant = $user->tenant;
+        $invoiceNumber = $generator->generate($tenant);
+
+        DB::beginTransaction();
+
+        try {
+            if (!$customer) {
+                //  Create new customer if not found
+                $customer = Customer::create([
+                    'name' => $validated['customerName'],
+                    'mobile' => $validated['customerMobile'],
+                    'vendor_id' => $user->id,
+                ]);
+            }
+            if (!$customer || !$user) {
+                throw new \Exception("Missing customer or user");
+            }
+            //  Process each product
+            foreach ($validated['products'] as $product) {
+                $quantity = $product['quantity'];
+                $price = $product['price'];
+                $lineTotal = $quantity * $price;
+                $taxTotal = round($lineTotal * 0.18, 2); // 18% GST
+                $total = round($lineTotal + $taxTotal, 2);
+
+                $invoice = BasicInvoice::create([
+                    'cust_id' => $customer->id,
+                    'vendor_id' => $user->id,
+                    'product_name' => $product['productName'],
+                    'sell_quantity' => $quantity,
+                    'price' => $price,
+                    'subtotal' => $lineTotal,
+                    'tax_total' => $taxTotal,
+                    'total' => $total,
+                    'issued_at' => Carbon::now(),
+                    'invoice_no' => $invoiceNumber
+                ]);
+            }
+            if (!$invoice) {
+                throw new \Exception("Invoice creation failed. Check fields or fillable.");
+            }
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Invoice stored successfully',
+                'invoiceNo' =>$invoiceNumber,
+            ], 201);
+
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'something went wrong',
+                'message' => $e->getMessage()
+            ], 403); // Forbidden
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Failed to Create Invoice',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        //  Process each product
-        foreach ($validated['products'] as $product) {
-            $quantity = $product['quantity'];
-            $price = $product['price'];
-            $lineTotal = $quantity * $price;
-            $taxTotal = round($lineTotal * 0.18, 2); // 18% GST
-            $total = round($lineTotal + $taxTotal, 2);
-
-            BasicInvoice::create([
-                'cust_id' => $customer->id,
-                'vendor_id' => $user->id,
-                'product_name' => $product['productName'],
-                'sell_quantity' => $quantity,
-                'price' => $price,
-                'subtotal' => $lineTotal,
-                'tax_total' => $taxTotal,
-                'total' => $total,
-                'issued_at' => Carbon::now(),
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'Invoice stored successfully',
-            
-        ], 201);
     }//storeBasic
 
+    public function showBasicInvoice($encryptedNo)
+    {
+
+        try {
+           // $invoice_no = decrypt($encryptedNo);
+            $invoice = BasicInvoice::with('customer:id,name,mobile') // ✅ Include 'id'
+                ->where('invoice_no', $encryptedNo)
+                ->select(
+                    'product_name',
+                    'sell_quantity',
+                    'price',
+                    'invoice_no',
+                    'subtotal',
+                    'tax_total',
+                    'total',
+                    'issued_at',
+                    'cust_id' // ✅ Also include the foreign key!
+                )
+                ->get();
+            $customer = $invoice->first()->customer;
+            return response()->json(['customer' => $customer,'invoice'=>$invoice]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid invoice ID.'], 404);
+        }
+    }//showBasicInvoice
 
 }//InvoiceController

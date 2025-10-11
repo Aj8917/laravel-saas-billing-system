@@ -46,8 +46,8 @@ const DashboardLayout = ({ appName }) => {
           </Offcanvas.Header>
           <Offcanvas.Body>
             <Nav className="flex-column">
-              <Nav.Link href="#dashboard">Dashboard</Nav.Link>
-              <Nav.Link href="#invoices">Invoice</Nav.Link>
+               <Nav.Link as={Link} to="/VendorDashboard">Dashboard</Nav.Link>
+              <Nav.Link as={Link} to="/invoice">Invoice</Nav.Link>
               <Nav.Link href="#orders">Orders</Nav.Link>
               <Nav.Link href="#products">Products</Nav.Link>
               <Nav.Link href="#account">Account</Nav.Link>

@@ -10,20 +10,21 @@ return new class extends Migration {
      */
     public function up(): void
     {
-
-        Schema::create('basic_invoices', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('cust_id')->constrained('customers')->cascadeOnDelete();
-            $table->foreignId('vendor_id')->constrained('users')->cascadeOnDelete();
-            $table->string('product_name');
-            $table->integer('sell_quantity');
-            $table->decimal('price', 12, 2)->default(0);
-            $table->decimal('subtotal', 12, 2)->default(0);
-            $table->decimal('tax_total', 12, 2)->default(0);
-            $table->decimal('total', 12, 2)->default(0);
-            $table->date('issued_at');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('basic_invoices')) {
+            Schema::create('basic_invoices', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('cust_id')->constrained('customers')->cascadeOnDelete();
+                $table->foreignId('vendor_id')->constrained('users')->cascadeOnDelete();
+                $table->string('product_name');
+                $table->integer('sell_quantity');
+                $table->decimal('price', 12, 2)->default(0);
+                $table->decimal('subtotal', 12, 2)->default(0);
+                $table->decimal('tax_total', 12, 2)->default(0);
+                $table->decimal('total', 12, 2)->default(0);
+                $table->date('issued_at');
+                $table->timestamps();
+            });
+        }
     }
 
     /**
