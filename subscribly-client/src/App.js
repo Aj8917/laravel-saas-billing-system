@@ -16,6 +16,7 @@ import DashboardLayout from './components/DashboardLayout.jsx';
 import Invoice from './components/Features/Basic/Invoice.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import InvoicePrint from './components/Features/Basic/InvoicePrint.jsx';
+import InvoiceList from './components/Features/Basic/InvoiceList.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -55,6 +56,7 @@ function App() {
               <Route path="/VendorDashboard" element={<VendorDashboard />} />
               <Route path="/invoice" element={<Invoice />} />
               <Route path="/PrintInvoice/:invoiceNo" element={<InvoicePrint />} />
+              <Route path='/invoices' element={<InvoiceList />} />
             </Route>
           </Route>
 

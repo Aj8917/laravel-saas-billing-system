@@ -473,3 +473,17 @@ footer {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Card-like shadow */
   border-radius: 8px; 
 }
+
+/* === Invoice list Styles === */
+.invoice_list_header {
+  margin-bottom: 2rem;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Card-like shadow */
+}
+
+.invoice_list_table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 4px 12px rgba(203, 216, 22, 0.1); /* Card-like shadow */
+}

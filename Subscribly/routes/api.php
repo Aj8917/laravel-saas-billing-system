@@ -33,5 +33,6 @@ Route::get('/plans', PlanController::class);
 Route::controller(InvoiceController::class)->group(function(){
     Route::post('/basic-invoice','storeBasic');
     Route::get('/invoice/{encryptedId}',  'showBasicInvoice');
+    Route::get('/invoices','fetchAllInvoice');
 })->middleware('auth:sanctum');
 

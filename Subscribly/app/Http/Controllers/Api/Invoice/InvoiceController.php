@@ -80,7 +80,7 @@ class InvoiceController extends Controller
 
             return response()->json([
                 'message' => 'Invoice stored successfully',
-                'invoiceNo' =>$invoiceNumber,
+                'invoiceNo' => $invoiceNumber,
             ], 201);
 
         } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
@@ -104,7 +104,7 @@ class InvoiceController extends Controller
     {
 
         try {
-           // $invoice_no = decrypt($encryptedNo);
+            // $invoice_no = decrypt($encryptedNo);
             $invoice = BasicInvoice::with('customer:id,name,mobile') // ✅ Include 'id'
                 ->where('invoice_no', $encryptedNo)
                 ->select(
@@ -120,10 +120,38 @@ class InvoiceController extends Controller
                 )
                 ->get();
             $customer = $invoice->first()->customer;
-            return response()->json(['customer' => $customer,'invoice'=>$invoice]);
+            return response()->json(['customer' => $customer, 'invoice' => $invoice]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Invalid invoice ID.'], 404);
         }
     }//showBasicInvoice
+
+    public function fetchAllInvoice()
+    {
+        $user = Auth::user();
+
+        try {
+            $invoices = BasicInvoice::where('vendor_id', $user->id)
+                ->with(['customer:id,name,mobile'])
+                ->select(
+                    'product_name',
+                    'sell_quantity',
+                    'price',
+                    'invoice_no',
+                    'subtotal',
+                    'tax_total',
+                    'total',
+                    'issued_at',
+                    'cust_id' // 
+                )
+                ->get();
+
+            return response()->json(['invoices' => $invoices]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error fetching invoices', 'error' => $e->getMessage()], 500);
+
+        }
+
+    }//fetchAllInvoice
 
 }//InvoiceController
