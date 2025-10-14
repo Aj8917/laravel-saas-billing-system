@@ -487,3 +487,51 @@ footer {
   border-collapse: collapse;
   box-shadow: 0 4px 12px rgba(203, 216, 22, 0.1); /* Card-like shadow */
 }
+.clickable-invoice {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.clickable-invoice:hover {
+  color: #0056b3;
+  
+}
+
+/* --- PRINT STYLES --- */
+@media print {
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .invoice, .invoice * {
+    visibility: visible;
+  }
+
+  .invoice {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%; 
+    margin: 0;
+    padding: 0;
+    page-break-after: avoid;
+    page-break-before: avoid;
+    page-break-inside: avoid;
+  }
+
+  .invoice__print-button {
+    display: none;
+  }
+}
+.invoice {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosAuth from '../../../api/axiosAuth';
 import messageHandler from '../../../util/messageHandler';
 
 const InvoiceList = () => {
     const [list, setList] = useState([]);
-
+    const navigate=useNavigate()
     useEffect(() => {
         const fetchInvoice = async () => {
             try {
@@ -30,12 +31,15 @@ const InvoiceList = () => {
         return acc;
     }, {});
 
+    const viewInvoice = ({invoiceNo})=>{
+       navigate(`/PrintInvoice/${invoiceNo}`);
+    }
     return (
         <div>
             <h2>Invoice List</h2>
             {Object.entries(grouped).map(([invoiceNo, items]) => (
-                <div key={invoiceNo} className="invoice_list_header">
-                    <h3>Invoice No: {invoiceNo}</h3>
+                <div key={invoiceNo} className="invoice_list_header" >
+                    <h3  className="clickable-invoice" title="Click To Print Invoice" onClick={()=>viewInvoice({invoiceNo})}>Invoice No: {invoiceNo}</h3>
                     <p>Date: {items[0].issued_at}</p>
                     <p>Customer: {items[0].customer?.name} ({items[0].customer?.mobile})</p>
 
