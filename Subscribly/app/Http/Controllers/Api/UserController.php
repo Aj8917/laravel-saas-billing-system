@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\companyDetailsRequest;
+use App\Models\BasicInvoice;
 use App\Models\CompanyDetail;
 use App\Models\Tenant;
 use App\Models\User;
@@ -134,42 +135,58 @@ class UserController extends Controller
     }//planselection
 
     public function companyDetails(CompanyDetailsRequest $request)
-{
-    DB::beginTransaction();
+    {
+        DB::beginTransaction();
 
-    try {
-        
+        try {
 
-        // Replace tenant_id with decrypted one
-        
-        $data = $request->validated();
 
-        // Replace the encrypted tenant_id with the decrypted one
-        
+            // Replace tenant_id with decrypted one
 
-        // Create the company detail record
-        CompanyDetail::create($data);
+            $data = $request->validated();
 
-        DB::commit();
+            // Replace the encrypted tenant_id with the decrypted one
 
-        return response()->json([
-            'message' => 'Company details saved successfully!'
-        ], 201);
 
-    } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-        DB::rollBack();
+            // Create the company detail record
+            CompanyDetail::create($data);
 
-        return response()->json([
-            'error' => 'Invalid tenant_id provided',
-            'message' => $e->getMessage()
-        ], 403); // Forbidden
-    } catch (\Exception $e) {
-        DB::rollBack();
+            DB::commit();
 
-        return response()->json([
-            'error' => 'Failed to save company details',
-            'message' => $e->getMessage()
-        ], 500);
-    }
-}
+            return response()->json([
+                'message' => 'Company details saved successfully!'
+            ], 201);
+
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Invalid tenant_id provided',
+                'message' => $e->getMessage()
+            ], 403); // Forbidden
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'error' => 'Failed to save company details',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }//companyDetails
+
+    public function dashboardDetails()
+    {
+        $user = Auth::user();
+
+        $details = BasicInvoice::where('vendor_id', $user->id)
+            ->selectRaw('count(id) as orders, sum(subtotal) as revenue, sum(tax_total) as total_tax')
+            ->first();
+
+        if (!$details && ($details->orders < 1 || $details->revenue || $details->total_tax)) {
+            $details->orders=0;$details->revenue=0; $details->total_tax=0;
+        }
+       
+        return response()->json(['details' => $details]);
+
+    }//dashboardDetails()
 }//UserController

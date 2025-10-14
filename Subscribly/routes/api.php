@@ -20,6 +20,7 @@ Route::controller(UserController::class)->group(function () {
     Route::post('/signin', 'singin');
     Route::post('/subscriptions', 'planSelection');
     Route::post('/company-details', 'companyDetails');
+    Route::get('/dashboard-details','dashboardDetails');
 });
 
 Route::controller(LocationController::class)->group(function(){
