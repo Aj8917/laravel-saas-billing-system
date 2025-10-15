@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\companyDetailsRequest;
 use App\Models\BasicInvoice;
 use App\Models\CompanyDetail;
+use App\Models\Subscriptions;
 use App\Models\Tenant;
 use App\Models\User;
 use Auth;
@@ -19,20 +20,28 @@ class UserController extends Controller
 {
     public function singin(Request $request)
     {
-        //   dd($request->all())  ;
+        
         $credentials = $request->only('email', 'password');
-        //   return response()->json(['credentials'=>$credentials]);
-
-
-        if (Auth::attempt($credentials)) {
+        
+        if (Auth::guard('web')->attempt($credentials)) {
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
+            
+            
+            $company=CompanyDetail::with('tenant')->where('tenant_id',$user->tenant_id)->first();
+            
+           
+            $plan=Subscriptions::with('tenant')
+                                ->where('tenant_id',$user->tenant_id)->first();
+                                
+            
 
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => $user->name,
-                'company_name' => $user->company_name
+                'plan'=>$plan->plan->name,
+                'company_name' => $company->tenant->business_name
 
             ]);
 
