@@ -17,6 +17,7 @@ class Subscriptions extends Model
    {
     return $this->belongsTo(Tenant::class,'tenant_id','id');
    }
+ 
    public function toArray(){
     return [
         'plan'=>$this->plan->name,

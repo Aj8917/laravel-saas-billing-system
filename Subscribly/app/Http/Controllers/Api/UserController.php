@@ -13,9 +13,9 @@ use Auth;
 use DB;
 use Hash;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Email;
 use Validator;
 use Carbon\Carbon;
+
 class UserController extends Controller
 {
     public function singin(Request $request)
@@ -27,15 +27,10 @@ class UserController extends Controller
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
             
-            
             $company=CompanyDetail::with('tenant')->where('tenant_id',$user->tenant_id)->first();
-            
-           
             $plan=Subscriptions::with('tenant')
                                 ->where('tenant_id',$user->tenant_id)->first();
                                 
-            
-
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',

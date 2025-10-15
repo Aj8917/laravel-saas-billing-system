@@ -17,6 +17,8 @@ import Invoice from './components/Features/Basic/Invoice.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import InvoicePrint from './components/Features/Basic/InvoicePrint.jsx';
 import InvoiceList from './components/Features/Basic/InvoiceList.jsx';
+import Unauthorized from './components/Unauthorized.jsx';
+import Products from './components/Features/Pro/Products.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -51,7 +53,7 @@ function App() {
 
           {/* vendor */}
           {/* Protected Routes */}
-          <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
+          <Route element={<PrivateRoute isAuthenticated={isAuthenticated} activePlans={"Basic"}/>}>
             <Route element={<DashboardLayout appName={appName} isAuthenticated={isAuthenticated} />}>
               <Route path="/VendorDashboard" element={<VendorDashboard />} />
               <Route path="/invoice" element={<Invoice />} />
@@ -60,6 +62,14 @@ function App() {
             </Route>
           </Route>
 
+          <Route element={<PrivateRoute isAuthenticated={isAuthenticated} activePlans={"Pro"}/>}>
+            <Route element={<DashboardLayout appName={appName} isAuthenticated={isAuthenticated} />}>
+              <Route path='/products' element={<Products/>} />
+            </Route>
+          </Route>
+
+
+          <Route path='/unauthorized' element={<Unauthorized />} />
         </Routes>
       </Router>
 

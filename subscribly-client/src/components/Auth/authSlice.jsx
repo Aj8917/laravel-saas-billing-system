@@ -8,6 +8,7 @@ const initialState = {
     token: localStorage.getItem('token') || null,
     isAuthenticated: localStorage.getItem('isAuthenticated') || false,
     loading: false,
+    plan:localStorage.getItem('plan')|| null,
     error: null
 };
 
@@ -22,9 +23,11 @@ export const signin = createAsyncThunk(
                 role: response.data.role,
             };
             const token = response.data.access_token;
+            const plan =response.data.plan;
             // Store token and user in localStorage
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem('plan', plan);
             localStorage.setItem('isAuthenticated', 'true');
 
             // Return to reducer
@@ -44,9 +47,11 @@ const authSlice = createSlice({
             localStorage.removeItem('user');
             localStorage.removeItem('tenantId');
             localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('plan');
 
             state.userData.user = null;
             state.token = null;
+            state.plan = null;
             state.isAuthenticated = false;
             state.error = null;
         }
@@ -61,6 +66,7 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.user = action.payload.user;
                 state.token = action.payload.token;
+                state.plan = action.payload.plan;
                 state.isAuthenticated = true;
             })
             .addCase(signin.rejected, (state, action) => {
