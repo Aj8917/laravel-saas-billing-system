@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\Invoice\InvoiceController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\PlanController;
@@ -37,3 +38,7 @@ Route::controller(InvoiceController::class)->group(function(){
     Route::get('/invoices','fetchAllInvoice');
 })->middleware('auth:sanctum');
 
+Route::controller(CategoryController::class)->group(function(){
+    Route::get('/categories','index');
+    Route::post('/categories','store'); 
+})->middleware('auth:sanctum');

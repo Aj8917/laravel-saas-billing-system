@@ -52,22 +52,22 @@ function App() {
 
 
           {/* vendor */}
-          {/* Protected Routes */}
-          <Route element={<PrivateRoute isAuthenticated={isAuthenticated} activePlans={"Basic"}/>}>
-            <Route element={<DashboardLayout appName={appName} isAuthenticated={isAuthenticated} />}>
+          {/* Routes for Basic Plan */}
+          <Route element={<PrivateRoute isAuthenticated={isAuthenticated} allowedPlans={["Basic", "Pro"]} />}>
+            <Route path="/" element={<DashboardLayout appName={appName} isAuthenticated={isAuthenticated} />}>
               <Route path="/VendorDashboard" element={<VendorDashboard />} />
               <Route path="/invoice" element={<Invoice />} />
               <Route path="/PrintInvoice/:invoiceNo" element={<InvoicePrint />} />
-              <Route path='/invoices' element={<InvoiceList />} />
+              <Route path="/invoices" element={<InvoiceList />} />
             </Route>
           </Route>
 
-          <Route element={<PrivateRoute isAuthenticated={isAuthenticated} activePlans={"Pro"}/>}>
-            <Route element={<DashboardLayout appName={appName} isAuthenticated={isAuthenticated} />}>
-              <Route path='/products' element={<Products/>} />
+          {/* Routes for Pro Plan */}
+          <Route element={<PrivateRoute isAuthenticated={isAuthenticated} allowedPlans="Pro" />}>
+            <Route path="/" element={<DashboardLayout />}>
+              <Route path="/products" element={<Products />} />
             </Route>
           </Route>
-
 
           <Route path='/unauthorized' element={<Unauthorized />} />
         </Routes>

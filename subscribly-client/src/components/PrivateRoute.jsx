@@ -1,17 +1,17 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
-const PrivateRoute = ({ isAuthenticated ,activePlans}) => {
-  const activatePlan = localStorage.getItem('plan')?.trim().toLowerCase();
+const PrivateRoute = ({ isAuthenticated, allowedPlans }) => {
+  const activePlan = localStorage.getItem('plan')?.trim().toLowerCase();
 
-  const allowedPlans = Array.isArray(activePlans)
-    ? activePlans.map(plan => plan.trim().toLowerCase())
-    : [activePlans.trim().toLowerCase()];
+  const allowedPlan = Array.isArray(allowedPlans)
+    ? allowedPlans.map(plan => plan.trim().toLowerCase())
+    : [allowedPlans.trim().toLowerCase()];
 
   if (!isAuthenticated) {
     return <Navigate to="/signin" replace />;
   }
 
-  if (!allowedPlans.includes(activatePlan)) {
+  if (!allowedPlan.includes(activePlan)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

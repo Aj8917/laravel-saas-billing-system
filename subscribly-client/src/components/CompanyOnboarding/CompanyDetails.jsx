@@ -161,7 +161,7 @@ const CompanyDetails = () => {
               value={formData.gstin}
               onChange={handleChange}
             />
-            <label htmlFor="gstin">GSTIN (Optional)</label>
+            <label htmlFor="gstin">GSTIN</label>
             {errors.gstin && <div className="error-text">{errors.gstin[0]}</div>}
           </div>
 
@@ -261,7 +261,7 @@ const CompanyDetails = () => {
               value={formData.website}
               onChange={handleChange}
             />
-            <label htmlFor="website">Website (Optional)</label>
+            <label htmlFor="website">Website</label>
             {errors.website && <div className="error-text">{errors.website[0]}</div>}
           </div>
 

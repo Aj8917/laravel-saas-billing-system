@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // includes Popper and Bootstrap JS
+import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { Provider } from 'react-redux';
 import { store } from './store';
 

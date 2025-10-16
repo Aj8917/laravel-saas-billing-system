@@ -186,8 +186,10 @@ class UserController extends Controller
             ->selectRaw('count(id) as orders, sum(subtotal) as revenue, sum(tax_total) as total_tax')
             ->first();
 
-        if (!$details && ($details->orders < 1 || $details->revenue || $details->total_tax)) {
-            $details->orders=0;$details->revenue=0; $details->total_tax=0;
+        if (!$details && ($details->orders < 1 || !$details->revenue || !$details->total_tax)) {
+            $details->orders=0;
+            $details->revenue=0;
+            $details->total_tax=0;
         }
        
         return response()->json(['details' => $details]);
