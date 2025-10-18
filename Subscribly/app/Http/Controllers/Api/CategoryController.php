@@ -4,16 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\categories;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Validator;
 
 class CategoryController extends Controller
-{public function index()
+{
+    public function index()
     {
-        $categories = categories::all();
+        $categories = Category::all();
 
         return response()->json([
-            'categories' => $categories,
+            'category' => $categories,
         ], 200);
     }
 
@@ -27,7 +29,7 @@ class CategoryController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $category = categories::create([
+        $category = Category::firstOrCreate([
             'name' => $request->name,
         ]);
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\Invoice\InvoiceController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\PlanController;
+use App\Http\Controllers\Api\Product\ProductController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -42,3 +43,5 @@ Route::controller(CategoryController::class)->group(function(){
     Route::get('/categories','index');
     Route::post('/categories','store'); 
 })->middleware('auth:sanctum');
+
+Route::post('products',[ProductController::class,'storeProduct'])->middleware('auth:sanctum');
