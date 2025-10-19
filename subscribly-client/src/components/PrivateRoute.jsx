@@ -1,9 +1,16 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
-const PrivateRoute = ({ isAuthenticated, allowedPlans }) => {
-  const activePlan = localStorage.getItem('plan')?.trim().toLowerCase();
+const PrivateRoute = ({ isAuthenticated, allowedPlans, activePlan }) => {
+  // Normalize plan values to lowercase and trim spaces
 
-  const allowedPlan = Array.isArray(allowedPlans)
+
+
+  const normalizedActivePlan = typeof activePlan === 'string'
+    ? activePlan.trim().toLowerCase()
+    : '';
+
+
+  const allowedPlanList = Array.isArray(allowedPlans)
     ? allowedPlans.map(plan => plan.trim().toLowerCase())
     : [allowedPlans.trim().toLowerCase()];
 
@@ -11,7 +18,7 @@ const PrivateRoute = ({ isAuthenticated, allowedPlans }) => {
     return <Navigate to="/signin" replace />;
   }
 
-  if (!allowedPlan.includes(activePlan)) {
+  if (!allowedPlanList.includes(normalizedActivePlan)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
