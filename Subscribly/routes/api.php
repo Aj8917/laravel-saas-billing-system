@@ -44,4 +44,8 @@ Route::controller(CategoryController::class)->group(function(){
     Route::post('/categories','store'); 
 })->middleware('auth:sanctum');
 
-Route::post('products',[ProductController::class,'storeProduct'])->middleware('auth:sanctum');
+Route::controller(ProductController::class)->group(function(){
+    Route::get('/products','index');
+    Route::post('/products','storeProduct');
+    
+})->middleware('auth:sanctum');

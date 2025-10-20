@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model
 {
+    protected $hidden=['id','product.id'];
     protected $fillable = [
         'product_id',
         'base_sku',
        
     ];
-    public function products()
+      public function product()
     {
         return $this->belongsTo(Product::class);
     }

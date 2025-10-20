@@ -26,7 +26,7 @@ const Products = () => {
 
   useEffect(() => {
     asyncHandler(async () => {
-      const response = await axiosAuth('/categories');
+      const response = await axiosAuth.get('/categories');
       const categories = response?.data?.category;
       if (categories?.length > 0) {
         setOptions(categories);

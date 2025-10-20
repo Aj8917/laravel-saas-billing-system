@@ -21,6 +21,21 @@ use App\Services\SkuService;
 
 class ProductController extends Controller
 {
+
+    public function index()
+    {
+        $vendor = Auth::user();
+        try {
+            $VendorOffer = VendorOffer::where('vendor_id', $vendor->id)
+                ->with(['variant.product']) 
+                ->get();
+
+            return response()->json(['products' => $VendorOffer]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error fetching products', 'error' => $e->getMessage()], 500);
+
+        }
+    }
     public function storeProduct(Request $request, SkuService $skuService)
     {
         $vendor = Auth::user();
@@ -81,7 +96,7 @@ class ProductController extends Controller
 
                 // Save attributes for the variant
                 foreach ($productData['attributes'] as $attrData) {
-                    $attribute = Attribute::firstOrCreate(['name' => $attrData['attribute'],'category_id' => $productData['category_id'],]);
+                    $attribute = Attribute::firstOrCreate(['name' => $attrData['attribute'], 'category_id' => $productData['category_id'],]);
 
                     VariantAttribute::firstOrCreate([
                         'attribute_id' => $attribute->id,
