@@ -37,6 +37,8 @@ Route::controller(InvoiceController::class)->group(function(){
     Route::post('/basic-invoice','storeBasic');
     Route::get('/invoice/{encryptedId}',  'showBasicInvoice');
     Route::get('/invoices','fetchAllInvoice');
+
+    Route::post('/pro-invoice','storePro');
 })->middleware('auth:sanctum');
 
 Route::controller(CategoryController::class)->group(function(){

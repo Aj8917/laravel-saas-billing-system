@@ -7,7 +7,7 @@ import messageHandler from '../../../util/messageHandler';
 const ProInvoice = () => {
   const [productOptions, setProductOptions] = useState([]);
   const [invoiceProducts, setInvoiceProducts] = useState([
-    { uuid: '', quantity: 1, sku: '', stock: '', productLabel: '' }
+    { uuid: '', quantity: 1, sku: '', stock: '',price:'', productLabel: '' }
   ]);
 
   const [customerName, setCustomerName] = useState('');
@@ -25,6 +25,7 @@ const ProInvoice = () => {
           value: item.uuid,
           label: item.product,
           sku: item.sku,
+          price:item.price,
           stock: item.stock
         }));
         setProductOptions(formatted);
@@ -39,11 +40,12 @@ const ProInvoice = () => {
         uuid: selectedOption.value,
         sku: selectedOption.sku || '',
         stock: selectedOption.stock || '',
+        price: selectedOption.price || '',
         productLabel: selectedOption.label,
         quantity: updatedProducts[index].quantity || 1
       };
     } else {
-      updatedProducts[index] = { uuid: '', quantity: 1, sku: '', stock: '', productLabel: '' };
+      updatedProducts[index] = { uuid: '', quantity: 1, sku: '', stock: '',price:'', productLabel: '' };
     }
     setInvoiceProducts(updatedProducts);
     setErrors(prev => ({ ...prev, [`product-${index}`]: null }));
@@ -58,7 +60,7 @@ const ProInvoice = () => {
   const handleAddProduct = () => {
     setInvoiceProducts([
       ...invoiceProducts,
-      { uuid: '', quantity: 1, sku: '', stock: '', productLabel: '' }
+      { uuid: '', quantity: 1, sku: '', stock: '',price:'', productLabel: '' }
     ]);
   };
 
@@ -103,8 +105,8 @@ const ProInvoice = () => {
     }
 
     const payload = {
-      customer_name: customerName,
-      customer_mobile: customerMobile,
+      customerName: customerName,
+      customerMobile: customerMobile,
       products: invoiceProducts.map(p => ({
         uuid: p.uuid,
         quantity: p.quantity
@@ -112,11 +114,11 @@ const ProInvoice = () => {
     };
 
     try {
-     // await axiosAuth.post('/purchase-invoice', payload);
+      await axiosAuth.post('/pro-invoice', payload);
       messageHandler('Invoice created successfully!', 'success');
 
       // Reset form
-      setInvoiceProducts([{ uuid: '', quantity: 1, sku: '', stock: '', productLabel: '' }]);
+      setInvoiceProducts([{ uuid: '', quantity: 1, sku: '', stock: '',price:'', productLabel: '' }]);
       setCustomerName('');
       setCustomerMobile('');
       setErrors({});
@@ -125,7 +127,24 @@ const ProInvoice = () => {
       messageHandler('Failed to create invoice.', 'error');
     }
   });
+ const calculateTotals = () => {
+        let subTotal = 0;
 
+        invoiceProducts.forEach(p => {
+            const quantity = parseFloat(p.quantity) || 0;
+            const price = parseFloat(p.price) || 0;
+            subTotal += quantity * price;
+        });
+
+        const tax = +(subTotal * 0.18).toFixed(2);  // 18% GST
+        const total = +(subTotal + tax).toFixed(2);
+
+        return {
+            subTotal: subTotal.toFixed(2),
+            tax,
+            total
+        };
+    };
   return (
     <section className="py-1">
       <div className="container">
@@ -210,7 +229,15 @@ const ProInvoice = () => {
                         />
                         <label>SKU</label>
                       </div>
-
+                      <div className="form-floating-label flex-fill">
+                        <input
+                          type="number"
+                          className="form-input"
+                          value={product.price || 0}
+                          readOnly
+                        />
+                        <label>Price</label>
+                      </div>
                       <div className="form-floating-label flex-fill">
                         <input
                           type="number"
@@ -250,6 +277,30 @@ const ProInvoice = () => {
                   )}
                 </div>
               ))}
+               {/* Invoice Summary */}
+                            <div className="invoice-summary p-3 mb-4 border rounded bg-light">
+                                <h5 className="mb-3">Invoice Summary</h5>
+                                {(() => {
+                                    const { subTotal, tax, total } = calculateTotals();
+                                    return (
+                                        <>
+                                            <div className="d-flex justify-content-between">
+                                                <span>Subtotal:</span>
+                                                <strong>₹ {subTotal}</strong>
+                                            </div>
+                                            <div className="d-flex justify-content-between">
+                                                <span>Tax (18%):</span>
+                                                <strong>₹ {tax}</strong>
+                                            </div>
+                                            <hr />
+                                            <div className="d-flex justify-content-between fs-5">
+                                                <span>Total:</span>
+                                                <strong>₹ {total}</strong>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
+                            </div>
 
               {/* Add product button */}
               <button

@@ -13,7 +13,10 @@ class Customer extends Model
     {
         return $this->hasMany(BasicInvoice::class);
     }
-
+    public function proInvoice()
+    {
+        return $this->hasMany(ProInvoice::class);
+    }   
      public function vendor_id()
     {
        return  $this->belongsTo(User::class);
