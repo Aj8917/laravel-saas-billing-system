@@ -250,5 +250,24 @@ class InvoiceController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-    }//storeBasic
+    }//storePro
+
+     public function fetchAllProInvoice()
+    {
+        $user = Auth::user();
+
+        try {
+            $invoices = ProInvoice::with(['offer.variant.product','Customer'])
+                                  ->get();
+
+            return response()->json(['invoices' => $invoices]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error fetching invoices', 'error' => $e->getMessage()], 500);
+
+        }
+
+    }//fetchAllProInvoice
+
+
+
 }//InvoiceController

@@ -68,7 +68,7 @@ const Navbar = ({ appName }) => {
                                     <a href="/signin" className="btn btn-sm btn-outline-primary me-2">Login</a>
                                 )}
 
-                            <a href="/singup" className="btn btn-sm btn-primary">Sign Up</a>
+                            <a href="/signup" className="btn btn-sm btn-primary">Sign Up</a>
                         </div>
                     </div>
                 </div>

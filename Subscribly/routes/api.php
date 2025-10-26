@@ -39,6 +39,7 @@ Route::controller(InvoiceController::class)->group(function(){
     Route::get('/invoices','fetchAllInvoice');
 
     Route::post('/pro-invoice','storePro');
+    Route::get('/pro-invoices','fetchAllProInvoice');
 })->middleware('auth:sanctum');
 
 Route::controller(CategoryController::class)->group(function(){

@@ -22,6 +22,7 @@ import Unauthorized from './components/Unauthorized.jsx';
 import Products from './components/Features/Pro/Products.jsx';
 import ProInvoice from './components/Features/Pro/ProInvoice.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
+import ProInvoiceList from './components/Features/Pro/ProInvoiceList.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -71,7 +72,7 @@ function App() {
                 element={activePlan === 'Pro' ? <ProInvoice /> : <Invoice />}
               />
               <Route path='/PrintInvoice/:invoiceNo' element={<InvoicePrint />} />
-              <Route path='/invoices' element={<InvoiceList />} />
+              <Route path='/invoices' element={activePlan==='Pro' ?<ProInvoiceList /> :<InvoiceList />} />
             </Route>
           </Route>
 
