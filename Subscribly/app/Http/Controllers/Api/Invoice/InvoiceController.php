@@ -128,12 +128,14 @@ class InvoiceController extends Controller
         }
     }//showBasicInvoice
 
-    public function fetchAllInvoice()
+    public function fetchAllInvoice(Request $request)
     {
         $user = Auth::user();
 
         try {
-            $invoices = BasicInvoice::where('vendor_id', $user->id)
+            $perPage = $request->get('per_page', 50);
+            $search = $request->get('search');
+            $query = BasicInvoice::where('vendor_id', $user->id)
                 ->with(['customer:id,name,mobile'])
                 ->select(
                     'product_name',
@@ -144,11 +146,15 @@ class InvoiceController extends Controller
                     'tax_total',
                     'total',
                     'issued_at',
-                    'cust_id' // 
-                )
-                ->get();
+                    'cust_id' 
+                );
 
-            return response()->json(['invoices' => $invoices]);
+            if (!empty($search)) {
+                $query->where('invoice_no', 'like', '%' . $search . '%');
+            }
+            $invoices = $query->orderBy('created_at', 'desc')
+                              ->paginate($perPage);
+            return response()->json($invoices);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error fetching invoices', 'error' => $e->getMessage()], 500);
 
@@ -205,14 +211,14 @@ class InvoiceController extends Controller
                 $offer = VendorOffer::whereHas('variant.product', function ($query) use ($product) {
                     $query->where('uuid', $product['uuid']);
                 })->with('variant.product')->firstOrFail();
-               
+
                 $quantity = $product['quantity'];
                 $price = $offer->price;
                 $lineTotal = $quantity * $price;
                 $taxTotal = round($lineTotal * 0.18, 2); // 18% GST
                 $total = round($lineTotal + $taxTotal, 2);
 
-                    $invoice = ProInvoice::create([
+                $invoice = ProInvoice::create([
                     'cust_id' => $customer->id,
                     'offer_id' => $offer->id,
                     'invoice_no' => $invoiceNumber,
@@ -228,7 +234,7 @@ class InvoiceController extends Controller
             if (!$invoice) {
                 throw new \Exception("Invoice creation failed. Check fields or fillable.");
             }
-             DB::commit();
+            DB::commit();
 
             return response()->json([
                 'message' => 'Invoice stored successfully',
@@ -252,15 +258,25 @@ class InvoiceController extends Controller
         }
     }//storePro
 
-     public function fetchAllProInvoice()
+    public function fetchAllProInvoice(Request $request)
     {
         $user = Auth::user();
 
         try {
-            $invoices = ProInvoice::with(['offer.variant.product','Customer'])
-                                  ->get();
 
-            return response()->json(['invoices' => $invoices]);
+            $perPage = $request->get('per_page', 50);
+            $search = $request->get('search');
+            $query = ProInvoice::with(['offer.variant.product', 'Customer'])
+                ->orderBy('created_at', 'desc');
+
+            if (!empty($search)) {
+                $query->where('invoice_no', 'like', '%' . $search . '%');
+            }
+            $invoices = $query->orderBy('created_at', 'desc')
+                ->paginate($perPage);
+
+            return response()->json($invoices);
+
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error fetching invoices', 'error' => $e->getMessage()], 500);
 
