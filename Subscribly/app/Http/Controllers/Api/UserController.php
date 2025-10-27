@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\companyDetailsRequest;
 use App\Models\BasicInvoice;
 use App\Models\CompanyDetail;
+use App\Models\ProInvoice;
 use App\Models\Subscriptions;
 use App\Models\Tenant;
 use App\Models\User;
@@ -20,22 +21,22 @@ class UserController extends Controller
 {
     public function singin(Request $request)
     {
-        
+
         $credentials = $request->only('email', 'password');
-        
+
         if (Auth::guard('web')->attempt($credentials)) {
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
-            
-            $company=CompanyDetail::with('tenant')->where('tenant_id',$user->tenant_id)->first();
-            $plan=Subscriptions::with('tenant')
-                                ->where('tenant_id',$user->tenant_id)->first();
-                                
+
+            $company = CompanyDetail::with('tenant')->where('tenant_id', $user->tenant_id)->first();
+            $plan = Subscriptions::with('tenant')
+                ->where('tenant_id', $user->tenant_id)->first();
+
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => $user->name,
-                'plan'=>$plan->plan->name,
+                'plan' => $plan->plan->name,
                 'company_name' => $company->tenant->business_name
 
             ]);
@@ -179,20 +180,48 @@ class UserController extends Controller
     }//companyDetails
 
     public function dashboardDetails()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $details = BasicInvoice::where('vendor_id', $user->id)
+    $plan = Subscriptions::with('tenant')
+        ->where('tenant_id', $user->tenant_id)
+        ->first();
+
+    $details = [
+        'orders' => 0,
+        'revenue' => 0,
+        'total_tax' => 0,
+    ];
+
+    if ($plan->plan->name == "Basic") {
+        $summary = BasicInvoice::where('vendor_id', $user->id)
             ->selectRaw('count(id) as orders, sum(subtotal) as revenue, sum(tax_total) as total_tax')
             ->first();
-
-        if (!$details && ($details->orders < 1 || !$details->revenue || !$details->total_tax)) {
-            $details->orders=0;
-            $details->revenue=0;
-            $details->total_tax=0;
+        
+        if ($summary) {
+            $details = [
+                'orders' => (int) ($summary->orders ?? 0),
+                'revenue' => (float) ($summary->revenue ?? 0),
+                'total_tax' => (float) ($summary->total_tax ?? 0),
+            ];
         }
-       
-        return response()->json(['details' => $details]);
+    }
 
-    }//dashboardDetails()
+    if ($plan->plan->name == "Pro") {
+        $summary = ProInvoice::whereHas('offer', fn($q) => $q->where('vendor_id', $user->id))
+            ->selectRaw('COUNT(id) as orders, SUM(subtotal) as revenue, SUM(tax_total) as total_tax')
+            ->first();
+
+        if ($summary) {
+            $details = [
+                'orders' => (int) ($summary->orders ?? 0),
+                'revenue' => (float) ($summary->revenue ?? 0),
+                'total_tax' => (float) ($summary->total_tax ?? 0),
+            ];
+        }
+    }
+
+    return response()->json(['details' => $details]);
+}
+
 }//UserController

@@ -48,7 +48,8 @@ const authSlice = createSlice({
             localStorage.removeItem('tenantId');
             localStorage.removeItem('isAuthenticated');
             localStorage.removeItem('plan');
-
+            localStorage.removeItem('active_plan');
+            
             state.userData.user = null;
             state.token = null;
             state.plan = null;
