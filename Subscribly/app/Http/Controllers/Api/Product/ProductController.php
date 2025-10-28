@@ -4,14 +4,9 @@ namespace App\Http\Controllers\Api\Product;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attribute;
-use App\Models\attributes;
 use App\Models\Product;
-use App\Models\product_variants;
-use App\Models\products;
 use App\Models\ProductVariant;
-use App\Models\variant_attributes;
 use App\Models\VariantAttribute;
-use App\Models\vendor_offers;
 use App\Models\VendorOffer;
 use Auth;
 use DB;
@@ -27,7 +22,7 @@ class ProductController extends Controller
         $vendor = Auth::user();
         try {
             $VendorOffer = VendorOffer::where('vendor_id', $vendor->id)
-                ->with(['variant.product']) 
+                ->with(['variant.product'])
                 ->get();
 
             return response()->json(['products' => $VendorOffer]);
