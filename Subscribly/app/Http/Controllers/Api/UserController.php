@@ -14,6 +14,7 @@ use Auth;
 use DB;
 use Hash;
 use Illuminate\Http\Request;
+use Symfony\Component\VarDumper\Caster\DsCaster;
 use Validator;
 use Carbon\Carbon;
 
@@ -194,13 +195,11 @@ class UserController extends Controller
     ];
 
     if ($plan->plan->name == "Basic") {
-        $summary = BasicInvoice::where('vendor_id', $user->id)
-            ->selectRaw('count(id) as orders, sum(subtotal) as revenue, sum(tax_total) as total_tax')
-            ->first();
-        
+        $summary = BasicInvoice::summaryForVendor($user->id)->first();
+            
         if ($summary) {
             $details = [
-                'orders' => (int) ($summary->orders ?? 0),
+                'orders' => (int) ($summary?->orders ?? 0),
                 'revenue' => (float) ($summary->revenue ?? 0),
                 'total_tax' => (float) ($summary->total_tax ?? 0),
             ];
@@ -209,8 +208,8 @@ class UserController extends Controller
 
     if ($plan->plan->name == "Pro") {
         $summary = ProInvoice::whereHas('offer', fn($q) => $q->where('vendor_id', $user->id))
-            ->selectRaw('COUNT(id) as orders, SUM(subtotal) as revenue, SUM(tax_total) as total_tax')
-            ->first();
+                               ->selectRaw('COUNT(DISTINCT invoice_no) as orders, SUM(subtotal) as revenue, SUM(tax_total) as total_tax')
+                               ->first();
 
         if ($summary) {
             $details = [

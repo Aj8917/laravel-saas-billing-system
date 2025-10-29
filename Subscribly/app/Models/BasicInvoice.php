@@ -24,4 +24,13 @@ class BasicInvoice extends Model
         return $this->belongsTo(User::class, 'vendor_id', 'id');
     }
 
+    public function scopeSummaryForVendor($query, $vendorId)
+    {
+        return $query->where('vendor_id', $vendorId)
+            ->selectRaw('
+            COUNT(DISTINCT invoice_no) as orders,
+            SUM(subtotal) as revenue,
+            SUM(tax_total) as total_tax
+        ');
+    }
 }

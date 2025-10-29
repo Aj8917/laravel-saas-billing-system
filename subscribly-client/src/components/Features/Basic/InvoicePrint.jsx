@@ -105,7 +105,7 @@ const InvoicePrint = () => {
             <div className="invoice__totals">
                 <p><strong>Subtotal:</strong> ${allsubtotal.toFixed(2)}</p>
                 <p><strong>Tax (18%):</strong> ${totaltax.toFixed(2)}</p>
-                <p><strong>Total:</strong> ${Number(allsubtotal).toFixed(2)}</p>
+                <p><strong>Total:</strong> ${Number(Finaltotal).toFixed(2)}</p>
             </div>
             <button onClick={() => window.print()} className="invoice__print-button">Print Invoice</button>
         </div>
