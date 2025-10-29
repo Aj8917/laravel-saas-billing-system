@@ -7,7 +7,7 @@ import messageHandler from '../../../util/messageHandler';
 const ProInvoice = () => {
   const [productOptions, setProductOptions] = useState([]);
   const [invoiceProducts, setInvoiceProducts] = useState([
-    { uuid: '', quantity: 1, sku: '', stock: '',price:'', productLabel: '' }
+    { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '' }
   ]);
 
   const [customerName, setCustomerName] = useState('');
@@ -25,7 +25,7 @@ const ProInvoice = () => {
           value: item.uuid,
           label: item.product,
           sku: item.sku,
-          price:item.price,
+          price: item.price,
           stock: item.stock
         }));
         setProductOptions(formatted);
@@ -45,7 +45,7 @@ const ProInvoice = () => {
         quantity: updatedProducts[index].quantity || 1
       };
     } else {
-      updatedProducts[index] = { uuid: '', quantity: 1, sku: '', stock: '',price:'', productLabel: '' };
+      updatedProducts[index] = { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '' };
     }
     setInvoiceProducts(updatedProducts);
     setErrors(prev => ({ ...prev, [`product-${index}`]: null }));
@@ -60,7 +60,7 @@ const ProInvoice = () => {
   const handleAddProduct = () => {
     setInvoiceProducts([
       ...invoiceProducts,
-      { uuid: '', quantity: 1, sku: '', stock: '',price:'', productLabel: '' }
+      { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '' }
     ]);
   };
 
@@ -118,33 +118,35 @@ const ProInvoice = () => {
       messageHandler('Invoice created successfully!', 'success');
 
       // Reset form
-      setInvoiceProducts([{ uuid: '', quantity: 1, sku: '', stock: '',price:'', productLabel: '' }]);
+      setInvoiceProducts([{ uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '' }]);
       setCustomerName('');
       setCustomerMobile('');
       setErrors({});
     } catch (error) {
-      console.error(error);
-      messageHandler('Failed to create invoice.', 'error');
+      // console.error(error);
+      // Check if backend returned a message
+      const backendMessage = error.response?.data?.message || 'Failed to create invoice.';
+      messageHandler(backendMessage, 'error');
     }
   });
- const calculateTotals = () => {
-        let subTotal = 0;
+  const calculateTotals = () => {
+    let subTotal = 0;
 
-        invoiceProducts.forEach(p => {
-            const quantity = parseFloat(p.quantity) || 0;
-            const price = parseFloat(p.price) || 0;
-            subTotal += quantity * price;
-        });
+    invoiceProducts.forEach(p => {
+      const quantity = parseFloat(p.quantity) || 0;
+      const price = parseFloat(p.price) || 0;
+      subTotal += quantity * price;
+    });
 
-        const tax = +(subTotal * 0.18).toFixed(2);  // 18% GST
-        const total = +(subTotal + tax).toFixed(2);
+    const tax = +(subTotal * 0.18).toFixed(2);  // 18% GST
+    const total = +(subTotal + tax).toFixed(2);
 
-        return {
-            subTotal: subTotal.toFixed(2),
-            tax,
-            total
-        };
+    return {
+      subTotal: subTotal.toFixed(2),
+      tax,
+      total
     };
+  };
   return (
     <section className="py-1">
       <div className="container">
@@ -277,30 +279,30 @@ const ProInvoice = () => {
                   )}
                 </div>
               ))}
-               {/* Invoice Summary */}
-                            <div className="invoice-summary p-3 mb-4 border rounded bg-light">
-                                <h5 className="mb-3">Invoice Summary</h5>
-                                {(() => {
-                                    const { subTotal, tax, total } = calculateTotals();
-                                    return (
-                                        <>
-                                            <div className="d-flex justify-content-between">
-                                                <span>Subtotal:</span>
-                                                <strong>₹ {subTotal}</strong>
-                                            </div>
-                                            <div className="d-flex justify-content-between">
-                                                <span>Tax (18%):</span>
-                                                <strong>₹ {tax}</strong>
-                                            </div>
-                                            <hr />
-                                            <div className="d-flex justify-content-between fs-5">
-                                                <span>Total:</span>
-                                                <strong>₹ {total}</strong>
-                                            </div>
-                                        </>
-                                    );
-                                })()}
-                            </div>
+              {/* Invoice Summary */}
+              <div className="invoice-summary p-3 mb-4 border rounded bg-light">
+                <h5 className="mb-3">Invoice Summary</h5>
+                {(() => {
+                  const { subTotal, tax, total } = calculateTotals();
+                  return (
+                    <>
+                      <div className="d-flex justify-content-between">
+                        <span>Subtotal:</span>
+                        <strong>₹ {subTotal}</strong>
+                      </div>
+                      <div className="d-flex justify-content-between">
+                        <span>Tax (18%):</span>
+                        <strong>₹ {tax}</strong>
+                      </div>
+                      <hr />
+                      <div className="d-flex justify-content-between fs-5">
+                        <span>Total:</span>
+                        <strong>₹ {total}</strong>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
 
               {/* Add product button */}
               <button

@@ -12,7 +12,7 @@ const ProInvoiceList = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // ✅ Fetch invoices with pagination & search
+    //  Fetch invoices with pagination & search
     const fetchInvoices = async (pageNumber = 1, query = '') => {
         try {
             setLoading(true);
@@ -21,8 +21,8 @@ const ProInvoiceList = () => {
             });
 
             const data = response.data;
-
-            // ✅ Laravel returns paginated data as data.data
+            
+            //  Laravel returns paginated data as data.data
             if (Array.isArray(data?.data) && data.data.length > 0) {
                 setList(data.data);
                 setTotalPages(data.last_page || 1);
@@ -83,7 +83,7 @@ const ProInvoiceList = () => {
                 />
             </div>
 
-            {/* 📋 Invoice List */}
+            {/*  Invoice List */}
             {loading ? (
                 <p>Loading invoices...</p>
             ) : Object.keys(grouped).length === 0 ? (

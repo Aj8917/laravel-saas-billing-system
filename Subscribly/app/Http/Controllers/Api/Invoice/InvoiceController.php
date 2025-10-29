@@ -128,14 +128,12 @@ class InvoiceController extends Controller
         }
     }//showBasicInvoice
 
-    public function fetchAllInvoice(Request $request)
+    public function fetchAllInvoice()
     {
         $user = Auth::user();
 
         try {
-            $perPage = $request->get('per_page', 50);
-            $search = $request->get('search');
-            $query = BasicInvoice::where('vendor_id', $user->id)
+            $invoices = BasicInvoice::where('vendor_id', $user->id)
                 ->with(['customer:id,name,mobile'])
                 ->select(
                     'product_name',
@@ -146,15 +144,11 @@ class InvoiceController extends Controller
                     'tax_total',
                     'total',
                     'issued_at',
-                    'cust_id' 
-                );
+                    'cust_id' // 
+                )
+                ->get();
 
-            if (!empty($search)) {
-                $query->where('invoice_no', 'like', '%' . $search . '%');
-            }
-            $invoices = $query->orderBy('created_at', 'desc')
-                              ->paginate($perPage);
-            return response()->json($invoices);
+            return response()->json(['invoices' => $invoices]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error fetching invoices', 'error' => $e->getMessage()], 500);
 
@@ -168,8 +162,9 @@ class InvoiceController extends Controller
     public function storePro(Request $request, InvoiceNumberGenerator $generator)
     {
         $user = Auth::user();
+        $tenant = $user->tenant;
 
-        //  Validate request
+        //  Step 1: Basic request validation (no DB-heavy checks)
         $validated = $request->validate([
             'customerName' => 'required|string|max:255',
             'customerMobile' => [
@@ -178,44 +173,65 @@ class InvoiceController extends Controller
                 'digits:10'
             ],
             'products' => 'required|array|min:1',
-            'products.*.uuid' => 'required|uuid',
+            'products.*.uuid' => 'required|uuid|exists:products,uuid',
             'products.*.quantity' => 'required|numeric|min:1',
-
         ]);
-        //  Check if customer exists for this vendor
-        $customer = Customer::where('vendor_id', $user->id)
-            ->where('mobile', $validated['customerMobile'])
-            ->first();
-
-        $tenant = $user->tenant;
-        $invoiceNumber = $generator->generate($tenant);
 
         DB::beginTransaction();
 
         try {
-            if (!$customer) {
-                //  Create new customer if not found
-                $customer = Customer::create([
-                    'name' => $validated['customerName'],
-                    'mobile' => $validated['customerMobile'],
-                    'vendor_id' => $user->id,
-                ]);
-            }
-            if (!$customer || !$user) {
-                throw new \Exception("Missing customer or user");
-            }
+            //  Step 2: Fetch all product UUIDs in one go
+            $productUuids = collect($validated['products'])->pluck('uuid');
 
-            //  Process each product
+            // Fetch all offers in one query
+            $offers = VendorOffer::whereHas('variant.product', function ($query) use ($productUuids) {
+                $query->whereIn('uuid', $productUuids);
+            })->with('variant.product')->get();
+
+            // Validate stock quantities & map for easy lookup
+            $offerMap = [];
+
             foreach ($validated['products'] as $product) {
+                $uuid = $product['uuid'];
+                $offer = $offers->first(fn($o) => $o->variant->product->uuid === $uuid);
 
-                $offer = VendorOffer::whereHas('variant.product', function ($query) use ($product) {
-                    $query->where('uuid', $product['uuid']);
-                })->with('variant.product')->firstOrFail();
+                if (!$offer) {
+                    throw new \Exception("Offer not found for product UUID: {$uuid}");
+                }
 
-                $quantity = $product['quantity'];
+                if ($product['quantity'] > $offer->stock_qty) {
+                    throw new \Exception("Insufficient stock for {$offer->variant->product->name}. Requested: {$product['quantity']}, Available: {$offer->stock_qty}",422);
+                }
+
+                $offerMap[$uuid] = $offer;
+            }
+
+            // Find or create customer
+            $customer = Customer::firstOrCreate(
+                [
+                    'vendor_id' => $user->id,
+                    'mobile' => $validated['customerMobile'],
+                ],
+                [
+                    'name' => $validated['customerName'],
+                ]
+            );
+
+            if (!$customer) {
+                throw new \Exception("Unable to find or create customer.");
+            }
+
+            $invoiceNumber = $generator->generate($tenant);
+            $invoices = [];
+
+            // ✅ Step 3: Process each product (we already have offer data)
+            foreach ($validated['products'] as $productData) {
+                $offer = $offerMap[$productData['uuid']];
+                $quantity = $productData['quantity'];
+
                 $price = $offer->price;
                 $lineTotal = $quantity * $price;
-                $taxTotal = round($lineTotal * 0.18, 2); // 18% GST
+                $taxTotal = round($lineTotal * 0.18, 2);
                 $total = round($lineTotal + $taxTotal, 2);
 
                 $invoice = ProInvoice::create([
@@ -223,44 +239,41 @@ class InvoiceController extends Controller
                     'offer_id' => $offer->id,
                     'invoice_no' => $invoiceNumber,
                     'sell_quantity' => $quantity,
-                    'price' => $offer->price,
+                    'price' => $price,
                     'subtotal' => $lineTotal,
                     'tax_total' => $taxTotal,
                     'total' => $total,
-                    'issued_at' => Carbon::now(),
-
+                    'issued_at' => now(),
                 ]);
+
+                // Optional: reduce stock
+                // $offer->decrement('stock_qty', $quantity);
+
+                $invoices[] = $invoice;
             }
-            if (!$invoice) {
-                throw new \Exception("Invoice creation failed. Check fields or fillable.");
-            }
+
             DB::commit();
 
             return response()->json([
-                'message' => 'Invoice stored successfully',
+                'message' => 'Invoice created successfully.',
                 'invoiceNo' => $invoiceNumber,
+                'totalItems' => count($invoices),
             ], 201);
 
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-            //  DB::rollBack();
+        } catch (\Throwable $e) {
+            DB::rollBack();
 
             return response()->json([
-                'error' => 'something went wrong',
-                'message' => $e->getMessage()
-            ], 403); // Forbidden
-        } catch (\Exception $e) {
-            //  DB::rollBack();
-
-            return response()->json([
-                'error' => 'Failed to Create Invoice',
-                'message' => $e->getMessage()
+                'error' => 'Failed to create invoice',
+                'message' => $e->getMessage(),
             ], 500);
         }
-    }//storePro
+    }
+    //storePro
 
     public function fetchAllProInvoice(Request $request)
     {
-        $user = Auth::user();
+         $user = Auth::user();
 
         try {
 
