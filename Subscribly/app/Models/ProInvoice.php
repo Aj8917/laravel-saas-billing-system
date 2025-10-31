@@ -16,7 +16,24 @@ class ProInvoice extends Model
     {
         return $this->belongsTo(VendorOffer::class, 'offer_id', 'id');
     }
-    
+     // 🔹 Indirect relationship: ProInvoice → Offer → Variant → Product
+    public function product()
+    {
+        return $this->hasOneThrough(
+            Product::class,
+            ProductVariant::class,
+            'id',          // Foreign key on variants table
+            'id',          // Foreign key on products table
+            'offer_id',    // Local key on pro_invoices table (through offer)
+            'product_id'   // Local key on variants table
+        );
+    }
+
+    // 🔹 Stock movements related to this invoice
+    public function stockMovements()
+    {
+        return $this->morphMany(StockMovement::class, 'reference');
+    }
     public function toArray()
     {
         return [

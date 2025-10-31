@@ -26,7 +26,10 @@ class VendorOffer extends Model
     {
         return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
-
+    public function invoices()
+    {
+        return $this->hasMany(ProInvoice::class, 'offer_id');
+    }
     public function toArray()
     {
         return [

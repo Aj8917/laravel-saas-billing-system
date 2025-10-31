@@ -39,8 +39,8 @@ const ProInvoice = () => {
       updatedProducts[index] = {
         uuid: selectedOption.value,
         sku: selectedOption.sku || '',
-        stock: selectedOption.stock || '',
-        price: selectedOption.price || '',
+        stock: selectedOption.stock || 0,
+        price: selectedOption.price || 0,
         productLabel: selectedOption.label,
         quantity: updatedProducts[index].quantity || 1
       };
@@ -200,7 +200,8 @@ const ProInvoice = () => {
                   <div className="mb-3">
                     <label className="form-label">Select Product</label>
                     <Select
-                      options={productOptions.filter(
+                      options={productOptions
+                        .filter(
                         (opt) => !invoiceProducts.some((p, i) => i !== index && p.uuid === opt.value)
                       )}
                       value={
@@ -243,8 +244,8 @@ const ProInvoice = () => {
                       <div className="form-floating-label flex-fill">
                         <input
                           type="number"
-                          className="form-input"
-                          value={product.stock || 0}
+                          className={`form-input ${product.stock===0 ? 'text-danger fw-bold':''}` }
+                          value={product.stock || 0?'Out of Stock':product.stock}
                           readOnly
                         />
                         <label>Stock</label>
@@ -259,6 +260,7 @@ const ProInvoice = () => {
                       className={`form-control ${errors[`quantity-${index}`] ? 'is-invalid' : ''}`}
                       min="1"
                       value={product.quantity}
+                       disabled={product.stock === 0} // 🔹 Disable if out of stock
                       onChange={(e) => handleQuantityChange(index, e.target.value)}
                       required
                     />
