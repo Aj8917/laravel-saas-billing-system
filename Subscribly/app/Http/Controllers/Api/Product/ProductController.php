@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attribute;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\StockMovement;
 use App\Models\VariantAttribute;
 use App\Models\VendorOffer;
 use Auth;
@@ -126,4 +127,64 @@ class ProductController extends Controller
             ], 500);
         }
     }//storeProduct
+
+    public function updateStock(Request $request)
+    {
+        $vendor = Auth::user();
+
+        //  Validate input
+        $validator = Validator::make($request->all(), [
+            'products' => 'required|array|min:1',
+            'products.*.uuid' => 'required|string|exists:products,uuid',
+            'products.*.price' => 'required|numeric|min:0',
+            'products.*.stock' => 'required|integer|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($request->products as $productData) {
+                $product = Product::where('uuid', $productData['uuid'])->firstOrFail();
+
+                // 🔹 Find or create the variant for this product (optional, if needed)
+                $variant = ProductVariant::firstOrCreate(['product_id' => $product->id]);
+
+                // 🔹 Find or create vendor offer
+                $offer = VendorOffer::updateOrCreate(
+                    [
+                        'variant_id' => $variant->id,
+                        'vendor_id' => $vendor->id,
+                    ],
+                    [
+                        'price' => $productData['price'],
+                        'stock_qty' => $productData['stock'],
+                    ]
+                );
+
+                // 🔹 Create Stock Movement (log adjustment)
+                StockMovement::create([
+                    'product_id' => $product->id,
+                    'change_type' => 'adjustment',
+                    'quantity_change' => $productData['stock'], // if stock is new quantity
+                    'resulting_stock' => $offer->stock_qty,
+                    'reference_type' => Product::class,
+                    'reference_id' => $product->id,
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Stock and price updated successfully.'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to update stock.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }//updateStock
 }

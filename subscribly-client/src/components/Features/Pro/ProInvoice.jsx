@@ -244,8 +244,8 @@ const ProInvoice = () => {
                       <div className="form-floating-label flex-fill">
                         <input
                           type="number"
-                          className={`form-input ${product.stock===0 ? 'text-danger fw-bold':''}` }
-                          value={product.stock || 0?'Out of Stock':product.stock}
+                          className={`form-input ${product.stock === 0 ? 'text-danger fw-bold':''}` }
+                         value={product.stock === 0 ? 'Out of Stock' : product.stock}
                           readOnly
                         />
                         <label>Stock</label>

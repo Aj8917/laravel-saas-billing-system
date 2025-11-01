@@ -34,6 +34,7 @@ const DashboardLayout = ({ appName }) => {
             <Nav.Link as={Link} to="/invoice">Invoice</Nav.Link>
             <Nav.Link as={Link} to="/invoices">Orders</Nav.Link>
             <Nav.Link as={Link} to="/products" >Products</Nav.Link>
+            <Nav.Link as={Link} to="/stock" >Stock TopUp</Nav.Link>
             <Nav.Link href="#account">Account</Nav.Link>
             <Nav.Link href="#logout">Logout</Nav.Link>
           </Nav>
@@ -50,6 +51,7 @@ const DashboardLayout = ({ appName }) => {
               <Nav.Link as={Link} to="/invoice">Invoice</Nav.Link>
               <Nav.Link as={Link} to="/invoices">Orders</Nav.Link>
               <Nav.Link as={Link} to="/products" >Products</Nav.Link>
+               <Nav.Link as={Link} to="/stock" >Stock TopUp</Nav.Link>
               <Nav.Link href="#account">Account</Nav.Link>
               <Nav.Link href="#logout">Logout</Nav.Link>
             </Nav>

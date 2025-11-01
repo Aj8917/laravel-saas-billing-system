@@ -23,6 +23,7 @@ import Products from './components/Features/Pro/Products.jsx';
 import ProInvoice from './components/Features/Pro/ProInvoice.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import ProInvoiceList from './components/Features/Pro/ProInvoiceList.jsx';
+import StockTopUp from './components/Features/Pro/StockTopUp.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -88,7 +89,9 @@ function App() {
           >
             <Route path='/' element={<DashboardLayout />}>
               <Route path='/products' element={<Products />} />
+               <Route path='/stock' element={<StockTopUp />} />
             </Route>
+            
           </Route>
 
           <Route path='/unauthorized' element={<Unauthorized />} />

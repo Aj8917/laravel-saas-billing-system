@@ -50,5 +50,5 @@ Route::controller(CategoryController::class)->group(function(){
 Route::controller(ProductController::class)->group(function(){
     Route::get('/products','index');
     Route::post('/products','storeProduct');
-    
+    Route::post('/update-stock','updateStock');
 })->middleware('auth:sanctum');
