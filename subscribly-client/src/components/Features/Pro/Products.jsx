@@ -13,7 +13,7 @@ const Products = () => {
   const [products, setProducts] = useState([
     {
       productName: '',
-      quantity: 1,
+     // quantity: 1,
       price: '',
       stock: '',
       batchNo: '',
@@ -87,7 +87,7 @@ const Products = () => {
   const handleAddProduct = () => {
     setProducts([...products, {
       productName: '',
-      quantity: 1,
+     // quantity: 1,
       price: '',
       stock: '',
       batchNo: '',
@@ -109,7 +109,10 @@ const Products = () => {
     let hasError = false;
     const newErrors = {};
     products.forEach((product, index) => {
-      const requiredFields = ['productName', 'quantity', 'price', 'stock', 'batchNo', 'unit'];
+      const requiredFields = [
+                                'productName',
+                                //'quantity', 
+                                 'price', 'stock', 'batchNo', 'unit'];
       requiredFields.forEach((field) => {
         if (product[field] === undefined || product[field] === '' || product[field] === null) {
           newErrors[`${field}-${index}`] = [`${field} is required.`];
@@ -142,7 +145,7 @@ const Products = () => {
 
       setProducts([{
         productName: '',
-        quantity: 1,
+        //quantity: 1,
         price: '',
         stock: '',
         batchNo: '',
@@ -218,15 +221,22 @@ const Products = () => {
                     </div>
 
                     {/* PRODUCT FIELDS */}
-                    {['productName', 'quantity', 'price', 'stock', 'batchNo', 'unit'].map((field) => (
+                    {[
+                      'productName',
+                      //'quantity', 
+                      'price', 'stock', 'batchNo', 'unit'].map((field) => (
                       <div className="form-floating-label mb-3" key={field}>
                         <input
-                          type={['quantity', 'price', 'stock'].includes(field) ? 'number' : 'text'}
+                          type={[
+                                  //'quantity', 
+                                  'price', 'stock'].includes(field) ? 'number' : 'text'}
                           id={`${field}-${index}`}
                           className={`form-input ${errors[`${field}-${index}`] ? 'is-invalid' : ''}`}
                           value={product[field]}
                           onChange={(e) => handleProductChange(index, field, e.target.value)}
-                          min={['quantity', 'price', 'stock'].includes(field) ? 1 : undefined}
+                          min={[
+                                  //'quantity',
+                                   'price', 'stock'].includes(field) ? 1 : undefined}
                           required
                         />
                         <label htmlFor={`${field}-${index}`}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>

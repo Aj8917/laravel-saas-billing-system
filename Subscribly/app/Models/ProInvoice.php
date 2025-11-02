@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProInvoice extends Model
 {
+    protected $hidden = ['cust_id'];
     protected $fillable = ['cust_id', 'offer_id', 'invoice_no', 'sell_quantity', 'issued_at', 'price', 'subtotal', 'tax_total', 'total'];
     public function customer()
     {
@@ -42,6 +43,7 @@ class ProInvoice extends Model
             "invoice_no" => $this->invoice_no,
             "product_name" =>  $this->offer->variant->product->name,
             "price" => $this->price,
+            "unit"=>$this->offer->variant->unit??null,
             "sell_quantity" => $this->sell_quantity,
             "subtotal" => $this->subtotal,
             "tax_total" => $this->tax_total,

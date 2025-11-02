@@ -10,6 +10,7 @@ class ProductVariant extends Model
     protected $fillable = [
         'product_id',
         'base_sku',
+        'unit',
        
     ];
       public function product()
@@ -20,6 +21,6 @@ class ProductVariant extends Model
    
     public function offers() 
     {
-            return $this->hasMany(VendorOffer::class, 'variant_id');
+        return $this->hasMany(VendorOffer::class, 'variant_id');
     }
 }

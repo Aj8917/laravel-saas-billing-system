@@ -200,7 +200,7 @@ class InvoiceController extends Controller
                 }
 
                 if ($product['quantity'] > $offer->stock_qty) {
-                    throw new \Exception("Insufficient stock for {$offer->variant->product->name}. Requested: {$product['quantity']}, Available: {$offer->stock_qty}",422);
+                    throw new \Exception("Insufficient stock for {$offer->variant->product->name}. Requested: {$product['quantity']}, Available: {$offer->stock_qty}", 422);
                 }
 
                 $offerMap[$uuid] = $offer;
@@ -273,7 +273,7 @@ class InvoiceController extends Controller
 
     public function fetchAllProInvoice(Request $request)
     {
-         $user = Auth::user();
+        $user = Auth::user();
 
         try {
 
@@ -298,5 +298,30 @@ class InvoiceController extends Controller
     }//fetchAllProInvoice
 
 
+    public function showProInvoice($invoice_no)
+    {
 
+
+        try {
+            // $invoice_no = decrypt($encryptedNo);
+
+            $invoice = ProInvoice::with(['offer.variant.product', 'Customer'])
+                ->where('invoice_no', $invoice_no)
+                ->get(); // no select for product_name
+
+            // Use toArray() to get computed product_name
+            $invoiceArray = $invoice->map(fn($inv) => $inv->toArray());
+
+
+            return response()->json([
+                'customer' => [
+                    'name' => $invoiceArray->first()['name'] ?? null,
+                    'mobile' => $invoiceArray->first()['mobile'] ?? null,
+                ],
+                'invoice' => $invoiceArray
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Invalid invoice ID.'], 404);
+        }
+    }//showProInvoice
 }//InvoiceController
