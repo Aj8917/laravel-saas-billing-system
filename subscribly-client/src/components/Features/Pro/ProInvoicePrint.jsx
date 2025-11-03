@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-
+import messageHandler from '../../../util/messageHandler';
 const ProInvoicePrint = () => {
     const { invoiceNo } = useParams();
   const [invoice, setInvoice] = useState([]);
@@ -17,12 +17,13 @@ const ProInvoicePrint = () => {
 
       try {
          const  response = await axios.get(`/pro-invoice/${invoiceNo}`);
-        console.log(response);
+         // console.log(response);
           // Set customer and invoice data
         setCustomer(response.data.customer || { name: '', mobile: '' });
         setInvoice(response.data.invoice || []);
       } catch (err) {
-        console.error('Failed to load invoice:', err);
+        // console.error('Failed to load invoice:', err);
+        messageHandler(`"Failed to load invoice:"+${err}`,'error');
       } finally {
         setLoading(false);
       }

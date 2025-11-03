@@ -31,7 +31,7 @@ export const signin = createAsyncThunk(
             localStorage.setItem('isAuthenticated', 'true');
 
             // Return to reducer
-            return { userData, token };
+            return { userData, token, plan };
         } catch (error) {
 
             return thunkAPI.rejectWithValue(error.response?.data || 'Login failed');

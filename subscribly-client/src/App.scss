@@ -191,6 +191,8 @@ footer {
   background-color: var(--dark-color);
   color: white;
   padding: 4rem 0 2rem;
+  position: relative; /* make it positioned */
+  z-index: 10; /* ensure it appears above other elements */
 }
 
 .footer-link {
@@ -354,10 +356,10 @@ footer {
   /* Fill screen under navbar */
   border-right: 1px solid #ddd;
   position: fixed;
-  top: 70px;
+  top: 40px;
   /* Height of navbar */
   left: 0;
-  z-index: 100;
+  z-index: 10;
   background-color: #f8f9fa;
 }
 
@@ -536,3 +538,8 @@ footer {
   page-break-inside: avoid;
 }
 
+//----------------- Vendro Dashborad -----------------------------------------
+.khakibg,
+.khakibg .card-body {
+  background-color: khaki !important;
+}

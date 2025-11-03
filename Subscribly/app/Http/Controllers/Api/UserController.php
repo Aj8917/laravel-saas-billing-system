@@ -183,12 +183,13 @@ class UserController extends Controller
     public function dashboardDetails()
 {
     $user = Auth::user();
-
+    
     $plan = Subscriptions::with('tenant')
         ->where('tenant_id', $user->tenant_id)
         ->first();
 
     $details = [
+        'name'=>'user',
         'orders' => 0,
         'revenue' => 0,
         'total_tax' => 0,
@@ -199,6 +200,7 @@ class UserController extends Controller
             
         if ($summary) {
             $details = [
+                'name'=>$user->name,
                 'orders' => (int) ($summary?->orders ?? 0),
                 'revenue' => (float) ($summary->revenue ?? 0),
                 'total_tax' => (float) ($summary->total_tax ?? 0),
@@ -213,6 +215,7 @@ class UserController extends Controller
 
         if ($summary) {
             $details = [
+                'name'=>$user->name,
                 'orders' => (int) ($summary->orders ?? 0),
                 'revenue' => (float) ($summary->revenue ?? 0),
                 'total_tax' => (float) ($summary->total_tax ?? 0),

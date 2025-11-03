@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosAuth from '../../../api/axiosAuth';
 import messageHandler from '../../../util/messageHandler';
+import Loader from '../../../util/Loader';
 
 const ProInvoiceList = () => {
     const [list, setList] = useState([]);
@@ -64,11 +65,11 @@ const ProInvoiceList = () => {
         }
         navigate(`/PrintInvoice/${invoiceNo}`);
     };
-
+   
     return (
         <div className="container mt-4">
             <h2 className="mb-4">Proforma Invoices List</h2>
-
+           
             {/* 🔍 Search bar */}
             <div className="d-flex mb-3 p-3 justify-content-end">
                 <input
@@ -85,7 +86,7 @@ const ProInvoiceList = () => {
 
             {/*  Invoice List */}
             {loading ? (
-                <p>Loading invoices...</p>
+                <Loader />
             ) : Object.keys(grouped).length === 0 ? (
                 <p>No invoices found.</p>
             ) : (

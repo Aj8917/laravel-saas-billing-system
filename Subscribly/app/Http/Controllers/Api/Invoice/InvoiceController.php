@@ -145,8 +145,8 @@ class InvoiceController extends Controller
                     'total',
                     'issued_at',
                     'cust_id' // 
-                )
-                ->get();
+                )->orderBy('created_at', 'desc')
+                 ->paginate(10);
 
             return response()->json(['invoices' => $invoices]);
         } catch (\Exception $e) {

@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import Loader from '../util/Loader';
 
-const PrivateRoute = ({ isAuthenticated, allowedPlans, activePlan }) => {
+const PrivateRoute = ({ isAuthenticated, allowedPlans, activePlan, isAuthLoading }) => {
   // Normalize plan values to lowercase and trim spaces
 
 
@@ -13,6 +14,10 @@ const PrivateRoute = ({ isAuthenticated, allowedPlans, activePlan }) => {
   const allowedPlanList = Array.isArray(allowedPlans)
     ? allowedPlans.map(plan => plan.trim().toLowerCase())
     : [allowedPlans.trim().toLowerCase()];
+
+  if (isAuthLoading) {
+    return <Loader />; // You can replace this with a spinner
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/signin" replace />;

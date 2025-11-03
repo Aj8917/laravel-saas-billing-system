@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosAuth from '../../../api/axiosAuth';
 import messageHandler from '../../../util/messageHandler';
+import Loader from '../../../util/Loader';
 
 const InvoiceList = () => {
     const [list, setList] = useState([]);
@@ -19,8 +20,8 @@ const InvoiceList = () => {
                 params: { page: pageNumber, per_page: perPage, search: query }
             });
 
-            const data = response.data;
-
+            const data = response.data.invoices ?? [];
+            console.log(data);
             // ✅ Laravel pagination returns { data: [...], last_page: N }
             if (Array.isArray(data?.data) && data.data.length > 0) {
                 setList(data.data);
@@ -80,7 +81,7 @@ const InvoiceList = () => {
             </div>
 
             {loading ? (
-                <p>Loading invoices...</p>
+               <Loader />
             ) : Object.keys(grouped).length === 0 ? (
                 <p>No invoices found.</p>
             ) : (

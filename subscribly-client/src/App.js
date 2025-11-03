@@ -31,6 +31,7 @@ axios.defaults.baseURL = 'http://localhost:8000/api';
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const activePlan = useSelector((state) => state.auth.plan);
+  const isAuthLoading = useSelector((state) => state.auth.loading);
   const [appName, setAppName] = useState('');
   
   useEffect(() => {
@@ -59,8 +60,9 @@ function App() {
             element={
               <PrivateRoute
                 isAuthenticated={isAuthenticated}
-                allowedPlans={['Basic', 'Pro']}
+                allowedPlans={['Basic', 'Pro',]}
                 activePlan={activePlan}
+                isAuthLoading={isAuthLoading}
               />
             }
           >

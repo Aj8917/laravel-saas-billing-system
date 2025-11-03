@@ -27,13 +27,13 @@ const VendorDashboard = () => {
             <section className="py-5">
                 <div className="container">
                     <h1>Dashboard</h1>
-                    <p>Welcome to your vendor dashboard!</p>
+                    <p>Welcome to your vendor dashboard! <b>{details.name}</b></p>
                 </div>
 
                 <div className="row">
                     <Row className="g-4"> {/* Adds gutter spacing between columns */}
                         <Col md={4} sm={6} >
-                            <Card className="shadow-sm h-100">
+                            <Card className="shadow-sm h-100 khakibg">
                                 <i class="bi bi-bar-chart-fill"></i>
                                 <Card.Body>
                                     <Card.Title>Total Orders</Card.Title>
@@ -47,7 +47,7 @@ const VendorDashboard = () => {
                         </Col>
 
                         <Col md={4} sm={6} >
-                            <Card className="shadow-sm h-100">
+                            <Card className="shadow-sm h-100 khakibg">
                                 <i class="bi bi-pie-chart-fill"></i>
                                 <Card.Body>
                                     <Card.Title>Total Revenue</Card.Title>
@@ -61,7 +61,7 @@ const VendorDashboard = () => {
                         </Col>
 
                         <Col md={4} sm={12} >
-                            <Card className="shadow-sm h-100">
+                            <Card className="shadow-sm h-100 khakibg">
                                 <i class="bi bi-bank2"></i>
                                 <Card.Body>
                                     <Card.Title>Total Tax</Card.Title>
