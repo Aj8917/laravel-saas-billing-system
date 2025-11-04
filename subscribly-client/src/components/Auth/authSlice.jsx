@@ -4,6 +4,7 @@ import axios, { Axios } from 'axios';
 const initialState = {
     userData: {
         user: JSON.parse(localStorage.getItem('user')) || null,
+        permissions: JSON.parse(localStorage.getItem('permissions')) || [], // ✅ store permissions
     },
     token: localStorage.getItem('token') || null,
     isAuthenticated: localStorage.getItem('isAuthenticated') || false,
@@ -21,12 +22,14 @@ export const signin = createAsyncThunk(
             const userData = {
                 name: response.data.user,
                 role: response.data.role,
+                permissions: response.data.permissions, // ✅ store permissions
             };
             const token = response.data.access_token;
             const plan =response.data.plan;
             // Store token and user in localStorage
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem('permissions', JSON.stringify(userData.permissions));
             localStorage.setItem('plan', plan);
             localStorage.setItem('isAuthenticated', 'true');
 
@@ -66,6 +69,7 @@ const authSlice = createSlice({
             .addCase(signin.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = action.payload.user;
+                state.permissions = action.payload.userData.permissions; // ✅ set permissions
                 state.token = action.payload.token;
                 state.plan = action.payload.plan;
                 state.isAuthenticated = true;

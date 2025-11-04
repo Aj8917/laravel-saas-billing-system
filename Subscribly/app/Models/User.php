@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'tenant_id',
+        'role_id'
     ];
 
     /**
@@ -51,5 +52,18 @@ class User extends Authenticatable
     public function tenant()
     {
         return $this->belongsTo(Tenant::class,'tenant_id','id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function hasPermission($slug)
+    {
+        if($this->role) return false;
+
+        $permission=$this->role->getCachedPermission();
+        return in_array($slug,$permission);
     }
 }

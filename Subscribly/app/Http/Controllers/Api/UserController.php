@@ -14,7 +14,6 @@ use Auth;
 use DB;
 use Hash;
 use Illuminate\Http\Request;
-use Symfony\Component\VarDumper\Caster\DsCaster;
 use Validator;
 use Carbon\Carbon;
 
@@ -38,7 +37,8 @@ class UserController extends Controller
                 'token_type' => 'Bearer',
                 'user' => $user->name,
                 'plan' => $plan->plan->name,
-                'company_name' => $company->tenant->business_name
+                'company_name' => $company->tenant->business_name,
+                'permissions' => $user->role?->getCachedPermissions() ?? [],
 
             ]);
 
@@ -82,6 +82,7 @@ class UserController extends Controller
             'email' => $request->email,
             'tenant_id' => $tenant->id,
             'password' => Hash::make($request->password),
+            'role_id'=>2,
         ]);
 
         return response()->json([
