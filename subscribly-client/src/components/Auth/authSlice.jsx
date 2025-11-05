@@ -48,6 +48,7 @@ const authSlice = createSlice({
         signout: (state) => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            localStorage.removeItem('permissions');
             localStorage.removeItem('tenantId');
             localStorage.removeItem('isAuthenticated');
             localStorage.removeItem('plan');
