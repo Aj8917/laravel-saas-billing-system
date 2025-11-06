@@ -19,7 +19,7 @@ const DashboardLayout = ({ appName }) => {
     { label: "Invoice", to: "/invoice", permission: "manage_invoices" },
     { label: "Orders", to: "/invoices", permission: "manage_invoices" },
     { label: "Stock TopUp", to: "/stock", permission: "manage_stocks" },
-    { label: "Account", to: "#account", permission: "manage_account" },
+    { label: "Account", to: "/account", permission: "manage_account" },
     { label: "Logout", to: "#logout" } // no permission required
   ];
 

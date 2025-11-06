@@ -82,7 +82,7 @@ class UserController extends Controller
             'email' => $request->email,
             'tenant_id' => $tenant->id,
             'password' => Hash::make($request->password),
-            'role_id'=>2,
+            'role_id' => 2,
         ]);
 
         return response()->json([
@@ -182,49 +182,107 @@ class UserController extends Controller
     }//companyDetails
 
     public function dashboardDetails()
-{
-    $user = Auth::user();
-    
-    $plan = Subscriptions::with('tenant')
-        ->where('tenant_id', $user->tenant_id)
-        ->first();
+    {
+        $user = Auth::user();
 
-    $details = [
-        'name'=>'user',
-        'orders' => 0,
-        'revenue' => 0,
-        'total_tax' => 0,
-    ];
+        $plan = Subscriptions::with('tenant')
+            ->where('tenant_id', $user->tenant_id)
+            ->first();
 
-    if ($plan->plan->name == "Basic") {
-        $summary = BasicInvoice::summaryForVendor($user->id)->first();
-            
-        if ($summary) {
-            $details = [
-                'name'=>$user->name,
-                'orders' => (int) ($summary?->orders ?? 0),
-                'revenue' => (float) ($summary->revenue ?? 0),
-                'total_tax' => (float) ($summary->total_tax ?? 0),
-            ];
+        $details = [
+            'name' => 'user',
+            'orders' => 0,
+            'revenue' => 0,
+            'total_tax' => 0,
+        ];
+
+        if ($plan->plan->name == "Basic") {
+            $summary = BasicInvoice::summaryForVendor($user->id)->first();
+
+            if ($summary) {
+                $details = [
+                    'name' => $user->name,
+                    'orders' => (int) ($summary?->orders ?? 0),
+                    'revenue' => (float) ($summary->revenue ?? 0),
+                    'total_tax' => (float) ($summary->total_tax ?? 0),
+                ];
+            }
         }
-    }
 
-    if ($plan->plan->name == "Pro") {
-        $summary = ProInvoice::whereHas('offer', fn($q) => $q->where('vendor_id', $user->id))
-                               ->selectRaw('COUNT(DISTINCT invoice_no) as orders, SUM(subtotal) as revenue, SUM(tax_total) as total_tax')
-                               ->first();
+        if ($plan->plan->name == "Pro") {
+            $summary = ProInvoice::whereHas('offer', fn($q) => $q->where('vendor_id', $user->id))
+                ->selectRaw('COUNT(DISTINCT invoice_no) as orders, SUM(subtotal) as revenue, SUM(tax_total) as total_tax')
+                ->first();
 
-        if ($summary) {
-            $details = [
-                'name'=>$user->name,
-                'orders' => (int) ($summary->orders ?? 0),
-                'revenue' => (float) ($summary->revenue ?? 0),
-                'total_tax' => (float) ($summary->total_tax ?? 0),
-            ];
+            if ($summary) {
+                $details = [
+                    'name' => $user->name,
+                    'orders' => (int) ($summary->orders ?? 0),
+                    'revenue' => (float) ($summary->revenue ?? 0),
+                    'total_tax' => (float) ($summary->total_tax ?? 0),
+                ];
+            }
         }
-    }
 
-    return response()->json(['details' => $details]);
-}
+        return response()->json(['details' => $details]);
+    }//dashboardDetails
 
+
+
+    //-------------------------------------------------- Business Account ----------------------------------------------------------
+
+
+    public function fetchComapnyDetails()
+    {
+        $user=Auth::user();
+
+        $company_details=Tenant::with('companyDetails','users')
+                        ->where('id',$user->tenant_id)
+                        ->first();
+          
+        return response()->json(['details'=>$company_details]);
+    }//fetchComapnyDetails
+    public function addSubVendor(Request $request)
+    {
+        $user=Auth::user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[A-Z]/',         // at least one uppercase
+                'regex:/[a-z]/',         // at least one lowercase
+                'regex:/[0-9]/',         // at least one digit
+                'regex:/[@$!%*?&\-]/'    // at least one special char (hyphen included safely)
+            ],
+            'confirmPassword'=>['required','same:password'],
+        ], [
+            'name.regex' => 'Name must only contain letters and spaces.',
+            'password.regex' => 'Password must have at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.',
+            'confirmPassword.same'=>'Confirm password must match the password',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+       
+
+        // Hash the password before storing
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'tenant_id' => $user->tenant->id,
+            'password' => Hash::make($request->password),
+            'parent_id'=>$user->id,
+            'role_id' => 3,
+        ]);
+
+        return response()->json([
+            'success' => 'User Created!',
+        ], 201);
+    }//signup
 }//UserController

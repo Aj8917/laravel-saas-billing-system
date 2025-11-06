@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'parent_id',
         'tenant_id',
         'role_id'
     ];
@@ -66,4 +67,13 @@ class User extends Authenticatable
         $permission=$this->role->getCachedPermission();
         return in_array($slug,$permission);
     }
-}
+
+    public function subvendors(){
+        return $this->hasMany(User::class,'parent_id')->where('role_id',3);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(User::class,'parent_id');
+    }
+}//Users

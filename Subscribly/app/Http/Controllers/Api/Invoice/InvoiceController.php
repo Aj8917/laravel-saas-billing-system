@@ -280,6 +280,9 @@ class InvoiceController extends Controller
             $perPage = $request->get('per_page', 50);
             $search = $request->get('search');
             $query = ProInvoice::with(['offer.variant.product', 'Customer'])
+                            ->whereHas('offer',function($q) use ($user){
+                                $q->where('vendor_id',$user->id);    
+                            })
                 ->orderBy('created_at', 'desc');
 
             if (!empty($search)) {

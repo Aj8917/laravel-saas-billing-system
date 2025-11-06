@@ -21,8 +21,11 @@ Route::controller(UserController::class)->group(function () {
     Route::post('/signup', 'signup');
     Route::post('/signin', 'singin');
     Route::post('/subscriptions', 'planSelection');
+    Route::get('/company-details','fetchComapnyDetails');
     Route::post('/company-details', 'companyDetails');
     Route::get('/dashboard-details','dashboardDetails');
+     Route::post('/sub-vendors', 'addSubVendor');
+   
 });
 
 Route::controller(LocationController::class)->group(function(){

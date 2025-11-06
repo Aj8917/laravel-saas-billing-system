@@ -543,3 +543,57 @@ footer {
 .khakibg .card-body {
   background-color: khaki !important;
 }
+
+/* Company Card Styling */
+.company-card {
+  background-color: #ffffff; /* clean white card */
+  border: 1px solid #e0e0e0;
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.company-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.company-card .card-title {
+  font-weight: 600;
+  color: #333333;
+  font-size: 1.25rem;
+}
+
+/* Label-Value Rows */
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.field-row .label {
+  font-weight: 500;
+  color: #555555;
+  min-width: 40%; /* ensures label doesn’t shrink too much */
+}
+
+.field-row .value {
+  font-weight: 700;
+  color: #0d6efd; /* Bootstrap primary color */
+  max-width: 55%; /* prevent overflow */
+  word-break: break-word; /* wrap long strings like GSTIN/PAN */
+  text-align: right;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+  .field-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .field-row .value {
+    text-align: left;
+    max-width: 100%;
+  }
+}

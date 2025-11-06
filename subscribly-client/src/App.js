@@ -25,6 +25,7 @@ import PrivateRoute from './components/PrivateRoute.jsx';
 import ProInvoiceList from './components/Features/Pro/ProInvoiceList.jsx';
 import StockTopUp from './components/Features/Pro/StockTopUp.jsx';
 import ProInvoicePrint from './components/Features/Pro/ProInvoicePrint.jsx';
+import Account from './components/Features/Pro/Account.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -33,7 +34,7 @@ function App() {
   const activePlan = useSelector((state) => state.auth.plan);
   const isAuthLoading = useSelector((state) => state.auth.loading);
   const [appName, setAppName] = useState('');
-  
+
   useEffect(() => {
     axios.get("get-appname")
       .then(response => {
@@ -75,8 +76,8 @@ function App() {
                 path='/invoice'
                 element={activePlan === 'Pro' ? <ProInvoice /> : <Invoice />}
               />
-              <Route path='/PrintInvoice/:invoiceNo' element={activePlan === 'Pro'? <ProInvoicePrint /> :<InvoicePrint />} />
-              <Route path='/invoices' element={activePlan==='Pro' ?<ProInvoiceList /> :<InvoiceList />} />
+              <Route path='/PrintInvoice/:invoiceNo' element={activePlan === 'Pro' ? <ProInvoicePrint /> : <InvoicePrint />} />
+              <Route path='/invoices' element={activePlan === 'Pro' ? <ProInvoiceList /> : <InvoiceList />} />
             </Route>
           </Route>
 
@@ -92,9 +93,10 @@ function App() {
           >
             <Route path='/' element={<DashboardLayout />}>
               <Route path='/products' element={<Products />} />
-               <Route path='/stock' element={<StockTopUp />} />
+              <Route path='/stock' element={<StockTopUp />} />
+              <Route path='/account' element={<Account />} />
             </Route>
-            
+
           </Route>
 
           <Route path='/unauthorized' element={<Unauthorized />} />
