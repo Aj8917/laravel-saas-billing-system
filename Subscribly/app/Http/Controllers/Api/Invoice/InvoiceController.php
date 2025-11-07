@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BasicInvoice;
 use App\Models\Customer;
 use App\Models\ProInvoice;
+use App\Models\Tenant;
 use App\Models\VendorOffer;
 use Auth;
 use Carbon\Carbon;
@@ -146,7 +147,7 @@ class InvoiceController extends Controller
                     'issued_at',
                     'cust_id' // 
                 )->orderBy('created_at', 'desc')
-                 ->paginate(10);
+                ->paginate(10);
 
             return response()->json(['invoices' => $invoices]);
         } catch (\Exception $e) {
@@ -274,15 +275,15 @@ class InvoiceController extends Controller
     public function fetchAllProInvoice(Request $request)
     {
         $user = Auth::user();
-
+        $vendorId = $user->parent_id ? $user->parent_id : $user->id;
         try {
 
             $perPage = $request->get('per_page', 50);
             $search = $request->get('search');
             $query = ProInvoice::with(['offer.variant.product', 'Customer'])
-                            ->whereHas('offer',function($q) use ($user){
-                                $q->where('vendor_id',$user->id);    
-                            })
+                ->whereHas('offer', function ($q) use ($vendorId) {
+                    $q->where('vendor_id', $vendorId);
+                })
                 ->orderBy('created_at', 'desc');
 
             if (!empty($search)) {
@@ -327,4 +328,53 @@ class InvoiceController extends Controller
             return response()->json(['message' => 'Invalid invoice ID.'], 404);
         }
     }//showProInvoice
+
+    public function showProMonthlyReport(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validate and parse month input
+        $request->validate([
+            'month' => 'required|date_format:Y-m',
+        ]);
+
+        try {
+            $month = $request->input('month');
+            $startOfMonth = Carbon::parse($month)->startOfMonth();
+            $endOfMonth = Carbon::parse($month)->endOfMonth();
+
+            $perPage = $request->get('per_page', 50);
+
+            // Get all subvendor IDs under this vendor
+            $subvendorIds = $user->subvendors()->pluck('id')->toArray();
+
+            // Include current vendor + subvendors
+            $vendorIds = array_merge([$user->id], $subvendorIds);
+
+            // Query invoices for all those vendors
+            $invoices = ProInvoice::with(['offer.variant.product', 'Customer'])
+                ->whereHas('offer', function ($q) use ($vendorIds) {
+                    $q->whereIn('vendor_id', $vendorIds);
+                })
+                ->whereBetween('issued_at', [$startOfMonth, $endOfMonth])
+                ->orderBy('created_at', 'asc')
+                ->paginate($perPage);
+
+            return response()->json($invoices);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error fetching invoices',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }//showProMonthlyReport
+
+
+
+
+
+
+
+
 }//InvoiceController

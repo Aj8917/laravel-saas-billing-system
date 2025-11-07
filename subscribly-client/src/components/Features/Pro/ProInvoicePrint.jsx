@@ -23,7 +23,7 @@ const ProInvoicePrint = () => {
         setInvoice(response.data.invoice || []);
       } catch (err) {
         // console.error('Failed to load invoice:', err);
-        messageHandler(`"Failed to load invoice:"+${err}`,'error');
+        messageHandler(`"Failed to load invoice:"${err.response.data.errors}`,'error');
       } finally {
         setLoading(false);
       }

@@ -43,7 +43,9 @@ Route::controller(InvoiceController::class)->group(function(){
 
     Route::post('/pro-invoice','storePro');
     Route::get('/pro-invoices','fetchAllProInvoice');
-     Route::get('/pro-invoice/{encryptedId}',  'showProInvoice');
+    Route::get('/pro-invoice/{encryptedId}',  'showProInvoice');
+    Route::post('/pro-monthly-report','showProMonthlyReport');
+
 })->middleware('auth:sanctum');
 
 Route::controller(CategoryController::class)->group(function(){

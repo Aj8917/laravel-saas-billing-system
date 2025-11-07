@@ -20,9 +20,12 @@ class ProductController extends Controller
 
     public function index()
     {
-        $vendor = Auth::user();
+
         try {
-            $VendorOffer = VendorOffer::where('vendor_id', $vendor->id)
+            $user = Auth::user();
+
+            $vendorId = $user->parent_id ? $user->parent_id : $user->id;
+            $VendorOffer = VendorOffer::where('vendor_id', $vendorId)
                 ->with(['variant.product'])
                 ->get();
 
@@ -40,7 +43,7 @@ class ProductController extends Controller
             'products' => 'required|array|min:1',
 
             'products.*.productName' => 'required|string|max:255',
-          //  'products.*.quantity' => 'required|integer|min:1',
+            //  'products.*.quantity' => 'required|integer|min:1',
             'products.*.price' => 'required|numeric|min:0',
             'products.*.stock' => 'required|integer|min:0',
             'products.*.batchNo' => 'required|string|max:255',
@@ -85,21 +88,21 @@ class ProductController extends Controller
                     ],
                     [
                         'batch_no' => $productData['batchNo'],
-                        'unit' => $productData['unit']?? null,
-                     //   'quantity' => $productData['quantity'],
+                        'unit' => $productData['unit'] ?? null,
+                        //   'quantity' => $productData['quantity'],
                     ]
                 );
 
                 // Save attributes for the variant
                 foreach ($productData['attributes'] as $attrData) {
                     $attribute = Attribute::firstOrCreate(['name' => $attrData['attribute'], 'category_id' => $productData['category_id'],]);
-                   
+
                     // Normalize the value (trim, lowercase, etc.) to avoid "Red" vs " red"
                     $value = trim($attrData['value']);
-                    
+
                     VariantAttribute::firstOrCreate([
                         'attribute_id' => $attribute->id,
-                         'value' => $value,
+                        'value' => $value,
                     ]);
                 }
 

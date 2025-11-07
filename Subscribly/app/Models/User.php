@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens,HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -49,10 +49,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    
+
     public function tenant()
     {
-        return $this->belongsTo(Tenant::class,'tenant_id','id');
+        return $this->belongsTo(Tenant::class, 'tenant_id', 'id');
     }
 
     public function role()
@@ -62,18 +62,33 @@ class User extends Authenticatable
 
     public function hasPermission($slug)
     {
-        if($this->role) return false;
+        if (!$this->role)
+            return false;
 
-        $permission=$this->role->getCachedPermission();
-        return in_array($slug,$permission);
+        $permissions = $this->role->getCachedPermission();
+
+        // If plan is 'basic', remove restricted permissions
+        if ($this->plan === "Basic") {
+            $restricted = [
+                'view_reports',
+                'manage_users',
+                'manage_stocks',
+                'manage_account',
+                'manage_products',
+            ];
+
+            $permissions = array_diff($permissions, $restricted);
+        }
+        return in_array($slug, $permissions);
     }
 
-    public function subvendors(){
-        return $this->hasMany(User::class,'parent_id')->where('role_id',3);
+    public function subvendors()
+    {
+        return $this->hasMany(User::class, 'parent_id')->where('role_id', 3);
     }
 
     public function parent()
     {
-        return $this->belongsTo(User::class,'parent_id');
+        return $this->belongsTo(User::class, 'parent_id');
     }
 }//Users
