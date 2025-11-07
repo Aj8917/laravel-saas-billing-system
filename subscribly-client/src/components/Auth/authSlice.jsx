@@ -55,6 +55,7 @@ const authSlice = createSlice({
             localStorage.removeItem('active_plan');
             
             state.userData.user = null;
+            state.userData.permissions = null;
             state.token = null;
             state.plan = null;
             state.isAuthenticated = false;
@@ -69,8 +70,7 @@ const authSlice = createSlice({
             })
             .addCase(signin.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload.user;
-                state.permissions = action.payload.userData.permissions; // ✅ set permissions
+                state.userData = action.payload.userData;
                 state.token = action.payload.token;
                 state.plan = action.payload.plan;
                 state.isAuthenticated = true;

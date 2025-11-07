@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Offcanvas, Nav } from 'react-bootstrap';
 import { Link, Outlet } from 'react-router-dom';
 import Footer from './includes/Footer';
@@ -10,7 +10,8 @@ const DashboardLayout = ({ appName }) => {
   const handleShowSidebar = () => setShowMobileSidebar(true);
   const handleCloseSidebar = () => setShowMobileSidebar(false);
 
-  const permissions = useSelector(state => state.auth.userData.permissions);
+  const permissions = useSelector(state => state.auth.userData?.permissions || []);
+  const [filteredItems, setFilteredItems] = useState([]);
 
   // Sidebar configuration with required permissions
   const sidebarItems = [
@@ -23,10 +24,16 @@ const DashboardLayout = ({ appName }) => {
     { label: "Logout", to: "#logout" } // no permission required
   ];
 
+  useEffect(() => {
+  if (permissions.length > 0) {
+    const items = sidebarItems.filter(
+      item => !item.permission || permissions.includes(item.permission)
+    );
+    setFilteredItems(items);
+  }
+}, [permissions]); 
+ 
   // Filter sidebar items based on permissions
-  const filteredItems = sidebarItems.filter(
-    item => !item.permission || permissions.includes(item.permission)
-  );
 
   return (
     <>
