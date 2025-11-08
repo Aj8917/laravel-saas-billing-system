@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Button, Offcanvas, Nav } from 'react-bootstrap';
 import { Link, Outlet } from 'react-router-dom';
 import Footer from './includes/Footer';
 import Navbar from './includes/Navbar';
 import { useSelector } from 'react-redux';
-import axiosAuth from '../api/axiosAuth';
+import { useNavigate } from 'react-router-dom';
+
 import messageHandler from '../util/messageHandler';
 
 const DashboardLayout = ({ appName }) => {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const handleShowSidebar = () => setShowMobileSidebar(true);
   const handleCloseSidebar = () => setShowMobileSidebar(false);
+  const navigate = useNavigate();
 
   const permissions = useSelector(state => state.auth.userData?.permissions || []);
   const [filteredItems, setFilteredItems] = useState([]);
@@ -40,7 +42,7 @@ const DashboardLayout = ({ appName }) => {
   // State to control modal visibility
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(false);
-  
+
 
   const handleCloseReportModal = () => setShowReportModal(false);
   const handleOpenReportModal = () => setShowReportModal(true);
@@ -83,23 +85,28 @@ const DashboardLayout = ({ appName }) => {
       );
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault(); // prevent page reload
+
+    if (!selectedMonth) {
+      messageHandler('Please select a month before submitting.', "error");
+      return;
+    }
+
     try {
-      const response = await axiosAuth.post('/pro-monthly-report', {
-        month: selectedMonth,
-      });
-     
-      // console.log('Report submitted:', selectedMonth);
       handleCloseReportModal(); // close modal after successful submission
-      // navigate to report 
-      setSelectedMonth()
+
+      navigate('/MontlyReport', { state: { month: selectedMonth } });
+
+      setSelectedMonth('');
     } catch (error) {
       console.error('Error submitting report:', error);
-      setSelectedMonth()
-      messageHandler('Failed to submit report','error');
+      setSelectedMonth('');
+      messageHandler('Failed to submit report', 'error');
     }
-  }
+  };
+
   return (
     <>
       <Navbar appName={appName} />

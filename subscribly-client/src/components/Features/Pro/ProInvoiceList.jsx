@@ -142,7 +142,7 @@ const ProInvoiceList = () => {
                     ))}
 
                     {/* 📄 Pagination Controls */}
-                    {totalPages > 1 && (
+                    {totalPages >= 1 && (
                         <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
                             <button
                                 className="btn btn-outline-primary"

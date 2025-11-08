@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import messageHandler from '../../../util/messageHandler';
+import axiosAuth from '../../../api/axiosAuth';
 const ProInvoicePrint = () => {
     const { invoiceNo } = useParams();
   const [invoice, setInvoice] = useState([]);
@@ -16,7 +17,7 @@ const ProInvoicePrint = () => {
       }
 
       try {
-         const  response = await axios.get(`/pro-invoice/${invoiceNo}`);
+         const  response = await axiosAuth.get(`/pro-invoice/${invoiceNo}`);
          // console.log(response);
           // Set customer and invoice data
         setCustomer(response.data.customer || { name: '', mobile: '' });

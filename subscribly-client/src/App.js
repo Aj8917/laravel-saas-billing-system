@@ -26,6 +26,7 @@ import ProInvoiceList from './components/Features/Pro/ProInvoiceList.jsx';
 import StockTopUp from './components/Features/Pro/StockTopUp.jsx';
 import ProInvoicePrint from './components/Features/Pro/ProInvoicePrint.jsx';
 import Account from './components/Features/Pro/Account.jsx';
+import MonthlyReport from './components/Features/Pro/MonthlyReport.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -95,6 +96,7 @@ function App() {
               <Route path='/products' element={<Products />} />
               <Route path='/stock' element={<StockTopUp />} />
               <Route path='/account' element={<Account />} />
+               <Route path='/MontlyReport' element={<MonthlyReport />} />
             </Route>
 
           </Route>
