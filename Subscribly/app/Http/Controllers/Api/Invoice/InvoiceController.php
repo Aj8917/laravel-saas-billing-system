@@ -164,7 +164,7 @@ class InvoiceController extends Controller
     {
         $user = Auth::user();
         $tenant = $user->tenant;
-
+       
         //  Step 1: Basic request validation (no DB-heavy checks)
         $validated = $request->validate([
             'customerName' => 'required|string|max:255',
@@ -245,6 +245,7 @@ class InvoiceController extends Controller
                     'tax_total' => $taxTotal,
                     'total' => $total,
                     'issued_at' => now(),
+                    'subvendor_id'=>$user->role_id == 3 ? $user->id : null,
                 ]);
 
                 // Optional: reduce stock

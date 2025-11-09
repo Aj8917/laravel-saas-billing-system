@@ -22,7 +22,7 @@ const ProInvoiceList = () => {
             });
 
             const data = response.data;
-            
+
             //  Laravel returns paginated data as data.data
             if (Array.isArray(data?.data) && data.data.length > 0) {
                 setList(data.data);
@@ -65,11 +65,11 @@ const ProInvoiceList = () => {
         }
         navigate(`/PrintInvoice/${invoiceNo}`);
     };
-   
+
     return (
         <div className="container mt-4">
             <h2 className="mb-4">Proforma Invoices List</h2>
-           
+
             {/* 🔍 Search bar */}
             <div className="d-flex mb-3 p-3 justify-content-end">
                 <input
@@ -109,7 +109,13 @@ const ProInvoiceList = () => {
                             <p>
                                 <strong>Customer:</strong> {items[0].name} ({items[0].mobile})
                             </p>
-
+                            <p>
+                                {items[0].print_by && (
+                                    <>
+                                        <strong>Printed By:</strong> {items[0].print_by}
+                                    </>
+                                )}
+                            </p>
                             <table
                                 border="1"
                                 cellPadding="6"

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProInvoice extends Model
 {
     protected $hidden = ['cust_id'];
-    protected $fillable = ['cust_id', 'offer_id', 'invoice_no', 'sell_quantity', 'issued_at', 'price', 'subtotal', 'tax_total', 'total'];
+    protected $fillable = ['cust_id', 'offer_id', 'invoice_no', 'sell_quantity', 'issued_at', 'price', 'subtotal', 'tax_total', 'total','subvendor_id'];
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'cust_id', 'id');
@@ -35,6 +35,12 @@ class ProInvoice extends Model
     {
         return $this->morphMany(StockMovement::class, 'reference');
     }
+
+    public function subvendor()
+    {
+        return $this->belongsTo(User::class,'subvendor_id','id');
+    }
+
     public function toArray()
     {
         return [
@@ -49,6 +55,7 @@ class ProInvoice extends Model
             "tax_total" => $this->tax_total,
             "total" => $this->total,
             "issued_at" => $this->issued_at,
+            "print_by"=>$this->subvendor?->name,
         ];
     }
 }
