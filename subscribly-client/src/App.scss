@@ -597,3 +597,24 @@ footer {
     max-width: 100%;
   }
 }
+
+.low-stock-header {
+  background: linear-gradient(90deg, #ff4d4d, #ff9966);
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 12px;
+  border-radius: 6px 6px 0 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.low-stock {
+  background-color: #fff8e1;
+  color: #b71c1c;
+  font-weight: 600;
+  border-left: 4px solid #ff6f00;
+  padding: 6px 12px;
+  margin-bottom: 4px;
+  border-radius: 0 6px 6px 0;
+}

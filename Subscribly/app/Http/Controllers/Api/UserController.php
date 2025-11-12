@@ -10,6 +10,7 @@ use App\Models\ProInvoice;
 use App\Models\Subscriptions;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Models\VendorOffer;
 use Auth;
 use DB;
 use Hash;
@@ -210,21 +211,44 @@ class UserController extends Controller
         }
 
         if ($plan->plan->name == "Pro") {
-            $summary = ProInvoice::whereHas('offer', fn($q) => $q->where('vendor_id', $user->id))
+
+            $vendorIds = $user->parent_id
+                ? [$user->parent_id, $user->id]
+                : [$user->id];
+            $summary = ProInvoice::whereHas(
+                'offer',
+                fn($q) =>
+                $q->whereIn('vendor_id', $vendorIds)
+            )
                 ->selectRaw('COUNT(DISTINCT invoice_no) as orders, SUM(subtotal) as revenue, SUM(tax_total) as total_tax')
                 ->first();
 
-            if ($summary) {
-                $details = [
-                    'name' => $user->name,
-                    'orders' => (int) ($summary->orders ?? 0),
-                    'revenue' => (float) ($summary->revenue ?? 0),
-                    'total_tax' => (float) ($summary->total_tax ?? 0),
+            // Start $details with summary info
+            $details = [
+                'name' => $user->name,
+                'orders' => (int) ($summary->orders ?? 0),
+                'revenue' => (float) ($summary->revenue ?? 0),
+                'total_tax' => (float) ($summary->total_tax ?? 0),
+            ];
+
+            // Add low stock data
+            $low_stock = VendorOffer::with('variant.product')
+                ->whereIn('vendor_id', $vendorIds)
+                ->where('stock_qty', '<', 5)
+                ->select('id', 'variant_id', 'stock_qty')
+                ->get();
+
+            $details['low_stock'] = $low_stock->map(function ($item) {
+                return [
+                    'product_name' => $item->variant->product->name ?? 'N/A',
+                    'stock_qty' => $item->stock_qty,
                 ];
-            }
+            });
         }
 
         return response()->json(['details' => $details]);
+
+
     }//dashboardDetails
 
 
@@ -234,17 +258,17 @@ class UserController extends Controller
 
     public function fetchComapnyDetails()
     {
-        $user=Auth::user();
+        $user = Auth::user();
 
-        $company_details=Tenant::with('companyDetails','users')
-                        ->where('id',$user->tenant_id)
-                        ->first();
-          
-        return response()->json(['details'=>$company_details]);
+        $company_details = Tenant::with('companyDetails', 'users')
+            ->where('id', $user->tenant_id)
+            ->first();
+
+        return response()->json(['details' => $company_details]);
     }//fetchComapnyDetails
     public function addSubVendor(Request $request)
     {
-        $user=Auth::user();
+        $user = Auth::user();
 
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'regex:/^[A-Za-z\s]+$/'],
@@ -258,18 +282,18 @@ class UserController extends Controller
                 'regex:/[0-9]/',         // at least one digit
                 'regex:/[@$!%*?&\-]/'    // at least one special char (hyphen included safely)
             ],
-            'confirmPassword'=>['required','same:password'],
+            'confirmPassword' => ['required', 'same:password'],
         ], [
             'name.regex' => 'Name must only contain letters and spaces.',
             'password.regex' => 'Password must have at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.',
-            'confirmPassword.same'=>'Confirm password must match the password',
+            'confirmPassword.same' => 'Confirm password must match the password',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-       
+
 
         // Hash the password before storing
         $user = User::create([
@@ -277,7 +301,7 @@ class UserController extends Controller
             'email' => $request->email,
             'tenant_id' => $user->tenant->id,
             'password' => Hash::make($request->password),
-            'parent_id'=>$user->id,
+            'parent_id' => $user->id,
             'role_id' => 3,
         ]);
 

@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
-
-import { Row, Col, Card } from 'react-bootstrap';
+import Stack from 'react-bootstrap/Stack';
+import { Row, Col, Card, Badge } from 'react-bootstrap';
 import axiosAuth from "../../api/axiosAuth";
 import messageHandler from "../../util/messageHandler";
 
 const VendorDashboard = () => {
-    const [details,setDetails]=useState('');
-   
-    useEffect(()=>{
-        const fetchDetails =async ()=>{
+    const [details, setDetails] = useState('');
+
+    useEffect(() => {
+        const fetchDetails = async () => {
             try {
                 const response = await axiosAuth('/dashboard-details')
                 setDetails(response.data.details)
             } catch (error) {
-               messageHandler('Something went wrong: ' + error, 'error');
+                messageHandler('Something went wrong: ' + error, 'error');
             }
         };
-      fetchDetails ();
-    },[])
-   
+        fetchDetails();
+    }, [])
+
     return (
         <>
 
@@ -38,9 +38,9 @@ const VendorDashboard = () => {
                                 <Card.Body>
                                     <Card.Title>Total Orders</Card.Title>
                                     <Card.Text>
-                                    <b> # {
-                                        details.orders
-                                      }</b> 
+                                        <b> # {
+                                            details.orders
+                                        }</b>
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
@@ -52,9 +52,9 @@ const VendorDashboard = () => {
                                 <Card.Body>
                                     <Card.Title>Total Revenue</Card.Title>
                                     <Card.Text>
-                                       <b> ${
-                                          details.revenue  
-                                        } </b> 
+                                        <b> ${
+                                            details.revenue
+                                        } </b>
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
@@ -66,15 +66,34 @@ const VendorDashboard = () => {
                                 <Card.Body>
                                     <Card.Title>Total Tax</Card.Title>
                                     <Card.Text>
-                                       <b> ${
-                                          details.total_tax  
+                                        <b> ${
+                                            details.total_tax
                                         }</b>
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
                     </Row>
+
                 </div>
+                {details?.low_stock ? (
+                <div className="p-2">
+                    <Stack gap={3}>
+                        <div className="p-2 low-stock-header">Low Stock</div>
+
+                        {details?.low_stock?.length > 0 ? (
+                            details.low_stock.map((item, index) => (
+                                <div key={index} className="p-1 low-stock">
+                                    {item.product_name} – Stock: <Badge pill bg="danger">{item.stock_qty}</Badge>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-1 text-muted">No low stock items</div>
+                        )}
+                    </Stack>
+
+                </div>
+                ):' '}
             </section>
         </>
     );
