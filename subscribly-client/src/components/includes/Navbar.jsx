@@ -5,9 +5,9 @@ import { signout } from '../Auth/authSlice';
 const Navbar = ({ appName }) => {
 
     const dispatch = useDispatch();
-    const isSingnined = useSelector((state) => state.auth?.isAuthenticated || localStorage.getItem('isAuthenticated'));
-    const user = useSelector((state) => state.auth?.user || JSON.parse(localStorage.getItem('user'))
-);
+    const isSingnined =  useSelector((state) => state.auth.isAuthenticated);
+    const user = useSelector((state) => state.auth.userData.user);
+
     const handleSignOut = () => {
         dispatch(signout());
     }

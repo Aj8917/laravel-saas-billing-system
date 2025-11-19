@@ -1,67 +1,86 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios, { Axios } from 'axios';
+import axios from "axios";
+
+// ---------------------------------------------
+// Load From LocalStorage Only Once (Best Practice)
+// ---------------------------------------------
+const storedUser = JSON.parse(localStorage.getItem("user")) || null;
+const storedPermissions = JSON.parse(localStorage.getItem("permissions")) || [];
+const storedToken = localStorage.getItem("token") || null;
+const storedPlan = localStorage.getItem("plan") || null;
+const storedAuth = localStorage.getItem("isAuthenticated") === "true";
 
 const initialState = {
     userData: {
-        user: JSON.parse(localStorage.getItem('user')) || null,
-        permissions: JSON.parse(localStorage.getItem('permissions')) || [], // ✅ store permissions
+        user: storedUser,
+        permissions: storedPermissions,
     },
-    token: localStorage.getItem('token') || null,
-    isAuthenticated: localStorage.getItem('isAuthenticated') || false,
+    token: storedToken,
+    isAuthenticated: storedAuth,
+    plan: storedPlan,
     loading: false,
-    plan:localStorage.getItem('plan')|| null,
-    error: null
+    error: null,
 };
 
+// ---------------------------------------------
+// Login Thunk
+// ---------------------------------------------
 export const signin = createAsyncThunk(
-    'auth/signin',
-
+    "auth/signin",
     async ({ email, password }, thunkAPI) => {
         try {
-            const response = await axios.post('/signin', { email, password });
+            const response = await axios.post("/signin", { email, password });
+
             const userData = {
                 name: response.data.user,
                 role: response.data.role,
-                permissions: response.data.permissions, // ✅ store permissions
+                permissions: response.data.permissions,
             };
-            const token = response.data.access_token;
-            const plan =response.data.plan;
-            // Store token and user in localStorage
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(userData));
-            localStorage.setItem('permissions', JSON.stringify(userData.permissions));
-            localStorage.setItem('plan', plan);
-            localStorage.setItem('isAuthenticated', 'true');
 
-            // Return to reducer
+            const token = response.data.access_token;
+            const plan = response.data.plan;
+
+            // Store in localStorage once user logs in
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(userData));
+            localStorage.setItem("permissions", JSON.stringify(userData.permissions));
+            localStorage.setItem("plan", plan);
+            localStorage.setItem("isAuthenticated", "true");
+
             return { userData, token, plan };
         } catch (error) {
-
-            return thunkAPI.rejectWithValue(error.response?.data || 'Login failed');
+            return thunkAPI.rejectWithValue(error.response?.data || "Login failed");
         }
     }
-)
+);
+
+// ---------------------------------------------
+// Auth Slice
+// ---------------------------------------------
 const authSlice = createSlice({
-    name: 'auth',
+    name: "auth",
     initialState,
     reducers: {
         signout: (state) => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            localStorage.removeItem('permissions');
-            localStorage.removeItem('tenantId');
-            localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('plan');
-            localStorage.removeItem('active_plan');
-            
+            // Clear localStorage
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            localStorage.removeItem("permissions");
+            localStorage.removeItem("isAuthenticated");
+            localStorage.removeItem("plan");
+            localStorage.removeItem("active_plan");
+            localStorage.removeItem("tenantId");
+
+            // Clear Redux state
             state.userData.user = null;
-            state.userData.permissions = null;
+            state.userData.permissions = [];
             state.token = null;
             state.plan = null;
             state.isAuthenticated = false;
             state.error = null;
-        }
+        },
     },
+
     extraReducers: (builder) => {
         builder
             .addCase(signin.pending, (state) => {
@@ -77,11 +96,11 @@ const authSlice = createSlice({
             })
             .addCase(signin.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload || 'Login failed';
+                state.error = action.payload;
             });
-
-    }
+    },
 });
 
+// Export actions and reducer
 export const { signout } = authSlice.actions;
 export default authSlice.reducer;
