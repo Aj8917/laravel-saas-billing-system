@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\companyDetailsRequest;
+use App\Mail\PremiumWelcomeMail;
 use App\Models\BasicInvoice;
 use App\Models\CompanyDetail;
+use App\Models\Plan;
 use App\Models\ProInvoice;
 use App\Models\Subscriptions;
 use App\Models\Tenant;
@@ -15,6 +17,7 @@ use Auth;
 use DB;
 use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Validator;
 use Carbon\Carbon;
 
@@ -104,9 +107,9 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Fetch the plan from the database
-        $plan = DB::table('plans')
-            ->where('id', $request->plan_id)
+        $tenantId = decrypt($request->tenant_id);
+        // ----------------------------Fetch the plan from the database------------------------
+        $plan = Plan::where('id', $request->plan_id)
             ->where('name', $request->planName)
             ->first();
 
@@ -114,6 +117,17 @@ class UserController extends Controller
             return response()->json(['error' => 'Plan not found'], 404);
         }
 
+        //------------------------------premimum mail----------------------------------------
+        if ($plan->id == 3 && $plan->name === "Premium") {
+            $user = User::whereTenantId($tenantId)
+                         ->whereRoleId(2)
+                         ->first();
+
+            if ($user) {
+                Mail::to($user->email)->send(new PremiumWelcomeMail($user));
+            }
+        }
+        //------------------------------subscrioption details --------------------------------
         $now = Carbon::now(); // Server time
         $startDate = $now;
 
@@ -128,7 +142,7 @@ class UserController extends Controller
 
         // Insert subscription into the database
         DB::table('subscriptions')->insert([
-            'tenant_id' => decrypt($request->tenant_id),
+            'tenant_id' => $tenantId,
             'plan_id' => $request->plan_id,
             'start_date' => $startDate,
             'end_date' => $endDate,
@@ -308,5 +322,5 @@ class UserController extends Controller
         return response()->json([
             'success' => 'User Created!',
         ], 201);
-    }//signup
+    }//addSubVendor
 }//UserController
