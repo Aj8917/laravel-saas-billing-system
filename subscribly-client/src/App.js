@@ -62,7 +62,7 @@ function App() {
             element={
               <PrivateRoute
                 isAuthenticated={isAuthenticated}
-                allowedPlans={['Basic', 'Pro',]}
+                allowedPlans={['Basic', 'Pro','Premium']}
                 activePlan={activePlan}
                 isAuthLoading={isAuthLoading}
               />
@@ -87,7 +87,7 @@ function App() {
             element={
               <PrivateRoute
                 isAuthenticated={isAuthenticated}
-                allowedPlans="Pro"
+                allowedPlans={["Pro", "Premium"]}
                 activePlan={activePlan}
               />
             }

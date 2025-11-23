@@ -11,10 +11,16 @@ const PrivateRoute = ({ isAuthenticated, allowedPlans, activePlan, isAuthLoading
     : '';
 
 
-  const allowedPlanList = Array.isArray(allowedPlans)
-    ? allowedPlans.map(plan => plan.trim().toLowerCase())
-    : [allowedPlans.trim().toLowerCase()];
+  let allowedPlanList = [];
 
+  if (typeof allowedPlans === "string") {
+    allowedPlanList = allowedPlans
+      .split(",")
+      .map(p => p.trim().toLowerCase());
+  } else if (Array.isArray(allowedPlans)) {
+    allowedPlanList = allowedPlans
+      .map(p => p.trim().toLowerCase());
+  }
   if (isAuthLoading) {
     return <Loader />; // You can replace this with a spinner
   }
@@ -22,7 +28,7 @@ const PrivateRoute = ({ isAuthenticated, allowedPlans, activePlan, isAuthLoading
   if (!isAuthenticated) {
     return <Navigate to="/signin" replace />;
   }
-
+  //console.log(allowedPlanList + " " + normalizedActivePlan)
   if (!allowedPlanList.includes(normalizedActivePlan)) {
     return <Navigate to="/unauthorized" replace />;
   }
