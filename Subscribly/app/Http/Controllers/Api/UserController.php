@@ -32,6 +32,12 @@ class UserController extends Controller
             $plan = Subscriptions::with('tenant')
                 ->where('tenant_id', $user->tenant_id)->first();
 
+            if ($plan->end_date->isPast()) {
+                return response()->json([
+                    'errors' => "Your subscription for {$plan->plan->name} has expired!"
+                ], 403);
+            }
+
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
@@ -234,17 +240,17 @@ class UserController extends Controller
 
     public function fetchComapnyDetails()
     {
-        $user=Auth::user();
+        $user = Auth::user();
 
-        $company_details=Tenant::with('companyDetails','users')
-                        ->where('id',$user->tenant_id)
-                        ->first();
-          
-        return response()->json(['details'=>$company_details]);
+        $company_details = Tenant::with('companyDetails', 'users')
+            ->where('id', $user->tenant_id)
+            ->first();
+
+        return response()->json(['details' => $company_details]);
     }//fetchComapnyDetails
     public function addSubVendor(Request $request)
     {
-        $user=Auth::user();
+        $user = Auth::user();
 
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'regex:/^[A-Za-z\s]+$/'],
@@ -258,18 +264,18 @@ class UserController extends Controller
                 'regex:/[0-9]/',         // at least one digit
                 'regex:/[@$!%*?&\-]/'    // at least one special char (hyphen included safely)
             ],
-            'confirmPassword'=>['required','same:password'],
+            'confirmPassword' => ['required', 'same:password'],
         ], [
             'name.regex' => 'Name must only contain letters and spaces.',
             'password.regex' => 'Password must have at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character.',
-            'confirmPassword.same'=>'Confirm password must match the password',
+            'confirmPassword.same' => 'Confirm password must match the password',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-       
+
 
         // Hash the password before storing
         $user = User::create([
@@ -277,7 +283,7 @@ class UserController extends Controller
             'email' => $request->email,
             'tenant_id' => $user->tenant->id,
             'password' => Hash::make($request->password),
-            'parent_id'=>$user->id,
+            'parent_id' => $user->id,
             'role_id' => 3,
         ]);
 

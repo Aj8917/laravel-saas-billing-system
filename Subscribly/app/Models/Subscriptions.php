@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Subscriptions extends Model
 {
 
+    protected $casts = [
+    'end_date' => 'datetime',
+];
+
 
    public function plan()
    {
