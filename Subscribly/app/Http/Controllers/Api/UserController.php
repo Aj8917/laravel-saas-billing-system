@@ -36,6 +36,12 @@ class UserController extends Controller
             $plan = Subscriptions::with('tenant')
                 ->where('tenant_id', $user->tenant_id)->first();
 
+            if ($plan->end_date->isPast()) {
+                return response()->json([
+                    'errors' => "Your subscription for {$plan->plan->name} has expired!"
+                ], 403);
+            }
+
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
