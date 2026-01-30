@@ -19,7 +19,7 @@ Route::get('/get-appname', function () {
 
 Route::controller(UserController::class)->group(function () {
     Route::post('/signup', 'signup');
-    Route::post('/signin', 'singin');
+    Route::post('/signin', 'singin')->middleware('throttle:signin');
     Route::post('/subscriptions', 'planSelection');
     Route::get('/company-details','fetchComapnyDetails');
     Route::post('/company-details', 'companyDetails');
