@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\companyDetailsRequest;
+use App\Jobs\SendWelcomeEmailJob;
 use App\Mail\PremiumWelcomeMail;
 use App\Models\BasicInvoice;
 use App\Models\CompanyDetail;
@@ -17,7 +18,7 @@ use Auth;
 use DB;
 use Hash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
+
 use Validator;
 use Carbon\Carbon;
 
@@ -130,7 +131,8 @@ class UserController extends Controller
                          ->first();
 
             if ($user) {
-                Mail::to($user->email)->send(new PremiumWelcomeMail($user));
+               // Mail::to($user->email)->send(new PremiumWelcomeMail($user));
+               SendWelcomeEmailJob::dispatch($user);
             }
         }
         //------------------------------subscrioption details --------------------------------
