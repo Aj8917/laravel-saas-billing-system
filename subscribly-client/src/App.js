@@ -35,6 +35,11 @@ function App() {
   const activePlan = useSelector((state) => state.auth.plan);
   const isAuthLoading = useSelector((state) => state.auth.loading);
   const [appName, setAppName] = useState('');
+  const PlanBasedRoute = ({ basicComponent: BasicComp, proComponent: ProComp }) => {
+    if (activePlan === "Basic") return <BasicComp />;
+    if (["Pro", "Premium"].includes(activePlan)) return <ProComp />;
+  };
+
 
   useEffect(() => {
     axios.get("get-appname")
@@ -62,7 +67,7 @@ function App() {
             element={
               <PrivateRoute
                 isAuthenticated={isAuthenticated}
-                allowedPlans={['Basic', 'Pro','Premium']}
+                allowedPlans={['Basic', 'Pro', 'Premium']}
                 activePlan={activePlan}
                 isAuthLoading={isAuthLoading}
               />
@@ -74,11 +79,35 @@ function App() {
             >
               <Route path='/VendorDashboard' element={<VendorDashboard />} />
               <Route
-                path='/invoice'
-                element={activePlan === 'Pro' ? <ProInvoice /> : <Invoice />}
+                path="/invoice"
+                element={
+                  <PlanBasedRoute
+                    basicComponent={Invoice}
+                    proComponent={ProInvoice}
+                  />
+                }
               />
-              <Route path='/PrintInvoice/:invoiceNo' element={activePlan === 'Pro' ? <ProInvoicePrint /> : <InvoicePrint />} />
-              <Route path='/invoices' element={activePlan === 'Pro' ? <ProInvoiceList /> : <InvoiceList />} />
+
+              <Route
+                path="/invoices"
+                element={
+                  <PlanBasedRoute
+                    basicComponent={InvoiceList}
+                    proComponent={ProInvoiceList}
+                  />
+                }
+              />
+
+              <Route
+                path="/PrintInvoice/:invoiceNo"
+                element={
+                  <PlanBasedRoute
+                    basicComponent={InvoicePrint}
+                    proComponent={ProInvoicePrint}
+                  />
+                }
+              />
+
             </Route>
           </Route>
 
@@ -96,7 +125,7 @@ function App() {
               <Route path='/products' element={<Products />} />
               <Route path='/stock' element={<StockTopUp />} />
               <Route path='/account' element={<Account />} />
-               <Route path='/MontlyReport' element={<MonthlyReport />} />
+              <Route path='/MontlyReport' element={<MonthlyReport />} />
             </Route>
 
           </Route>

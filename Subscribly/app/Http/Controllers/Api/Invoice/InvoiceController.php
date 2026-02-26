@@ -108,7 +108,7 @@ class InvoiceController extends Controller
 
         try {
             // $invoice_no = decrypt($encryptedNo);
-            $invoice = BasicInvoice::with('customer:id,name,mobile') // ✅ Include 'id'
+            $invoice = BasicInvoice::with('customer:id,name,mobile') //  Include 'id'
                 ->where('invoice_no', $encryptedNo)
                 ->select(
                     'product_name',
@@ -119,7 +119,7 @@ class InvoiceController extends Controller
                     'tax_total',
                     'total',
                     'issued_at',
-                    'cust_id' // ✅ Also include the foreign key!
+                    'cust_id' //  Also include the foreign key!
                 )
                 ->get();
             $customer = $invoice->first()->customer;
@@ -225,7 +225,7 @@ class InvoiceController extends Controller
             $invoiceNumber = $generator->generate($tenant);
             $invoices = [];
 
-            // ✅ Step 3: Process each product (we already have offer data)
+            //  Step 3: Process each product (we already have offer data)
             foreach ($validated['products'] as $productData) {
                 $offer = $offerMap[$productData['uuid']];
                 $quantity = $productData['quantity'];

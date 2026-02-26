@@ -95,6 +95,12 @@ const VendorDashboard = () => {
                 </div>
                 ):' '}
             </section>
+            {/* for premium  */}
+            <section>
+                <div className="p-2">
+                
+                </div>
+            </section>
         </>
     );
 };

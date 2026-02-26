@@ -19,7 +19,7 @@ const Products = () => {
       batchNo: '',
       unit: '',
       category: [],
-      attributes: [] // ✅ initialize as array
+      attributes: [] //  initialize as array
     }
   ]);
   const [errors, setErrors] = useState({});
@@ -93,7 +93,7 @@ const Products = () => {
       batchNo: '',
       unit: '',
       category: [],
-      attributes: [] // ✅ add for new product too
+      attributes: [] //  add for new product too
     }]);
   };
 
@@ -151,7 +151,7 @@ const Products = () => {
         batchNo: '',
         unit: '',
         category: [],
-        attributes: [] // ✅ reset as array
+        attributes: [] //  reset as array
       }]);
       setErrors({});
       navigate('/products');
@@ -161,7 +161,7 @@ const Products = () => {
     }
   });
 
-  // ✅ ATTRIBUTE HANDLERS
+  //  ATTRIBUTE HANDLERS
   const addAttribute = (productIndex) => {
     const updatedProducts = [...products];
     updatedProducts[productIndex].attributes.push({ attribute: '', value: '' });
@@ -246,7 +246,7 @@ const Products = () => {
                       </div>
                     ))}
 
-                    {/* ✅ ATTRIBUTES SECTION */}
+                    {/*  ATTRIBUTES SECTION */}
                     <h5>Attributes:</h5>
                     {product.attributes.map((attr, attrIndex) => (
                       <div key={attrIndex} className="attribute-group d-flex align-items-start gap-2 mb-2">
