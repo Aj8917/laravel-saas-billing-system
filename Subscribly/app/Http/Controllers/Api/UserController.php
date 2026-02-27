@@ -19,11 +19,13 @@ use DB;
 use Hash;
 use Illuminate\Http\Request;
 
+use Illuminate\Notifications\Notifiable;
 use Validator;
 use Carbon\Carbon;
 
 class UserController extends Controller
-{
+{   
+    use Notifiable;
     public function singin(Request $request)
     {
 

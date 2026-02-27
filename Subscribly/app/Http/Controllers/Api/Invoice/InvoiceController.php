@@ -7,12 +7,14 @@ use App\Models\Customer;
 use App\Models\ProInvoice;
 use App\Models\Tenant;
 use App\Models\VendorOffer;
+use App\Notifications\LowStockNotification;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\InvoiceNumberGenerator;
-
+use Illuminate\Support\Facades\Log;
+use App\Models\Subscriptions;
 class InvoiceController extends Controller
 {
 
@@ -164,7 +166,9 @@ class InvoiceController extends Controller
     {
         $user = Auth::user();
         $tenant = $user->tenant;
-       
+        $planName = Subscriptions::with('tenant')
+            ->where('tenant_id', $user->tenant_id)->first();
+
         //  Step 1: Basic request validation (no DB-heavy checks)
         $validated = $request->validate([
             'customerName' => 'required|string|max:255',
@@ -200,6 +204,21 @@ class InvoiceController extends Controller
                     throw new \Exception("Offer not found for product UUID: {$uuid}");
                 }
 
+
+
+                if ($planName->plan->name === "Premium" && $offer->stock_qty <= 3) {
+
+
+                    try {
+                        // \Log::info('again Low stock condition triggered' . $planName);
+                        $info = (object) ["product" => $offer->variant->product->name, "stock" => $offer->stock_qty];
+                        $user->notify(new LowStockNotification($info));
+                    } catch (\Exception $e) {
+                        // dd($e->getMessage());
+
+                        throw new \Exception("mail stock for {$e->getMessage()} Failed.", 422);
+                    }
+                }
                 if ($product['quantity'] > $offer->stock_qty) {
                     throw new \Exception("Insufficient stock for {$offer->variant->product->name}. Requested: {$product['quantity']}, Available: {$offer->stock_qty}", 422);
                 }
@@ -245,7 +264,7 @@ class InvoiceController extends Controller
                     'tax_total' => $taxTotal,
                     'total' => $total,
                     'issued_at' => now(),
-                    'subvendor_id'=>$user->role_id == 3 ? $user->id : null,
+                    'subvendor_id' => $user->role_id == 3 ? $user->id : null,
                 ]);
 
                 // Optional: reduce stock
