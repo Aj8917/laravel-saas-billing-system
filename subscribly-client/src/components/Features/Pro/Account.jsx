@@ -3,6 +3,7 @@ import asyncHandler from '../../../util/asyncHandler';
 import axiosAuth from '../../../api/axiosAuth';
 import messageHandler from '../../../util/messageHandler';
 import { Row, Col, Card, Spinner } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 
 const Account = () => {
     const [company, setCompany] = useState(null);
@@ -12,6 +13,7 @@ const Account = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const plan = useSelector((state) => state.auth.plan);
 
     useEffect(() => {
         asyncHandler(async () => {
@@ -62,7 +64,9 @@ const Account = () => {
         if (valid) {
             setLoading(true);
             try {
-                const response = await axiosAuth.post('/sub-vendors', { name, email, password,confirmPassword });
+                const response = await axiosAuth.post('/sub-vendors', { name, email, password, confirmPassword });
+
+
                 if (response?.data?.success) {
                     messageHandler(response.data.success, "success");
                     setName('');
@@ -72,8 +76,14 @@ const Account = () => {
                     setErrors({});
                 }
             } catch (error) {
+
                 if (error.response?.status === 422) {
+
                     setErrors(error.response?.data?.errors || {});
+
+                    messageHandler(error.response?.data?.errors || 'failed create new user!', 'error');
+
+
                 } else {
                     messageHandler(error.response?.data?.message || "Something went wrong", "error");
                 }
@@ -134,100 +144,107 @@ const Account = () => {
                                 <Card className="shadow-lg border-0 rounded-4 p-4 khakibg">
                                     <Card.Body>
                                         <div className="signup-box">
-                                            {!company || !company.subVendors || Object.keys(company.subVendors).length < 2 ? (
-                                                <>
-                                                    <h5 className="mb-2 fw-bold text-dark">Add User</h5>
-                                                    <form onSubmit={handleSubmit}>
-                                                        <div className="form-floating-label mb-4">
-                                                            <input
-                                                                type="text"
-                                                                id="fullName"
-                                                                className={`form-input ${errors.name ? 'is-invalid' : ''}`}
-                                                                value={name}
-                                                                onChange={e => {
-                                                                    setName(e.target.value);
-                                                                    setErrors(prev => ({ ...prev, name: null }));
-                                                                }}
-                                                                required
-                                                            />
-                                                            <label htmlFor="fullName">Full Name</label>
-                                                            {errors.name && <div className="error-danger">{errors.name}</div>}
-                                                        </div>
+                                            {
+                                                !company ||
+                                                    !company.subVendors ||
+                                                    (plan === "Pro" && Object.keys(company.subVendors).length < 2)
+                                                    ||
+                                                    (plan === "Premium" && Object.keys(company.subVendors).length < 6)
+                                                    ? (
 
-                                                        <div className="form-floating-label flex-fill mb-3">
-                                                            <input
-                                                                type="email"
-                                                                id="email"
-                                                                className={`form-input ${errors.email ? 'is-invalid' : ''}`}
-                                                                value={email}
-                                                                onChange={e => {
-                                                                    setEmail(e.target.value);
-                                                                    setErrors(prev => ({ ...prev, email: null }));
-                                                                }}
-                                                                required
-                                                            />
-                                                            <label htmlFor="email">Email</label>
-                                                            {errors.email && <small className="text-danger">{errors.email}</small>}
-                                                        </div>
+                                                        <>
+                                                            <h5 className="mb-2 fw-bold text-dark">Add User</h5>
+                                                            <form onSubmit={handleSubmit}>
+                                                                <div className="form-floating-label mb-4">
+                                                                    <input
+                                                                        type="text"
+                                                                        id="fullName"
+                                                                        className={`form-input ${errors.name ? 'is-invalid' : ''}`}
+                                                                        value={name}
+                                                                        onChange={e => {
+                                                                            setName(e.target.value);
+                                                                            setErrors(prev => ({ ...prev, name: null }));
+                                                                        }}
+                                                                        required
+                                                                    />
+                                                                    <label htmlFor="fullName">Full Name</label>
+                                                                    {errors.name && <div className="error-danger">{errors.name}</div>}
+                                                                </div>
 
-                                                        <div className="form-floating-label flex-fill mb-3">
-                                                            <input
-                                                                type="password"
-                                                                id="password"
-                                                                className={`form-input ${errors.password ? 'is-invalid' : ''}`}
-                                                                value={password}
-                                                                onChange={e => {
-                                                                    setPassword(e.target.value);
-                                                                    setErrors(prev => ({ ...prev, password: null }));
-                                                                }}
-                                                                required
-                                                            />
-                                                            <label htmlFor="password">Password</label>
-                                                            {errors.password && <small className="text-danger">{errors.password}</small>}
-                                                        </div>
+                                                                <div className="form-floating-label flex-fill mb-3">
+                                                                    <input
+                                                                        type="email"
+                                                                        id="email"
+                                                                        className={`form-input ${errors.email ? 'is-invalid' : ''}`}
+                                                                        value={email}
+                                                                        onChange={e => {
+                                                                            setEmail(e.target.value);
+                                                                            setErrors(prev => ({ ...prev, email: null }));
+                                                                        }}
+                                                                        required
+                                                                    />
+                                                                    <label htmlFor="email">Email</label>
+                                                                    {errors.email && <small className="text-danger">{errors.email}</small>}
+                                                                </div>
 
-                                                        <div className="form-floating-label flex-fill mb-3">
-                                                            <input
-                                                                type="password"
-                                                                id="confirmPassword"
-                                                                className={`form-input ${errors.confirmPassword ? 'is-invalid' : ''}`}
-                                                                value={confirmPassword}
-                                                                onChange={e => {
-                                                                    setConfirmPassword(e.target.value);
-                                                                    setErrors(prev => ({ ...prev, confirmPassword: null }));
-                                                                }}
-                                                                required
-                                                            />
-                                                            <label htmlFor="confirmPassword">Confirm Password</label>
-                                                            {errors.confirmPassword && <small className="text-danger">{errors.confirmPassword}</small>}
-                                                        </div>
+                                                                <div className="form-floating-label flex-fill mb-3">
+                                                                    <input
+                                                                        type="password"
+                                                                        id="password"
+                                                                        className={`form-input ${errors.password ? 'is-invalid' : ''}`}
+                                                                        value={password}
+                                                                        onChange={e => {
+                                                                            setPassword(e.target.value);
+                                                                            setErrors(prev => ({ ...prev, password: null }));
+                                                                        }}
+                                                                        required
+                                                                    />
+                                                                    <label htmlFor="password">Password</label>
+                                                                    {errors.password && <small className="text-danger">{errors.password}</small>}
+                                                                </div>
 
-                                                        <button type="submit" className="btn btn-success btn-sm mt-1">
-                                                            {loading ? "Saving..." : "Save"}
-                                                        </button>
-                                                    </form>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <h5 className="mb-2 fw-bold text-dark">Sub-Vendors</h5>
-                                                    <div className="d-flex flex-column gap-2">
-                                                        {/* Header Row */}
-                                                        <div className="d-flex fw-bold border-bottom pb-1">
-                                                            <div className="flex-fill label">Name</div>
-                                                            <div className="flex-fill label">Email</div>
-                                                        </div>
+                                                                <div className="form-floating-label flex-fill mb-3">
+                                                                    <input
+                                                                        type="password"
+                                                                        id="confirmPassword"
+                                                                        className={`form-input ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                                                                        value={confirmPassword}
+                                                                        onChange={e => {
+                                                                            setConfirmPassword(e.target.value);
+                                                                            setErrors(prev => ({ ...prev, confirmPassword: null }));
+                                                                        }}
+                                                                        required
+                                                                    />
+                                                                    <label htmlFor="confirmPassword">Confirm Password</label>
+                                                                    {errors.confirmPassword && <small className="text-danger">{errors.confirmPassword}</small>}
+                                                                </div>
 
-                                                        {/* Sub-Vendor Rows */}
-                                                        {Object.values(company.subVendors).map((subVendor, idx) => (
-                                                            <div className="d-flex py-1" key={idx}>
-                                                                <div className="flex-fill">{subVendor.name}</div>
-                                                                <div className="flex-fill">{subVendor.email}</div>
+                                                                <button type="submit" className="btn btn-success btn-sm mt-1">
+                                                                    {loading ? "Saving..." : "Save"}
+                                                                </button>
+                                                            </form>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <h5 className="mb-2 fw-bold text-dark">Sub-Vendors</h5>
+                                                            <div className="d-flex flex-column gap-2">
+                                                                {/* Header Row */}
+                                                                <div className="d-flex fw-bold border-bottom pb-1">
+                                                                    <div className="flex-fill label">Name</div>
+                                                                    <div className="flex-fill label">Email</div>
+                                                                </div>
+
+                                                                {/* Sub-Vendor Rows */}
+                                                                {Object.values(company.subVendors).map((subVendor, idx) => (
+                                                                    <div className="d-flex py-1" key={idx}>
+                                                                        <div className="flex-fill">{subVendor.name}</div>
+                                                                        <div className="flex-fill">{subVendor.email}</div>
+                                                                    </div>
+                                                                ))}
                                                             </div>
-                                                        ))}
-                                                    </div>
 
-                                                </>
-                                            )}
+                                                        </>
+                                                    )}
                                         </div>
                                     </Card.Body>
                                 </Card>

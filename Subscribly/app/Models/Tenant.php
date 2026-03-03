@@ -22,7 +22,11 @@ class Tenant extends Model
     {
         return $this->hasOne(CompanyDetail::class);
     }
-    
+    public function subscription()
+{
+    return $this->hasOne(Subscriptions::class, 'tenant_id', 'id');
+}
+
     public function toArray(){
        return [
             'business_name'=>$this->business_name,

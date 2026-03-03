@@ -27,7 +27,7 @@ const Signin = () => {
                //messageHandler('Login failed: ' + Object.values(serverErrors).flat().join(', '), 'error');
                messageHandler('Login failed: '+serverErrors, 'error');
             } else {
-                messageHandler(result.payload || 'Login failed', 'error');
+               messageHandler(result.payload || 'Login failed', 'error');
             }
         }
     };

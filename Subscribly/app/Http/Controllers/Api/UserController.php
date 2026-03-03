@@ -24,7 +24,7 @@ use Validator;
 use Carbon\Carbon;
 
 class UserController extends Controller
-{   
+{
     use Notifiable;
     public function singin(Request $request)
     {
@@ -129,12 +129,12 @@ class UserController extends Controller
         //------------------------------premimum mail----------------------------------------
         if ($plan->id == 3 && $plan->name === "Premium") {
             $user = User::whereTenantId($tenantId)
-                         ->whereRoleId(2)
-                         ->first();
+                ->whereRoleId(2)
+                ->first();
 
             if ($user) {
-               // Mail::to($user->email)->send(new PremiumWelcomeMail($user));
-               SendWelcomeEmailJob::dispatch($user);
+                // Mail::to($user->email)->send(new PremiumWelcomeMail($user));
+                SendWelcomeEmailJob::dispatch($user);
             }
         }
         //------------------------------subscrioption details --------------------------------
@@ -234,7 +234,7 @@ class UserController extends Controller
             }
         }
 
-        if ($plan->plan->name == "Pro") {
+        if ($plan->plan->name == "Pro" || $plan->plan->name == "Premium") {
 
             $vendorIds = $user->parent_id
                 ? [$user->parent_id, $user->id]
@@ -290,9 +290,12 @@ class UserController extends Controller
 
         return response()->json(['details' => $company_details]);
     }//fetchComapnyDetails
+
     public function addSubVendor(Request $request)
     {
         $user = Auth::user();
+        $plan = $user->tenant->subscription->plan->name;
+        $subVendorCount = count($user->subVendors ?? []);
 
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'regex:/^[A-Za-z\s]+$/'],
@@ -316,6 +319,19 @@ class UserController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+        // Define plan limits in one place
+        $planLimits = [
+            'Premium' => 6,
+            'Pro' => 3,
+        ];
+        // Get allowed limit for current plan
+        $limit = $planLimits[$plan] ?? 0;
+
+        if ($subVendorCount >= $limit) {
+            return response()->json([
+                'errors' => 'User limit crossed! Please contact support for more details.'
+            ], 422);
+        }
 
 
 
@@ -332,5 +348,7 @@ class UserController extends Controller
         return response()->json([
             'success' => 'User Created!',
         ], 201);
+
+
     }//addSubVendor
 }//UserController
