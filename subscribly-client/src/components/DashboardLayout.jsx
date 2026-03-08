@@ -3,9 +3,9 @@ import { Modal, Button, Offcanvas, Nav } from 'react-bootstrap';
 import { Link, Outlet } from 'react-router-dom';
 import Footer from './includes/Footer';
 import Navbar from './includes/Navbar';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-
+import { signout } from './Auth/authSlice';
 import messageHandler from '../util/messageHandler';
 
 const DashboardLayout = ({ appName }) => {
@@ -13,7 +13,7 @@ const DashboardLayout = ({ appName }) => {
   const handleShowSidebar = () => setShowMobileSidebar(true);
   const handleCloseSidebar = () => setShowMobileSidebar(false);
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const permissions = useSelector(state => state.auth.userData?.permissions || []);
   const [filteredItems, setFilteredItems] = useState([]);
 
@@ -38,7 +38,9 @@ const DashboardLayout = ({ appName }) => {
       setFilteredItems(items);
     }
   }, [permissions]);
-
+  const handleSignOut = () => {
+    dispatch(signout());
+  }
   // State to control modal visibility
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(false);
@@ -61,7 +63,17 @@ const DashboardLayout = ({ appName }) => {
           {item.label}
         </Nav.Link>
       );
-    } else if (item.to.startsWith("#")) {
+    } else if (item.to == "#logout") {
+      return (
+        <Nav.Link
+          key={item.to}
+          onClick={handleSignOut}
+        >
+          {item.label}
+        </Nav.Link>
+      )
+    }
+    else if (item.to.startsWith("#")) {
       // handle other hash links if needed
       return (
         <Nav.Link

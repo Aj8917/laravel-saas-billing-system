@@ -36,12 +36,14 @@ class UserController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
 
             $company = CompanyDetail::with('tenant')->where('tenant_id', $user->tenant_id)->first();
-            $plan = Subscriptions::with('tenant')
-                ->where('tenant_id', $user->tenant_id)->first();
-
+            // $plan = Subscriptions::with('tenant')
+            //     ->where('tenant_id', $user->tenant_id)->first();
+            
+            $plan = $user->tenant->subscription;
+            //\Log::info('Sing in plan '.$plan )
             if ($plan->end_date->isPast()) {
                 return response()->json([
-                    'errors' => "Your subscription for {$plan->plan->name} has expired!"
+                    'message' => "Your subscription for {$plan->plan->name} has expired!"
                 ], 403);
             }
 

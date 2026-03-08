@@ -7,7 +7,7 @@ import messageHandler from '../../util/messageHandler';
 const Signin = () => {
     const dispatch = useDispatch();
     const { loading, error } = useSelector((state) => state.auth);
-    const naviagte=useNavigate();
+    const naviagte = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
@@ -22,12 +22,15 @@ const Signin = () => {
             naviagte('/VendorDashboard');
         } else {
             const serverErrors = result.payload?.errors;
-            if (serverErrors) {
+
+            if (serverErrors && Array.isArray(serverErrors)) {
+
                 setErrors(serverErrors); // Backend errors like: { email: ['Required'], password: ['Invalid'] }
-               //messageHandler('Login failed: ' + Object.values(serverErrors).flat().join(', '), 'error');
-               messageHandler('Login failed: '+serverErrors, 'error');
+                //messageHandler('Login failed: ' + Object.values(serverErrors).flat().join(', '), 'error');
+                messageHandler('Login failed: ' + serverErrors, 'error');
             } else {
-               messageHandler(result.payload || 'Login failed', 'error');
+
+                messageHandler(serverErrors || result.payload?.message || 'Login failed', 'info');
             }
         }
     };

@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tenant extends Model
 {
-    
+
     protected $fillable = [
         'business_name',
     ];
     protected $casts = [
-    'last_invoice_reset_at' => 'datetime',
-];
+        'last_invoice_reset_at' => 'datetime',
+    ];
 
     public function users()
     {
@@ -23,23 +23,24 @@ class Tenant extends Model
         return $this->hasOne(CompanyDetail::class);
     }
     public function subscription()
-{
-    return $this->hasOne(Subscriptions::class, 'tenant_id', 'id');
-}
+    {
+        return $this->hasOne(Subscriptions::class, 'tenant_id', 'id');
+    }
 
-    public function toArray(){
-       return [
-            'business_name'=>$this->business_name,
-            'address'=>$this->companyDetails?->address,//nullsafe
-            'gstin'=>$this->companyDetails?->gstin,
-            'pan'=>$this->companyDetails?->pan,
-            'pincode'=>$this->companyDetails?->pincode,
-            'subVendors'=>$this->users->where('role_id',3)
-                                ->map(fn($user)=>[
-                                    'name'=>$user->name,
-                                    'email'=>$user->email
-                                ])->values(),
+    public function toArray()
+    {
+        return [
+            'business_name' => $this->business_name,
+            'address' => $this->companyDetails?->address,//nullsafe
+            'gstin' => $this->companyDetails?->gstin,
+            'pan' => $this->companyDetails?->pan,
+            'pincode' => $this->companyDetails?->pincode,
+            'subVendors' => $this->users->where('role_id', 3)
+                ->map(fn($user) => [
+                    'name' => $user->name,
+                    'email' => $user->email
+                ])->values(),
 
-       ] ;
+        ];
     }
 }
