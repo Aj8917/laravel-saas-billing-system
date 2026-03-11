@@ -3,6 +3,7 @@ import Stack from 'react-bootstrap/Stack';
 import { Row, Col, Card, Badge } from 'react-bootstrap';
 import axiosAuth from "../../api/axiosAuth";
 import messageHandler from "../../util/messageHandler";
+import SellChart from "./SellChart";
 
 const VendorDashboard = () => {
     const [details, setDetails] = useState('');
@@ -11,6 +12,7 @@ const VendorDashboard = () => {
         const fetchDetails = async () => {
             try {
                 const response = await axiosAuth('/dashboard-details')
+                //console.log(response);
                 setDetails(response.data.details)
             } catch (error) {
                 messageHandler('Something went wrong: ' + error, 'error');
@@ -77,30 +79,31 @@ const VendorDashboard = () => {
 
                 </div>
                 {details?.low_stock ? (
-                <div className="p-2">
-                    <Stack gap={3}>
-                        <div className="p-2 low-stock-header">Low Stock</div>
+                    <div className="p-2">
+                        <Stack gap={3}>
+                            <div className="p-2 low-stock-header">Low Stock</div>
 
-                        {details?.low_stock?.length > 0 ? (
-                            details.low_stock.map((item, index) => (
-                                <div key={index} className="p-1 low-stock">
-                                    {item.product_name} – Stock: <Badge pill bg="danger">{item.stock_qty}</Badge>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="p-1 text-muted">No low stock items</div>
-                        )}
-                    </Stack>
+                            {details?.low_stock?.length > 0 ? (
+                                details.low_stock.map((item, index) => (
+                                    <div key={index} className="p-1 low-stock">
+                                        {item.product_name} – Stock: <Badge pill bg="danger">{item.stock_qty}</Badge>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-1 text-muted">No low stock items</div>
+                            )}
+                        </Stack>
 
-                </div>
-                ):' '}
+                    </div>
+                ) : ' '}
             </section>
             {/* for premium  */}
             <section>
                 <div className="p-2">
-                
+                    <SellChart selldata={details.sellchart} />
                 </div>
             </section>
+
         </>
     );
 };

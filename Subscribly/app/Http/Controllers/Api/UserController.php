@@ -38,7 +38,7 @@ class UserController extends Controller
             $company = CompanyDetail::with('tenant')->where('tenant_id', $user->tenant_id)->first();
             // $plan = Subscriptions::with('tenant')
             //     ->where('tenant_id', $user->tenant_id)->first();
-            
+
             $plan = $user->tenant->subscription;
             //\Log::info('Sing in plan '.$plan )
             if ($plan->end_date->isPast()) {
@@ -212,10 +212,10 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        $plan = Subscriptions::with('tenant')
-            ->where('tenant_id', $user->tenant_id)
-            ->first();
-
+        // $plan = Subscriptions::with('tenant')
+        //     ->where('tenant_id', $user->tenant_id)
+        //     ->first();
+        $plan = $user->tenant->subscription;
         $details = [
             'name' => 'user',
             'orders' => 0,
@@ -236,8 +236,8 @@ class UserController extends Controller
             }
         }
 
-        if ($plan->plan->name == "Pro" || $plan->plan->name == "Premium") {
-
+        // if ($plan->plan->name == "Pro" || $plan->plan->name == "Premium") {
+        if ($plan->plan->name !== "Basic") {
             $vendorIds = $user->parent_id
                 ? [$user->parent_id, $user->id]
                 : [$user->id];
@@ -270,6 +270,34 @@ class UserController extends Controller
                     'stock_qty' => $item->stock_qty,
                 ];
             });
+            if ($plan->plan->name === "Premium") {
+
+                $invoices = ProInvoice::with('offer.variant.product')
+                    ->whereHas('offer.variant.product', fn($q) => $q->whereIn('vendor_id', $vendorIds))
+                    ->get();
+
+                $details['sellchart'] = $invoices
+                    ->groupBy('issued_at')
+                    ->map(function ($dailyInvoices, $issuedAt) {
+
+                        return $dailyInvoices
+                            ->groupBy(fn($invoice) => $invoice->offer->variant->product->name)
+                            ->map(function ($productInvoices, $productName) use ($issuedAt) {
+
+                                return [
+                                    'issued_at' => $issuedAt,
+                                    'product_name' => $productName,
+                                    'total_quantity' => $productInvoices->sum('sell_quantity'),
+                                ];
+
+                            })->values();
+
+                    })
+                    ->flatten(1)
+                    ->values();
+
+            }
+
         }
 
         return response()->json(['details' => $details]);
