@@ -277,7 +277,7 @@ class UserController extends Controller
                     ->get();
 
                 $details['sellchart'] = $invoices
-                    ->groupBy('issued_at')
+                    ->groupBy('issued_at') //Laravel Collection feature NOT a database query.
                     ->map(function ($dailyInvoices, $issuedAt) {
 
                         return $dailyInvoices
@@ -293,8 +293,8 @@ class UserController extends Controller
                             })->values();
 
                     })
-                    ->flatten(1)
-                    ->values();
+                    ->flatten(1) //Removes nested arrays
+                    ->values();//Resets array indexes
 
             }
 

@@ -27,6 +27,7 @@ import StockTopUp from './components/Features/Pro/StockTopUp.jsx';
 import ProInvoicePrint from './components/Features/Pro/ProInvoicePrint.jsx';
 import Account from './components/Features/Pro/Account.jsx';
 import MonthlyReport from './components/Features/Pro/MonthlyReport.jsx';
+import HelpDesk from './components/HelpDesk.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -61,6 +62,7 @@ function App() {
           <Route path='/signin' element={<Signin />} />
           <Route path='/PlanSelection' element={<PlanSelection />} />
           <Route path='/companyDetails' element={<CompanyDetails />} />
+          
 
           {/* Protected Routes for Basic + Pro Plans */}
           <Route
@@ -107,7 +109,16 @@ function App() {
                   />
                 }
               />
-
+               <Route
+                path="/helpdesk"
+                element={
+                  <PlanBasedRoute
+                    basicComponent={HelpDesk}
+                    proComponent={HelpDesk}
+                  />
+                }
+              />
+             
             </Route>
           </Route>
 

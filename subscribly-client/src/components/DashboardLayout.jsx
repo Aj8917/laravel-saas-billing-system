@@ -26,6 +26,7 @@ const DashboardLayout = ({ appName }) => {
     { label: "Stock TopUp", to: "/stock", permission: "manage_stocks" },
     { label: "Account", to: "/account", permission: "manage_account" },
     { label: "Report", to: "#report", permission: "view_reports" },
+    { label: "HelpDesk", to: "/helpdesk" },
     { label: "Logout", to: "#logout" } // no permission required
   ];
 

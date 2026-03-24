@@ -22,7 +22,7 @@ const InvoiceList = () => {
 
             const data = response.data.invoices ?? [];
             console.log(data);
-            // ✅ Laravel pagination returns { data: [...], last_page: N }
+            //  Laravel pagination returns { data: [...], last_page: N }
             if (Array.isArray(data?.data) && data.data.length > 0) {
                 setList(data.data);
                 setTotalPages(data.last_page || 1);
@@ -45,7 +45,7 @@ const InvoiceList = () => {
         return () => clearTimeout(timeout);
     }, [page, search]);
 
-    // ✅ Group by invoice_no (use index if missing)
+    //  Group by invoice_no (use index if missing)
     const grouped = list.reduce((acc, item, index) => {
         const invoiceNo = item.invoice_no && item.invoice_no.trim() !== ''
             ? item.invoice_no
