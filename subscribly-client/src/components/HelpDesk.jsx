@@ -5,6 +5,7 @@ import messageHandler from '../util/messageHandler';
 import Loader from '../util/Loader';
 import axiosAuth from '../api/axiosAuth';
 import { Button, Modal } from 'react-bootstrap';
+import asyncHandler from '../util/asyncHandler';
 
 const HelpDesk = () => {
     const [list, setList] = useState([]);
@@ -13,13 +14,10 @@ const HelpDesk = () => {
     const [perPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
-    /************************************************************************** */
-
     const [showReportModal, setShowReportModal] = useState(false);
-
-
     const [formData, setFormData] = useState({
         subject: "",
         category: "",
@@ -27,21 +25,25 @@ const HelpDesk = () => {
         status: "open",
         priority: ""
     });
+
+    // ================= FORM HANDLERS =================
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
+
+        setFormData(prev => ({
+            ...prev,
             [name]: value
-        });
+        }));
+
+        setErrors(prev => ({
+            ...prev,
+            [name]: ""
+        }));
     };
-    const handleCloseReportModal = () => setShowReportModal(false);
-    const handleOpenReportModal = () => setShowReportModal(true);
-    const handleSubmit = (e) => {
-        e.preventDefault();
 
-        console.log(formData); // send to API
-
-        // reset form
+    const handleCloseReportModal = () => {
+        setErrors({});
         setFormData({
             subject: "",
             category: "",
@@ -49,27 +51,60 @@ const HelpDesk = () => {
             status: "open",
             priority: ""
         });
-
-        handleCloseReportModal();
+        setShowReportModal(false);
     };
-    /********************************************************************************************** */
+
+    const handleOpenReportModal = () => setShowReportModal(true);
+
+    const handleSubmit = asyncHandler(async (e) => {
+        e.preventDefault();
+
+        const newErrors = {};
+
+        if (!formData.subject.trim()) newErrors.subject = "Subject is required";
+        if (!formData.category) newErrors.category = "Category is required";
+        if (!formData.description.trim()) newErrors.description = "Description is required";
+        if (!formData.priority) newErrors.priority = "Priority is required";
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        try {
+            await axiosAuth.post('/tickets', formData);
+
+            messageHandler('Ticket created successfully!', 'success');
+
+            handleCloseReportModal(); //  only close on success
+            fetchticket(page, search);
+
+        } catch (error) {
+            const backendMessage =
+                error.response?.data?.message || 'Failed to create Ticket.';
+            messageHandler(backendMessage, 'error');
+        }
+    });
+
+    // ================= FETCH =================
+
     const fetchticket = async (pageNumber = 1, query = '') => {
         try {
             setLoading(true);
+
             const response = await axiosAuth.get('/tickets', {
                 params: { page: pageNumber, per_page: perPage, search: query }
             });
 
-            const data = response.data.tickets ?? [];
-            console.log(data);
-            //  Laravel pagination returns { data: [...], last_page: N }
-            if (Array.isArray(data?.data) && data.data.length > 0) {
+            const data = response.data;
+
+            if (Array.isArray(data.data)) {
                 setList(data.data);
                 setTotalPages(data.last_page || 1);
             } else {
                 setList([]);
-                messageHandler('No tickets found.', 'error');
             }
+
         } catch (error) {
             console.error(error);
             messageHandler('Failed to load tickets.', 'error');
@@ -82,30 +117,29 @@ const HelpDesk = () => {
         const timeout = setTimeout(() => {
             fetchticket(page, search);
         }, 400);
+
         return () => clearTimeout(timeout);
     }, [page, search]);
 
-    //  Group by ticket_no (use index if missing)
+    // ================= GROUPING =================
+
     const grouped = list.reduce((acc, item, index) => {
-        const ticketNo = item.ticket_no && item.ticket_no.trim() !== ''
-            ? item.ticket_no
-            : `NO-ticket-${index}`;
+        const ticketNo =
+            item.ticket_no && item.ticket_no.trim() !== ''
+                ? item.ticket_no
+                : `NO-ticket-${index}`;
+
         if (!acc[ticketNo]) acc[ticketNo] = [];
         acc[ticketNo].push(item);
+
         return acc;
     }, {});
 
-    const viewticket = (ticketNo) => {
-        if (ticketNo.startsWith('NO-ticket')) {
-            messageHandler('This record has no ticket number.', 'warning');
-            return;
-        }
-        navigate(`/Printticket/${ticketNo}`);
-    };
-
+    // ================= UI =================
 
     return (
         <>
+            {/* ================= MODAL ================= */}
             <Modal show={showReportModal} onHide={handleCloseReportModal}>
                 <form onSubmit={handleSubmit}>
                     <Modal.Header closeButton>
@@ -113,82 +147,86 @@ const HelpDesk = () => {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <h4 className="text-center mb-4 form-header">New Ticket</h4>
+                        <h4 className="text-center mb-4">New Ticket</h4>
 
                         {/* Subject */}
                         <div className="mb-3">
-                            <label htmlFor="subject">Subject</label>
+                            <label>Subject</label>
                             <input
                                 type="text"
                                 name="subject"
-                                className="form-control"
+                                className={`form-control ${errors.subject ? "is-invalid" : ""}`}
                                 value={formData.subject}
                                 onChange={handleChange}
-                                required
                             />
-
+                            {errors.subject && (
+                                <div className="invalid-feedback">{errors.subject}</div>
+                            )}
                         </div>
 
                         {/* Category */}
                         <div className="mb-3">
-                            <label className="form-label">Category</label>
+                            <label>Category</label>
                             <select
                                 name="category"
-                                className="form-control"
+                                className={`form-control ${errors.category ? "is-invalid" : ""}`}
                                 value={formData.category}
                                 onChange={handleChange}
-                                required
                             >
                                 <option value="">Select Category</option>
                                 <option value="billing">Billing</option>
                                 <option value="technical">Technical</option>
                             </select>
+                            {errors.category && (
+                                <div className="invalid-feedback">{errors.category}</div>
+                            )}
                         </div>
 
                         {/* Description */}
                         <div className="mb-3">
-                            <label className="form-label">Description</label>
+                            <label>Description</label>
                             <textarea
                                 name="description"
-                                className="form-control"
+                                className={`form-control ${errors.description ? "is-invalid" : ""}`}
                                 rows="4"
                                 value={formData.description}
                                 onChange={handleChange}
-                                required
                             />
+                            {errors.description && (
+                                <div className="invalid-feedback">{errors.description}</div>
+                            )}
                         </div>
 
                         {/* Status */}
                         <div className="mb-3">
-                            <label className="form-label">Status</label>
+                            <label>Status</label>
                             <select
                                 name="status"
                                 className="form-control"
                                 value={formData.status}
                                 onChange={handleChange}
                             >
-                                <option value="open" selected>Open</option>
-                                {/* <option value="in_progress">In Progress</option>
-                                <option value="resolved">Resolved</option>
-                                <option value="closed">Closed</option> */}
+                                <option value="open">Open</option>
                             </select>
                         </div>
 
                         {/* Priority */}
                         <div className="mb-3">
-                            <label className="form-label">Priority</label>
+                            <label>Priority</label>
                             <select
                                 name="priority"
-                                className="form-control"
+                                className={`form-control ${errors.priority ? "is-invalid" : ""}`}
                                 value={formData.priority}
                                 onChange={handleChange}
-                                required
                             >
                                 <option value="">Select Priority</option>
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
                                 <option value="high">High</option>
                             </select>
+                            {errors.priority && (
+                                <div className="invalid-feedback">{errors.priority}</div>
+                            )}
                         </div>
                     </Modal.Body>
 
@@ -202,15 +240,18 @@ const HelpDesk = () => {
                     </Modal.Footer>
                 </form>
             </Modal>
-            <div className="container mt-4">
-                <h2 className="mb-3">Tickets List</h2>
-                <div className="d-flex mb-3 p-3 justify-content-end">
-                    <Button className="btn btn-sm btn-success" onClick={() => {
-                        handleOpenReportModal();
 
-                    }}>New Ticket</Button>
+            {/* ================= MAIN ================= */}
+            <div className="container mt-4">
+                <h2>Tickets List</h2>
+
+                <div className="d-flex justify-content-end mb-3">
+                    <Button size="sm" variant="success" onClick={handleOpenReportModal}>
+                        New Ticket
+                    </Button>
                 </div>
-                <div className="d-flex mb-3 p-3 justify-content-end">
+
+                <div className="d-flex justify-content-end mb-3">
                     <input
                         type="text"
                         className="form-control w-50"
@@ -218,59 +259,60 @@ const HelpDesk = () => {
                         value={search}
                         onChange={(e) => {
                             setSearch(e.target.value);
-                            setPage(1); // reset page when searching
+                            setPage(1);
                         }}
                     />
                 </div>
 
-                {loading ? (
-                    <Loader />
-                ) : Object.keys(grouped).length === 0 ? (
-                    <p>No tickets found.</p>
-                ) : (
-                    Object.entries(grouped).map(([ticketNo, items]) => (
-                        <div key={ticketNo} className="ticket_list_header mb-4 p-3 border rounded bg-white shadow-sm">
-                            <h4
-                                className="clickable-ticket text-primary"
-                                title={ticketNo.startsWith('NO-ticket') ? 'No ticket Number' : 'Click to view ticket'}
-                                style={{ cursor: ticketNo.startsWith('NO-ticket') ? 'not-allowed' : 'pointer' }}
-                                onClick={() => viewticket(ticketNo)}
-                            >
-                                ticket No: {ticketNo.startsWith('NO-ticket') ? '(Not Issued)' : ticketNo}
-                            </h4>
+                <table className="table table-bordered">
+                    <thead className="table-light">
+                        <tr>
+                            <th>Ticket No</th>
+                            <th>Subject</th>
+                            <th>Created At</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
 
-                            <p><strong>Date:</strong> {items[0].issued_at}</p>
-                            <p><strong>Customer:</strong> {items[0].customer?.name} ({items[0].customer?.mobile})</p>
-
-                            <table className="table table-bordered w-100 mt-3">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th>Subject</th>
-                                        <th>Category</th>   {/*billing, technical */}
-                                        <th>Description</th>
-                                        <th>Status</th>    {/*open, in_progress, resolved, closed */}
-                                        <th>Priority</th>    {/*low, medium, high */}
-                                        <th>Created at</th>
+                    <tbody>
+                        {loading ? (
+                            <tr>
+                                <td colSpan="7" className="text-center">
+                                    <Loader />
+                                </td>
+                            </tr>
+                        ) : Object.keys(grouped).length === 0 ? (
+                            <tr>
+                                <td colSpan="7" className="text-center">
+                                    No tickets found.
+                                </td>
+                            </tr>
+                        ) : (
+                            Object.entries(grouped).map(([ticketNo, items]) =>
+                                items.map((item, index) => (
+                                    <tr key={`${ticketNo}-${index}`}>
+                                        <td>
+                                            {ticketNo.startsWith('NO-ticket')
+                                                ? '(Not Issued)'
+                                                : ticketNo}
+                                        </td>
+                                        <td>{item.subject}</td>
+                                        <td>{new Date(item.created_at).toLocaleString()}</td>
+                                        <td>{item.category}</td>
+                                        <td>{item.description}</td>
+                                        <td>{item.priority}</td>
+                                        <td>{item.status}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {items.map((item, index) => (
-                                        <tr key={index}>
-                                            <td>{item.product_name}</td>
-                                            <td>{item.sell_quantity}</td>
-                                            <td>{item.price}</td>
-                                            <td>{item.subtotal}</td>
-                                            <td>{item.tax_total}</td>
-                                            <td>{item.total}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ))
-                )}
+                                ))
+                            )
+                        )}
+                    </tbody>
+                </table>
 
-                {/* Pagination Controls */}
+                {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="d-flex justify-content-center gap-3 mt-4">
                         <button
@@ -280,7 +322,9 @@ const HelpDesk = () => {
                         >
                             Prev
                         </button>
+
                         <span>Page {page} of {totalPages}</span>
+
                         <button
                             className="btn btn-outline-secondary"
                             disabled={page === totalPages}
@@ -293,6 +337,6 @@ const HelpDesk = () => {
             </div>
         </>
     );
-}
+};
 
-export default HelpDesk
+export default HelpDesk;
