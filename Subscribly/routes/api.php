@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Invoice\InvoiceController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\Product\ProductController;
+use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,40 +22,45 @@ Route::controller(UserController::class)->group(function () {
     Route::post('/signup', 'signup');
     Route::post('/signin', 'singin')->middleware('throttle:signin');
     Route::post('/subscriptions', 'planSelection');
-    Route::get('/company-details','fetchComapnyDetails');
+    Route::get('/company-details', 'fetchComapnyDetails');
     Route::post('/company-details', 'companyDetails');
-    Route::get('/dashboard-details','dashboardDetails');
-     Route::post('/sub-vendors', 'addSubVendor');
-   
+    Route::get('/dashboard-details', 'dashboardDetails');
+    Route::post('/sub-vendors', 'addSubVendor');
+
 });
 
-Route::controller(LocationController::class)->group(function(){
-    Route::get('/countries','getCountries');
-    Route::post('/states',  'getStates');
+Route::controller(LocationController::class)->group(function () {
+    Route::get('/countries', 'getCountries');
+    Route::post('/states', 'getStates');
     Route::post('/cities', 'getCities');
 });
 
 Route::get('/plans', PlanController::class);
 
-Route::controller(InvoiceController::class)->group(function(){
-    Route::post('/basic-invoice','storeBasic');
-    Route::get('/invoice/{encryptedId}',  'showBasicInvoice');
-    Route::get('/invoices','fetchAllInvoice');
+Route::controller(InvoiceController::class)->group(function () {
+    Route::post('/basic-invoice', 'storeBasic');
+    Route::get('/invoice/{encryptedId}', 'showBasicInvoice');
+    Route::get('/invoices', 'fetchAllInvoice');
 
-    Route::post('/pro-invoice','storePro');
-    Route::get('/pro-invoices','fetchAllProInvoice');
-    Route::get('/pro-invoice/{encryptedId}',  'showProInvoice');
-    Route::post('/pro-monthly-report','showProMonthlyReport');
+    Route::post('/pro-invoice', 'storePro');
+    Route::get('/pro-invoices', 'fetchAllProInvoice');
+    Route::get('/pro-invoice/{encryptedId}', 'showProInvoice');
+    Route::post('/pro-monthly-report', 'showProMonthlyReport');
 
 })->middleware('auth:sanctum');
 
-Route::controller(CategoryController::class)->group(function(){
-    Route::get('/categories','index');
-    Route::post('/categories','store'); 
+Route::controller(CategoryController::class)->group(function () {
+    Route::get('/categories', 'index');
+    Route::post('/categories', 'store');
 })->middleware('auth:sanctum');
 
-Route::controller(ProductController::class)->group(function(){
-    Route::get('/products','index');
-    Route::post('/products','storeProduct');
-    Route::post('/update-stock','updateStock');
+Route::controller(ProductController::class)->group(function () {
+    Route::get('/products', 'index');
+    Route::post('/products', 'storeProduct');
+    Route::post('/update-stock', 'updateStock');
+})->middleware('auth:sanctum');
+
+Route::controller(TicketController::class)->group(function () {
+    Route::get('/tickets', 'index');
+    Route::post('/tickets', 'store');
 })->middleware('auth:sanctum');
