@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import messageHandler from '../util/messageHandler';
-import Loader from '../util/Loader';
-import axiosAuth from '../api/axiosAuth';
+import messageHandler from '../../util/messageHandler';
+import Loader from '../../util/Loader';
+import axiosAuth from '../../api/axiosAuth';
 import { Button, Modal } from 'react-bootstrap';
-import asyncHandler from '../util/asyncHandler';
+import asyncHandler from '../../util/asyncHandler';
 
 const HelpDesk = () => {
     const [list, setList] = useState([]);
@@ -15,14 +13,8 @@ const HelpDesk = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
-    const navigate = useNavigate();
 
-    const statusLabels = {
-    open: "Open",
-    in_progress: "In Progress",
-    resolved: "Resolved",
-    closed: "Closed",
-};
+
     const [showReportModal, setShowReportModal] = useState(false);
     const [formData, setFormData] = useState({
         subject: "",
@@ -92,6 +84,7 @@ const HelpDesk = () => {
         }
     });
 
+
     // ================= FETCH =================
 
     const fetchticket = async (pageNumber = 1, query = '') => {
@@ -141,6 +134,21 @@ const HelpDesk = () => {
         return acc;
     }, {});
 
+    const handleStatusChange = asyncHandler(async (ticketId, newStatus) => {
+        try {
+            await axiosAuth.put(`/tickets/${ticketId}`, {
+                status: newStatus
+            });
+
+            messageHandler('Status updated successfully!', 'success');
+            fetchticket(page, search);
+
+        } catch (error) {
+            const backendMessage =
+                error.response?.data?.message || 'Failed to update Ticket.';
+            messageHandler(backendMessage, 'error');
+        }
+    });
     // ================= UI =================
 
     return (
@@ -252,12 +260,6 @@ const HelpDesk = () => {
                 <h2>Tickets List</h2>
 
                 <div className="d-flex justify-content-end mb-3">
-                    <Button size="sm" variant="success" onClick={handleOpenReportModal}>
-                        New Ticket
-                    </Button>
-                </div>
-
-                <div className="d-flex justify-content-end mb-3">
                     <input
                         type="text"
                         className="form-control w-50"
@@ -279,8 +281,8 @@ const HelpDesk = () => {
                             <th>Category</th>
                             <th>Description</th>
                             <th>Priority</th>
+                            <th>From</th>
                             <th>Status</th>
-                           
                         </tr>
                     </thead>
 
@@ -311,7 +313,18 @@ const HelpDesk = () => {
                                         <td>{item.category}</td>
                                         <td>{item.description}</td>
                                         <td>{item.priority}</td>
-                                        <td>{statusLabels[item.status] || item.status}</td>
+                                        <td>{item.user.name}</td>
+                                        <td>
+                                            <select
+                                                value={item.status}
+                                                onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                                            >
+                                                <option value="open">Open</option>
+                                                <option value="in_progress">In Progress</option>
+                                                <option value="resolved">Resolved</option>
+                                                <option value="closed">Closed</option>
+                                            </select>
+                                        </td>
                                     </tr>
                                 ))
                             )

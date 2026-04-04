@@ -34,4 +34,24 @@ class Ticket extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function toArray()
+{
+    return [
+        'id' => $this->id,
+        'ticket_no' => $this->ticket_no,
+        'subject' => $this->subject,
+        'category' => $this->category,
+        'description' => $this->description,
+        'status' => $this->status,
+        'priority' => $this->priority,
+        'created_at' => $this->created_at,
+        'user' => [
+               'name' => $this->user->tenant->business_name ?? null,
+            
+        ],
+    ];
+    }
+
+    
+
 }

@@ -40,7 +40,7 @@ class UserController extends Controller
             //     ->where('tenant_id', $user->tenant_id)->first();
 
             $plan = $user->tenant->subscription;
-            //\Log::info('Sing in plan '.$plan )
+          //  \Log::info('Role  '.$user->role->name );
             if ($plan->end_date->isPast()) {
                 return response()->json([
                     'message' => "Your subscription for {$plan->plan->name} has expired!"
@@ -51,6 +51,7 @@ class UserController extends Controller
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => $user->name,
+                'role'=>$user->role->name,
                 'plan' => $plan->plan->name,
                 'company_name' => $company->tenant->business_name,
                 'permissions' => $user->role?->getCachedPermissions() ?? [],

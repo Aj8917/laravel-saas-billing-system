@@ -28,19 +28,20 @@ import ProInvoicePrint from './components/Features/Pro/ProInvoicePrint.jsx';
 import Account from './components/Features/Pro/Account.jsx';
 import MonthlyReport from './components/Features/Pro/MonthlyReport.jsx';
 import HelpDesk from './components/HelpDesk.jsx';
+import AdminHelpDesk from './components/Admin/HelpDesk.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const activePlan = useSelector((state) => state.auth.plan);
+  const role = useSelector((state) => state.auth.userData.role);
   const isAuthLoading = useSelector((state) => state.auth.loading);
   const [appName, setAppName] = useState('');
   const PlanBasedRoute = ({ basicComponent: BasicComp, proComponent: ProComp }) => {
     if (activePlan === "Basic") return <BasicComp />;
     if (["Pro", "Premium"].includes(activePlan)) return <ProComp />;
   };
-
 
   useEffect(() => {
     axios.get("get-appname")
@@ -109,13 +110,17 @@ function App() {
                   />
                 }
               />
+
+
                <Route
                 path="/helpdesk"
                 element={
+                  role==="Admin" ?(<AdminHelpDesk/>):(
                   <PlanBasedRoute
                     basicComponent={HelpDesk}
                     proComponent={HelpDesk}
                   />
+                  )
                 }
               />
              

@@ -63,4 +63,5 @@ Route::controller(ProductController::class)->group(function () {
 Route::controller(TicketController::class)->group(function () {
     Route::get('/tickets', 'index');
     Route::post('/tickets', 'store');
+    Route::put('/tickets/{ticket}', 'update');
 })->middleware('auth:sanctum');

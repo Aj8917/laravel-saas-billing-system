@@ -5,6 +5,7 @@ import axios from "axios";
 // Load From LocalStorage Only Once (Best Practice)
 // ---------------------------------------------
 const storedUser = JSON.parse(localStorage.getItem("user")) || null;
+const storedRole = localStorage.getItem("role")||null;
 const storedPermissions = JSON.parse(localStorage.getItem("permissions")) || [];
 const storedToken = localStorage.getItem("token") || null;
 const storedPlan = localStorage.getItem("plan") || null;
@@ -13,6 +14,7 @@ const storedAuth = localStorage.getItem("isAuthenticated") === "true";
 const initialState = {
     userData: {
         user: storedUser,
+        role:storedRole,
         permissions: storedPermissions,
     },
     token: storedToken,
@@ -39,10 +41,12 @@ export const signin = createAsyncThunk(
 
             const token = response.data.access_token;
             const plan = response.data.plan;
+            const role = response.data.role;
 
             // Store in localStorage once user logs in
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(userData));
+            localStorage.setItem("role",role);
             localStorage.setItem("permissions", JSON.stringify(userData.permissions));
             localStorage.setItem("plan", plan);
             localStorage.setItem("isAuthenticated", "true");
@@ -70,6 +74,7 @@ const authSlice = createSlice({
             localStorage.removeItem("plan");
             localStorage.removeItem("active_plan");
             localStorage.removeItem("tenantId");
+            localStorage.removeItem("role");
 
             // Clear Redux state
             state.userData.user = null;
@@ -78,6 +83,7 @@ const authSlice = createSlice({
             state.plan = null;
             state.isAuthenticated = false;
             state.error = null;
+            state.role = null;
         },
     },
 
@@ -92,6 +98,7 @@ const authSlice = createSlice({
                 state.userData = action.payload.userData;
                 state.token = action.payload.token;
                 state.plan = action.payload.plan;
+                state.role = action.payload.userData.role;
                 state.isAuthenticated = true;
             })
             .addCase(signin.rejected, (state, action) => {
