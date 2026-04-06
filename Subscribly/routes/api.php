@@ -25,6 +25,7 @@ Route::controller(UserController::class)->group(function () {
     Route::get('/company-details', 'fetchComapnyDetails');
     Route::post('/company-details', 'companyDetails');
     Route::get('/dashboard-details', 'dashboardDetails');
+     Route::get('/admin-dashboard-details', 'adminDashboardDetails');
     Route::post('/sub-vendors', 'addSubVendor');
 
 });

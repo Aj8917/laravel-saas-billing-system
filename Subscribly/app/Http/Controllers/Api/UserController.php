@@ -12,6 +12,7 @@ use App\Models\Plan;
 use App\Models\ProInvoice;
 use App\Models\Subscriptions;
 use App\Models\Tenant;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Models\VendorOffer;
 use Auth;
@@ -40,7 +41,7 @@ class UserController extends Controller
             //     ->where('tenant_id', $user->tenant_id)->first();
 
             $plan = $user->tenant->subscription;
-          //  \Log::info('Role  '.$user->role->name );
+            //  \Log::info('Role  '.$user->role->name );
             if ($plan->end_date->isPast()) {
                 return response()->json([
                     'message' => "Your subscription for {$plan->plan->name} has expired!"
@@ -51,7 +52,7 @@ class UserController extends Controller
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => $user->name,
-                'role'=>$user->role->name,
+                'role' => $user->role->name,
                 'plan' => $plan->plan->name,
                 'company_name' => $company->tenant->business_name,
                 'permissions' => $user->role?->getCachedPermissions() ?? [],
@@ -308,6 +309,50 @@ class UserController extends Controller
 
 
 
+    public function adminDashboardDetails()
+    {
+        $user = Auth::user();
+
+        // Authorization check
+        if ($user->role['id'] !== 1) {
+            return response()->json(['error' => "No Access!"], 401);
+        }
+
+        // Ticket counts (single query optimization)
+        $ticketCounts = Ticket::selectRaw("
+            SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) as open_tickets,
+            SUM(CASE WHEN status = 'close' THEN 1 ELSE 0 END) as close_tickets,
+            SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as progress_tickets
+           
+        ")->first();
+
+        // Users data
+        $users = User::with('tenant.subscription.plan')
+           
+            ->whereNull('parent_id')
+            ->where('role_id', '!=', 1)
+            ->select('id', 'name', 'email', 'tenant_id')
+             ->paginate(50);
+        // Clean response
+
+        $users = $users->map(function ($user) {
+            return [
+               // 'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'business_name' => data_get($user, 'tenant.business_name'),
+                'plan_name' => data_get($user, 'tenant.subscription.plan.name'),
+            ];
+        });
+        $details = [
+            'open_tickets' => (int) $ticketCounts->open_tickets,
+            'close_tickets' => (int) $ticketCounts->close_tickets,
+            'progress_tickets' => (int) $ticketCounts->progress_tickets,
+            'users_details' => $users
+        ];
+
+        return response()->json(['details' => $details]);
+    }//adminDashboardDetails
     //-------------------------------------------------- Business Account ----------------------------------------------------------
 
 

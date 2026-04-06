@@ -29,6 +29,7 @@ import Account from './components/Features/Pro/Account.jsx';
 import MonthlyReport from './components/Features/Pro/MonthlyReport.jsx';
 import HelpDesk from './components/HelpDesk.jsx';
 import AdminHelpDesk from './components/Admin/HelpDesk.jsx';
+import AdminDashboard from './components/Admin/AdminDashboard.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -80,7 +81,13 @@ function App() {
               path='/'
               element={<DashboardLayout appName={appName} isAuthenticated={isAuthenticated} />}
             >
-              <Route path='/VendorDashboard' element={<VendorDashboard />} />
+              <Route 
+                    path='/VendorDashboard'
+                    element={
+                               role==="Admin" ?(<AdminDashboard/>):(
+                              <VendorDashboard />)
+                          }
+               />
               <Route
                 path="/invoice"
                 element={
