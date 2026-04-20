@@ -23,12 +23,15 @@ class ProductController extends Controller
 
         try {
             $user = Auth::user();
-
+            if ($user->role['id'] !== 1) {
             $vendorId = $user->parent_id ? $user->parent_id : $user->id;
             $VendorOffer = VendorOffer::where('vendor_id', $vendorId)
                 ->with(['variant.product'])
                 ->get();
-
+            }else{
+                $VendorOffer = Product::with(['variants'])
+                ->get();
+            }
             return response()->json(['products' => $VendorOffer]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error fetching products', 'error' => $e->getMessage()], 500);

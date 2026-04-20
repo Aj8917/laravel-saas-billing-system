@@ -30,6 +30,7 @@ import MonthlyReport from './components/Features/Pro/MonthlyReport.jsx';
 import HelpDesk from './components/HelpDesk.jsx';
 import AdminHelpDesk from './components/Admin/HelpDesk.jsx';
 import AdminDashboard from './components/Admin/AdminDashboard.jsx';
+import AdminProducts from './components/Admin/ProductsList.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -130,7 +131,9 @@ function App() {
                   )
                 }
               />
-             
+              <Route path='/products'
+                     element={role==="Admin" ?(<AdminProducts />):(<Products />)} 
+                />
             </Route>
           </Route>
 
@@ -145,7 +148,7 @@ function App() {
             }
           >
             <Route path='/' element={<DashboardLayout />}>
-              <Route path='/products' element={<Products />} />
+             
               <Route path='/stock' element={<StockTopUp />} />
               <Route path='/account' element={<Account />} />
               <Route path='/MontlyReport' element={<MonthlyReport />} />

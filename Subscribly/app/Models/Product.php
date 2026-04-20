@@ -30,4 +30,17 @@ class Product extends Model
     {
         return $this->hasMany(StockMovement::class);
     }
+
+    public function toArray()
+    {
+        $variant = $this->variants->first();
+
+    return [
+        'name' => $this->name,
+        'base_sku' => $variant->base_sku ?? null,
+        'unit' => $variant->unit ?? null,
+        'price' => $variant->offers->first()->price ?? null,
+    ];
+    }
+
 }

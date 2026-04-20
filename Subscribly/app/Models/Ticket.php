@@ -19,13 +19,13 @@ class Ticket extends Model
         'priority',
     ];
     protected static function booted()
-{
-    static::created(function ($ticket) {
-        $ticket->updateQuietly([
-            'ticket_no' => 'TKT-' . str_pad($ticket->id, 6, '0', STR_PAD_LEFT)
-        ]);
-    });
-}
+    {
+        static::created(function ($ticket) {
+            $ticket->updateQuietly([
+                'ticket_no' => 'TKT-' . str_pad($ticket->id, 6, '0', STR_PAD_LEFT)
+            ]);
+        });
+    }
     /**
      * Relationship: A ticket belongs to a user
      */
@@ -35,23 +35,23 @@ class Ticket extends Model
     }
 
     public function toArray()
-{
-    return [
-        'id' => $this->id,
-        'ticket_no' => $this->ticket_no,
-        'subject' => $this->subject,
-        'category' => $this->category,
-        'description' => $this->description,
-        'status' => $this->status,
-        'priority' => $this->priority,
-        'created_at' => $this->created_at,
-        'user' => [
-               'name' => $this->user->tenant->business_name ?? null,
-            
-        ],
-    ];
+    {
+        return [
+            'id' => $this->id,
+            'ticket_no' => $this->ticket_no,
+            'subject' => $this->subject,
+            'category' => $this->category,
+            'description' => $this->description,
+            'status' => $this->status,
+            'priority' => $this->priority,
+            'created_at' => $this->created_at,
+            'user' => [
+                'name' => $this->user->tenant->business_name ?? null,
+
+            ],
+        ];
     }
 
-    
+
 
 }
