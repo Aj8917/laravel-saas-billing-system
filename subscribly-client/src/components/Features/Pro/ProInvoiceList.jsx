@@ -70,7 +70,7 @@ const ProInvoiceList = () => {
         <div className="container mt-4">
             <h2 className="mb-4">Proforma Invoices List</h2>
 
-            {/* 🔍 Search bar */}
+            {/*  Search bar */}
             <div className="d-flex mb-3 p-3 justify-content-end">
                 <input
                     type="text"
@@ -147,7 +147,7 @@ const ProInvoiceList = () => {
                         </div>
                     ))}
 
-                    {/* 📄 Pagination Controls */}
+                    {/*  Pagination Controls */}
                     {totalPages >= 1 && (
                         <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
                             <button

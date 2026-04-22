@@ -18,19 +18,26 @@ use App\Services\SkuService;
 class ProductController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
 
         try {
             $user = Auth::user();
             if ($user->role['id'] !== 1) {
-            $vendorId = $user->parent_id ? $user->parent_id : $user->id;
-            $VendorOffer = VendorOffer::where('vendor_id', $vendorId)
-                ->with(['variant.product'])
-                ->get();
-            }else{
-                $VendorOffer = Product::with(['variants'])
-                ->get();
+                $vendorId = $user->parent_id ? $user->parent_id : $user->id;
+                $VendorOffer = VendorOffer::where('vendor_id', $vendorId)
+                    ->with(['variant.product'])
+                    ->get();
+            } else {
+                $query = Product::with(['variants']);
+                $perPage = $request->get('per_page', 50);
+                $search = $request->get('search');
+                if (!empty($search)) {
+                    $query->where('name', 'like', '%' . $search . '%');
+                }
+                $VendorOffer = $query->orderBy('created_at', 'desc')
+                    ->paginate($perPage);
+
             }
             return response()->json(['products' => $VendorOffer]);
         } catch (\Exception $e) {

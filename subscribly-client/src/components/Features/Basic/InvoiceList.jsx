@@ -21,7 +21,7 @@ const InvoiceList = () => {
             });
 
             const data = response.data.invoices ?? [];
-            console.log(data);
+          //  console.log(data);
             //  Laravel pagination returns { data: [...], last_page: N }
             if (Array.isArray(data?.data) && data.data.length > 0) {
                 setList(data.data);

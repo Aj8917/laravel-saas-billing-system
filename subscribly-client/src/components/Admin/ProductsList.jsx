@@ -29,22 +29,36 @@ const ProductsList = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    asyncHandler(async () => {
-      const response = await axiosAuth.get('/products');
+    const timeout = setTimeout(() => {
+      fetchProducts(page, search);
+    }, 400); // debounce
+    return () => clearTimeout(timeout);
+  }, [page, search]);
 
-      const data = response.data;
 
-      if (Array.isArray(data.products)) {
-        setList(data.products);
+  const fetchProducts = async (pageNumber = 1, query = '') => {
+    try {
+      setLoading(true);
+      const response = await axiosAuth.get('/products', {
+        params: { page: pageNumber, per_page: perPage, search: query }
+      });
+
+      const data = response.data.products ?? [];
+      // console.log(data.data)
+      if (Array.isArray(data?.data) && data.data.length > 0) {
+        setList(data.data);
         setTotalPages(data.last_page || 1);
       } else {
         setList([]);
         messageHandler('No Products found.', 'error');
       }
-
-     // console.log(data.products);
-    })();
-  }, []);
+    } catch (error) {
+      console.error(error);
+      messageHandler('Failed to load list.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="container mt-4">
       <h2>Product Lists</h2>
@@ -84,13 +98,13 @@ const ProductsList = () => {
           ) : list.length === 0 ? (
             <tr>
               <td colSpan="7" className="text-center">
-                No tickets found.
+                No Products found.
               </td>
             </tr>
           ) : (
             list.map((item, index) => (
               <tr key={index}>
-                <td>{index+1}</td>
+                <td>{index + 1}</td>
                 <td>{item.name}</td>
                 <td>{item.base_sku}</td>
                 <td>{item.unit}</td>
