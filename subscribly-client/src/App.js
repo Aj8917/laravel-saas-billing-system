@@ -31,6 +31,7 @@ import HelpDesk from './components/HelpDesk.jsx';
 import AdminHelpDesk from './components/Admin/HelpDesk.jsx';
 import AdminDashboard from './components/Admin/AdminDashboard.jsx';
 import AdminProducts from './components/Admin/ProductsList.jsx';
+import ProductSellDetails from './components/Admin/ProductSellDetails.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -118,7 +119,12 @@ function App() {
                   />
                 }
               />
-
+            <Route
+                path="/ProductSellDetails/:uuid"
+                element={
+                    <ProductSellDetails />
+                }
+              />
 
                <Route
                 path="/helpdesk"
@@ -146,6 +152,8 @@ function App() {
                 activePlan={activePlan}
               />
             }
+
+            
           >
             <Route path='/' element={<DashboardLayout />}>
              

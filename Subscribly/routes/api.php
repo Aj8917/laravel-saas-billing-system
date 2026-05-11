@@ -59,6 +59,7 @@ Route::controller(ProductController::class)->group(function () {
     Route::get('/products', 'index');
     Route::post('/products', 'storeProduct');
     Route::post('/update-stock', 'updateStock');
+    Route::get('/products/{uuid}', 'showProductDetails');
 })->middleware('auth:sanctum');
 
 Route::controller(TicketController::class)->group(function () {

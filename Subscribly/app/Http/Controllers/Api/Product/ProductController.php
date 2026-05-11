@@ -166,10 +166,10 @@ class ProductController extends Controller
             foreach ($request->products as $productData) {
                 $product = Product::where('uuid', $productData['uuid'])->firstOrFail();
 
-                // 🔹 Find or create the variant for this product (optional, if needed)
+                //  Find or create the variant for this product (optional, if needed)
                 $variant = ProductVariant::firstOrCreate(['product_id' => $product->id]);
 
-                // 🔹 Find or create vendor offer
+                //  Find or create vendor offer
                 $offer = VendorOffer::updateOrCreate(
                     [
                         'variant_id' => $variant->id,
@@ -181,7 +181,7 @@ class ProductController extends Controller
                     ]
                 );
 
-                // 🔹 Create Stock Movement (log adjustment)
+                //  Create Stock Movement (log adjustment)
                 StockMovement::create([
                     'product_id' => $product->id,
                     'change_type' => 'adjustment',
@@ -203,4 +203,17 @@ class ProductController extends Controller
             ], 500);
         }
     }//updateStock
+
+
+
+    public function showProductDetails($uuid)
+    {
+
+       $productDetails  = Product::with(['variants.offers.invoices'])
+                          ->where('uuid', $uuid)
+                          ->get();
+                        
+                
+       return response()->json($productDetails);
+    }//showProductDetails
 }

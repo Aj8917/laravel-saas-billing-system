@@ -35,12 +35,29 @@ class Product extends Model
     {
         $variant = $this->variants->first();
 
-    return [
-        'name' => $this->name,
-        'base_sku' => $variant->base_sku ?? null,
-        'unit' => $variant->unit ?? null,
-        'price' => $variant->offers->first()->price ?? null,
-    ];
+        return [
+            'name' => $this->name,
+            'uuid' => $variant->product->uuid ?? null,
+            'base_sku' => $variant->base_sku ?? null,
+            'unit' => $variant->unit ?? null,
+            'price' => $variant->offers->first()->price ?? null,
+            'attribute' => $variant->attributes->value ?? null,
+            // Total sold quantity from all invoices
+            'total_sell' => $variant->offers
+                ->flatMap(fn($offer) => $offer->invoices)
+                ->sum('sell_quantity'),
+
+            // Total subtotal from all invoices
+            'subtotal' => $variant->offers
+                ->flatMap(fn($offer) => $offer->invoices)
+                ->sum('subtotal'),
+            'total_tax' => $variant->offers 
+                ->flatMap(fn($offer) => $offer->invoices)
+                ->sum('tax_total'),
+            'total' =>$variant->offers
+                    ->flatMap(fn($offer)=>$offer->invoices)
+                    ->sum('total')
+        ];
     }
 
 }

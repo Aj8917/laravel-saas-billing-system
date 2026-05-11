@@ -27,7 +27,8 @@ const ProductsList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
     const timeout = setTimeout(() => {
       fetchProducts(page, search);
@@ -59,6 +60,11 @@ const ProductsList = () => {
       setLoading(false);
     }
   };
+
+  const viewProduct = (uuid) => {
+       // alert(base_sku)
+        navigate(`/ProductSellDetails/${uuid}`);
+    };
   return (
     <div className="container mt-4">
       <h2>Product Lists</h2>
@@ -105,7 +111,10 @@ const ProductsList = () => {
             list.map((item, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
-                <td>{item.name}</td>
+                <td 
+                 onClick={() => viewProduct(item.uuid)}
+                                style={{ cursor: 'pointer' }}
+                >{item.name}</td>
                 <td>{item.base_sku}</td>
                 <td>{item.unit}</td>
               </tr>
