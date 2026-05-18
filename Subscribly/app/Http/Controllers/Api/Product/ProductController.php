@@ -212,7 +212,7 @@ class ProductController extends Controller
        $productDetails  = Product::with(['variants.offers.invoices'])
                           ->where('uuid', $uuid)
                           ->get();
-                        
+                     
                 
        return response()->json($productDetails);
     }//showProductDetails

@@ -4,6 +4,8 @@ import axiosAuth from '../../api/axiosAuth';
 import asyncHandler from '../../util/asyncHandler';
 import messageHandler from '../../util/messageHandler';
 import { Card, Col, Row, Spinner } from 'react-bootstrap';
+import { Container } from '@mui/material';
+import ProductSellPieChart from './ProductSellPieChart';
 
 const ProductSellDetails = () => {
   const { uuid } = useParams();
@@ -19,7 +21,9 @@ const ProductSellDetails = () => {
 
       try {
         const response = await axiosAuth.get(`/products/${uuid}`);
-        console.log(response.data);
+       // console.log(response.data);
+        //console.log('res 2'+response.data[0].sales_chart);
+
         // Set customer and invoice data
         setProductDetails(response.data)
       } catch (err) {
@@ -149,10 +153,16 @@ const ProductSellDetails = () => {
                           </Card.Body>
                         </Card>
                       </Col>
+
                     </Row>
                   </div>
-                </section></div>
+
+                </section>
+              </div>
             </section>
+            <Container sx={{ mt: 4 }}>
+              <ProductSellPieChart chart={product?.sales_chart} />
+            </Container>
           </div>
         </section>
       </div>

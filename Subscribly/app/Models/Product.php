@@ -51,12 +51,26 @@ class Product extends Model
             'subtotal' => $variant->offers
                 ->flatMap(fn($offer) => $offer->invoices)
                 ->sum('subtotal'),
-            'total_tax' => $variant->offers 
+            'total_tax' => $variant->offers
                 ->flatMap(fn($offer) => $offer->invoices)
                 ->sum('tax_total'),
-            'total' =>$variant->offers
-                    ->flatMap(fn($offer)=>$offer->invoices)
-                    ->sum('total')
+            'total' => $variant->offers
+                ->flatMap(fn($offer) => $offer->invoices)
+                ->sum('total'),
+
+            'sales_chart' => collect(
+                $variant->offers->flatMap(fn($offer) => $offer->invoices)
+            )
+                ->groupBy(function ($invoice) {
+                    return \Carbon\Carbon::parse($invoice->issued_at)->format('M');
+                })
+                ->map(function ($items, $month) {
+                    return [
+                        'month' => $month,
+                        'sales' => $items->sum('sell_quantity'),
+                    ];
+                })
+                ->values(),
         ];
     }
 
