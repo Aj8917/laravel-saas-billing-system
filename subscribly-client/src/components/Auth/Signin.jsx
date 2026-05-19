@@ -11,7 +11,7 @@ const Signin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
-
+    const [isExpired, setIsExpired] = useState(false);
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -23,7 +23,7 @@ const Signin = () => {
         } else {
             const serverErrors = result.payload?.errors;
 
-            if (serverErrors ) {
+            if (serverErrors) {
 
                 setErrors(serverErrors); // Backend errors like: { email: ['Required'], password: ['Invalid'] }
                 //messageHandler('Login failed: ' + Object.values(serverErrors).flat().join(', '), 'error');
@@ -31,6 +31,9 @@ const Signin = () => {
             } else {
 
                 messageHandler(serverErrors || result.payload?.message || 'Login failed', 'info');
+                if (result.payload.status === 403) {
+                    setIsExpired(true);
+                }
             }
         }
     };
@@ -76,6 +79,17 @@ const Signin = () => {
                         <button type="submit" className="btn btn-primary w-100" disabled={loading}>
                             {loading ? 'Signing In...' : 'Sign In'}
                         </button>
+                        {isExpired && (
+                            <div className="alert alert-warning text-center mt-3">
+                                <div className="mb-2">
+                                    Your subscription has expired
+                                </div>
+
+                                <a href="/upgrade-plan" className="btn btn-dark btn-sm px-3">
+                                    Reactivate Plan
+                                </a>
+                            </div>
+                        )}
                     </form>
                 </div>
             </section>

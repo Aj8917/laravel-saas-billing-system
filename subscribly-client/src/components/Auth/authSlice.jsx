@@ -53,7 +53,11 @@ export const signin = createAsyncThunk(
 
             return { userData, token, plan };
         } catch (error) {
-            return thunkAPI.rejectWithValue(error.response?.data || "Login failed");
+          return thunkAPI.rejectWithValue({
+                status: error.response?.status,
+                message: error.response?.data?.message,
+                errors: error.response?.data?.errors || null
+            });
         }
     }
 );
