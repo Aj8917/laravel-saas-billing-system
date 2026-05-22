@@ -169,7 +169,7 @@ const Home = ({appName}) => {
             <h2 className="cta-title">Ready to Transform Your Business?</h2>
             <p className="lead mb-5">Join thousands of businesses that trust CRMPro to manage their customer relationships.</p>
             <div className="d-flex justify-content-center">
-                <a href="#" className="btn btn-light btn-lg me-3 px-4 py-2">Start Free Trial</a>
+                <a href="/signup" className="btn btn-light btn-lg me-3 px-4 py-2">Start Free Trial</a>
                 <a href="#" className="btn btn-outline-light btn-lg px-4 py-2">Request Demo</a>
             </div>
         </div>
