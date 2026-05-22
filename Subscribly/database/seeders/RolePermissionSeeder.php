@@ -32,7 +32,7 @@ class RolePermissionSeeder extends Seeder
 
         // Create Roles
         $roles = [
-            'admin' => ['view_dashboard', 'manage_products', 'manage_users', 'view_reports'],
+            'admin' => ['view_dashboard', 'manage_products', 'manage_users'],
             'vendor' => ['view_dashboard', 'manage_products','manage_users','view_reports','manage_invoices','manage_stocks','manage_account'],
             'sub_vendor' => ['view_dashboard','manage_invoices'],
         ];

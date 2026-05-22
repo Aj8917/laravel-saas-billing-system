@@ -328,20 +328,23 @@ class UserController extends Controller
 
         // Users data
         $users = User::with('tenant.subscription.plan')
-           
+
             ->whereNull('parent_id')
             ->where('role_id', '!=', 1)
             ->select('id', 'name', 'email', 'tenant_id')
-             ->paginate(50);
+            ->paginate(50);
         // Clean response
 
         $users = $users->map(function ($user) {
             return [
-               // 'id' => $user->id,
+                // 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'business_name' => data_get($user, 'tenant.business_name'),
                 'plan_name' => data_get($user, 'tenant.subscription.plan.name'),
+                'expire_date' => Carbon::parse(
+                    data_get($user, 'tenant.subscription.end_date')
+                )->toDateString(),
             ];
         });
         $details = [

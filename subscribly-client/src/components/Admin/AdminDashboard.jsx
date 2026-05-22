@@ -10,11 +10,48 @@ const AdminDashboard = () => {
     const [details, setDetails] = useState('');
    
     const columns = [
-        { field: "id", headerName: "ID", width: 90 },
-        { field: "business_name", headerName: "Company", flex: 1 },
-        { field: "name", headerName: "User Name", flex: 1 },
-        { field: "plan_name", headerName: "Plan", flex: 1 },
-    ];
+    { field: "id", headerName: "ID", width: 90 },
+    { field: "business_name", headerName: "Company", flex: 1 },
+    { field: "name", headerName: "User Name", flex: 1 },
+    { field: "plan_name", headerName: "Plan", flex: 1 },
+
+    {
+        field: "expire_date",
+        headerName: "Plan Expire Date",
+        flex: 1,
+        renderCell: (params) => {
+            const expireDate = new Date(params.value);
+            const today = new Date();
+
+            // remove time
+            today.setHours(0, 0, 0, 0);
+            expireDate.setHours(0, 0, 0, 0);
+
+            // difference in days
+            const diffTime = expireDate - today;
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+            let color = "green";
+
+            if (diffDays < 0) {
+                color = "red"; // already expired
+            } else if (diffDays <= 4) {
+                color = "orange"; // expiring within 4 days
+            }
+
+            return (
+                <span
+                    style={{
+                        color,
+                        fontWeight: "bold",
+                    }}
+                >
+                    {params.value}
+                </span>
+            );
+        },
+    },
+];
 
     const rows =
         details?.users_details?.map((item, index) => ({
@@ -22,6 +59,7 @@ const AdminDashboard = () => {
             business_name: item.business_name || "No Company",
             name: item.name,
             plan_name: item.plan_name || "No Plan",
+            expire_date:item.expire_date||"0000-00-00"
         })) || [];
         
     useEffect(() => {
