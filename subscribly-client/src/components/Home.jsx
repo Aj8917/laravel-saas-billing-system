@@ -9,8 +9,8 @@ const Home = ({appName}) => {
                     <h1 className="hero-title">Grow Your Business with Smart CRM</h1>
                     <p className="hero-subtitle">{appName }Pro helps you manage customer relationships, automate sales, and boost your revenue with powerful analytics.</p>
                     <div className="d-flex">
-                        <a href="#" className="btn btn-primary">Start Free Trial</a>
-                        <a href="#" className="btn btn-outline-light">Learn More</a>
+                        <a href="/signup" className="btn btn-primary">Start Free Trial</a>
+                        <a href="#priceing" className="btn btn-outline-light">Learn More</a>
                     </div>
                 </div>
                 <div className="col-lg-6">
@@ -170,7 +170,7 @@ const Home = ({appName}) => {
             <p className="lead mb-5">Join thousands of businesses that trust CRMPro to manage their customer relationships.</p>
             <div className="d-flex justify-content-center">
                 <a href="/signup" className="btn btn-light btn-lg me-3 px-4 py-2">Start Free Trial !</a>
-                <a href="#" className="btn btn-outline-light btn-lg px-4 py-2">Request Demo</a>
+                <a href="/contactUs" className="btn btn-outline-light btn-lg px-4 py-2">Request Demo</a>
             </div>
         </div>
     </section>

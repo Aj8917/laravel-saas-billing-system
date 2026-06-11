@@ -32,6 +32,7 @@ import AdminHelpDesk from './components/Admin/HelpDesk.jsx';
 import AdminDashboard from './components/Admin/AdminDashboard.jsx';
 import AdminProducts from './components/Admin/ProductsList.jsx';
 import ProductSellDetails from './components/Admin/ProductSellDetails.jsx';
+import ContactUs from './components/ContactUs.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -66,6 +67,7 @@ function App() {
           <Route path='/signin' element={<Signin />} />
           <Route path='/PlanSelection' element={<PlanSelection />} />
           <Route path='/companyDetails' element={<CompanyDetails />} />
+          <Route path='/contactUs' element={<ContactUs />} />
           
 
           {/* Protected Routes for Basic + Pro Plans */}
