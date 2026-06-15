@@ -31,45 +31,45 @@ const ContactUs = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData)
-        // try {
-        //     setLoading(true);
+        //console.log(formData)
+        try {
+            setLoading(true);
 
-        //     await axios.post('/contact-us', formData);
+            const response = await axios.post('/contact-us', formData);
+            console.log(response)
+            messageHandler(response?.data?.message, 'success');
 
-        //     messageHandler('Message submitted successfully!', 'success');
+            setFormData({
+                name: '',
+                email: '',
+                mobile: '',
+            });
 
-        //     setFormData({
-        //         name: '',
-        //         email: '',
-        //         mobile: '',
-        //     });
+            setErrors({});
 
-        //     setErrors({});
+            navigate('/');
+        } catch (error) {
+            if (error.response?.data?.errors) {
+                setErrors(error.response.data.errors);
 
-        //     navigate('/');
-        // } catch (error) {
-        //     if (error.response?.data?.errors) {
-        //         setErrors(error.response.data.errors);
+                const errorMessages = Object.values(
+                    error.response.data.errors
+                ).flat();
 
-        //         const errorMessages = Object.values(
-        //             error.response.data.errors
-        //         ).flat();
-
-        //         messageHandler(
-        //             errorMessages[0] || 'Please fix the form errors.',
-        //             'error'
-        //         );
-        //     } else {
-        //         messageHandler(
-        //             error.response?.data?.message ||
-        //                 'Something went wrong. Please try again.',
-        //             'error'
-        //         );
-        //     }
-        // } finally {
-        //     setLoading(false);
-        // }
+                messageHandler(
+                    errorMessages[0] || 'Please fix the form errors.',
+                    'error'
+                );
+            } else {
+                messageHandler(
+                    error.response?.data?.message ||
+                    'Something went wrong. Please try again.',
+                    'error'
+                );
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -85,9 +85,8 @@ const ContactUs = () => {
                             type="text"
                             id="name"
                             name="name"
-                            className={`form-input ${
-                                errors.name ? 'is-invalid' : ''
-                            }`}
+                            className={`form-input ${errors.name ? 'is-invalid' : ''
+                                }`}
                             value={formData.name}
                             onChange={handleChange}
                             required
@@ -106,9 +105,8 @@ const ContactUs = () => {
                             type="email"
                             id="email"
                             name="email"
-                            className={`form-input ${
-                                errors.email ? 'is-invalid' : ''
-                            }`}
+                            className={`form-input ${errors.email ? 'is-invalid' : ''
+                                }`}
                             value={formData.email}
                             onChange={handleChange}
                             required
@@ -127,9 +125,8 @@ const ContactUs = () => {
                             type="tel"
                             id="mobile"
                             name="mobile"
-                            className={`form-input ${
-                                errors.mobile ? 'is-invalid' : ''
-                            }`}
+                            className={`form-input ${errors.mobile ? 'is-invalid' : ''
+                                }`}
                             value={formData.mobile}
                             onChange={handleChange}
                             maxLength={10}

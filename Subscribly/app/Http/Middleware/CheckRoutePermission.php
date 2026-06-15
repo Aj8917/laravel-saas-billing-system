@@ -35,7 +35,8 @@ class CheckRoutePermission
             'cities',
             'getCities',
             'plans',
-            'get-appname'
+            'get-appname',
+            'contact-us'
         ];
 
 

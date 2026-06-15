@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\api\ContactController;
 use App\Http\Controllers\Api\Invoice\InvoiceController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\PlanController;
@@ -29,6 +30,7 @@ Route::controller(UserController::class)->group(function () {
     Route::post('/sub-vendors', 'addSubVendor');
 
 });
+Route::post('/contact-us', [ContactController::class,'store']);
 
 Route::controller(LocationController::class)->group(function () {
     Route::get('/countries', 'getCountries');
@@ -67,3 +69,4 @@ Route::controller(TicketController::class)->group(function () {
     Route::post('/tickets', 'store');
     Route::put('/tickets/{ticket}', 'update');
 })->middleware('auth:sanctum');
+
