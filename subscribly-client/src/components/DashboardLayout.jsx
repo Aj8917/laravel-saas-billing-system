@@ -27,11 +27,12 @@ const DashboardLayout = ({ appName }) => {
     { label: "Account", to: "/account", permission: "manage_account" },
     { label: "Report", to: "#report", permission: "view_reports" },
     { label: "HelpDesk", to: "/helpdesk" },
+    { label: "Contact Messages", to: "/contact_messages" ,permission: "contact_messages"},
     { label: "Logout", to: "#logout" } // no permission required
   ];
 
   // Filter sidebar items based on permissions
-  useEffect(() => {
+  useEffect(() => { 
     if (permissions.length > 0) {
       const items = sidebarItems.filter(
         item => !item.permission || permissions.includes(item.permission)

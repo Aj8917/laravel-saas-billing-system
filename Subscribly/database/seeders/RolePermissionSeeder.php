@@ -23,6 +23,7 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'Manage Invoices', 'slug' => 'manage_invoices'],
             ['name' => 'Manage Stock', 'slug' => 'manage_stocks'],
             ['name' => 'Manage Account', 'slug' => 'manage_account'],
+            ['name' => 'Contact Messages', 'slug' => 'contact_messages'],
 
         ];
 
@@ -32,7 +33,7 @@ class RolePermissionSeeder extends Seeder
 
         // Create Roles
         $roles = [
-            'admin' => ['view_dashboard', 'manage_products', 'manage_users'],
+            'admin' => ['view_dashboard', 'manage_products', 'manage_users','contact_messages'],
             'vendor' => ['view_dashboard', 'manage_products','manage_users','view_reports','manage_invoices','manage_stocks','manage_account'],
             'sub_vendor' => ['view_dashboard','manage_invoices'],
         ];

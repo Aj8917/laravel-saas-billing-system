@@ -55,7 +55,7 @@ class UserController extends Controller
                 'role' => $user->role->name,
                 'plan' => $plan->plan->name,
                 'company_name' => $company->tenant->business_name,
-                'permissions' => $user->role?->getCachedPermissions() ?? [],
+                'permissions' => $user->role?->getCachedPermissions(true) ?? [],
 
             ]);
 

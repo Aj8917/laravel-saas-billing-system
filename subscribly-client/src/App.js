@@ -32,6 +32,7 @@ import AdminHelpDesk from './components/Admin/HelpDesk.jsx';
 import AdminDashboard from './components/Admin/AdminDashboard.jsx';
 import AdminProducts from './components/Admin/ProductsList.jsx';
 import ProductSellDetails from './components/Admin/ProductSellDetails.jsx';
+import ContactList from './components/Admin/ContactUs.jsx';
 import ContactUs from './components/ContactUs.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
@@ -142,8 +143,11 @@ function App() {
               <Route path='/products'
                      element={role==="Admin" ?(<AdminProducts />):(<Products />)} 
                 />
+            
+               <Route path='/contact_messages' element={<ContactList />} />
+            
             </Route>
-          </Route>
+          </Route> 
 
           {/* Protected Routes for Pro Plan Only */}
           <Route

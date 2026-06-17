@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    protected $fillable=['name','slug','cached_permissions'];
+    protected $fillable = ['name', 'slug', 'cached_permissions'];
 
     public function permissions()
     {
@@ -22,10 +22,25 @@ class Role extends Model
         Cache::forget("role_permission_{$this->id}");
     }
 
-    public function getCachedPermissions()
+    public function getCachedPermissions(bool $forceRefresh = false)
     {
-        return Cache::rememberForever("role_permissions_{$this->id}",function(){
-            return json_decode($this->cached_permissions,true)??$this->permissions()->pluck('slug')->toArray();
+        $cacheKey = "role_permissions_{$this->id}";
+
+        if ($forceRefresh) {
+            Cache::forget($cacheKey);
+        }
+
+        return Cache::remember($cacheKey, now()->addHours(6), function () {
+
+            // Prefer DB relationship (always correct source of truth)
+            $permissions = $this->permissions()->pluck('slug')->toArray();
+
+            // Optional fallback if relation empty
+            if (empty($permissions) && $this->cached_permissions) {
+                $permissions = json_decode($this->cached_permissions, true) ?? [];
+            }
+
+            return $permissions;
         });
     }
 }

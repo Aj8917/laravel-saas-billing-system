@@ -30,7 +30,13 @@ Route::controller(UserController::class)->group(function () {
     Route::post('/sub-vendors', 'addSubVendor');
 
 });
-Route::post('/contact-us', [ContactController::class,'store']);
+
+Route::controller(ContactController::class)->group(function(){
+    Route::get('/contacts', 'index');
+    Route::post('/contact-us', 'store');
+
+});
+
 
 Route::controller(LocationController::class)->group(function () {
     Route::get('/countries', 'getCountries');
