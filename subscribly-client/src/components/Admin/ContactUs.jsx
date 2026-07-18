@@ -47,7 +47,23 @@ const ContactUs = () => {
         return () => clearTimeout(timeout);
     }, [page, search]);
 
+    const handleStatusChange = asyncHandler(async (id, newStatus) => {
 
+        try {
+
+            await axiosAuth.put(`/contacts/${id}`, {
+                status: newStatus
+            });
+
+            messageHandler('Status updated successfully!', 'success');
+            fetchContacts(page, search);
+
+        } catch (error) {
+            const backendMessage =
+                error.response?.data?.message || 'Failed to update Ticket.';
+            messageHandler(backendMessage, 'error');
+        }
+    });
     return (
         <>
 
@@ -72,11 +88,12 @@ const ContactUs = () => {
                 <table className="table table-bordered">
                     <thead className="table-light">
                         <tr>
-                            <th> No</th>
+                            <th>No</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Mobile Number</th>
                             <th>Enquire Date</th>
+                            <th>status</th>
                         </tr>
                     </thead>
 
@@ -96,7 +113,17 @@ const ContactUs = () => {
                                     <td>{item.email}</td>
                                     <td>{item.mobile_number}</td>
                                     <td>{new Date(item.created_at).toLocaleString()}</td>
-
+                                    <td>
+                                        <select
+                                            value={item.status}
+                                            onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                                        >
+                                            <option value="new">New</option>
+                                            <option value="contacted">Contacted</option>
+                                            <option value="converted">Converted</option>
+                                            <option value="closed">Closed – Not Converted</option>
+                                        </select>
+                                    </td>
                                 </tr>
                             ))
                         )

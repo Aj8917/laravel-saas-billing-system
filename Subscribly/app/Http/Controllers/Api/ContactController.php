@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ContactUs;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Validator;
 class ContactController extends Controller
 {
@@ -75,4 +76,47 @@ class ContactController extends Controller
             ], 500);
         }
     }//store
+
+     public function update(Request $request, ContactUs $contact)
+    {
+      
+        try {
+            // Strict validation (matches ENUM)
+            $validated = $request->validate([
+                'status' => [
+                    'required',
+                    Rule::in(['new', 'contacted', 'converted', 'closed'])
+                ]
+            ]);
+
+            // Update safely
+            $contact->update([
+                'status' => $validated['status']
+            ]);
+ 
+            return response()->json([
+                'message' => 'Status updated successfully'.$validated['status']
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            //  Validation error (user mistake)
+            return response()->json([
+                'message' => 'Invalid status value',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+
+            //  Log real error (hidden from user)
+            \Log::error('Inquire status update failed', [
+                'error' => $e->getMessage(),
+                'id' => $contact->id
+            ]);
+
+            return response()->json([
+                'message' => 'Something went wrong. Please try again later.'
+            ], 500);
+        }
+    }
 }

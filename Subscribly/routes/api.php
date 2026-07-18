@@ -34,7 +34,7 @@ Route::controller(UserController::class)->group(function () {
 Route::controller(ContactController::class)->group(function(){
     Route::get('/contacts', 'index');
     Route::post('/contact-us', 'store');
-
+    Route::put('/contacts/{contact}', 'update')->middleware('auth:sanctum');
 });
 
 
