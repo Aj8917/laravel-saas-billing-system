@@ -16,7 +16,7 @@ const Navbar = ({ appName }) => {
         <div>
             <nav className="navbar navbar-expand-lg navbar-light bg-white fixed-top">
                 <div className="container">
-                    <a className="navbar-brand" href="#">{appName}
+                    <a className="navbar-brand" href="/">{appName}
                         <span className="text-dark">
                             {/* Pro */}
                         </span></a>

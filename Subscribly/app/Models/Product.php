@@ -42,6 +42,9 @@ class Product extends Model
             'unit' => $variant->unit ?? null,
             'price' => $variant->offers->first()->price ?? null,
             'attribute' => $variant->attributes->value ?? null,
+            'vendor' => $variant->offers->first()?->vendor?->name,
+
+
             // Total sold quantity from all invoices
             'total_sell' => $variant->offers
                 ->flatMap(fn($offer) => $offer->invoices)

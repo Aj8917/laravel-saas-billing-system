@@ -89,7 +89,7 @@ const ProductsList = () => {
             <th>Name</th>
             <th>SKU </th>
             <th>Unit</th>
-
+            <th>Created By</th>
 
           </tr>
         </thead>
@@ -117,6 +117,7 @@ const ProductsList = () => {
                 >{item.name}</td>
                 <td>{item.base_sku}</td>
                 <td>{item.unit}</td>
+                <td>{item.vendor}</td>
               </tr>
             ))
           )}
