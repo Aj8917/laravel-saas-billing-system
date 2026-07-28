@@ -15,13 +15,13 @@ const ProductSellDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!uuid) {
-        console.error('No uuid ID Found');
+       // console.error('No uuid ID Found');
         return;
       }
 
       try {
         const response = await axiosAuth.get(`/products/${uuid}`);
-       // console.log(response.data);
+        //console.log(response.data);
         //console.log('res 2'+response.data[0].sales_chart);
 
         // Set customer and invoice data
@@ -44,7 +44,7 @@ const ProductSellDetails = () => {
       <div className="container">
         <section className="dash-form-wrapper">
           <div className="form-box">
-            <h2 className="text-center mb-4 form-header">Product  Details : <span color='brown'>{productDetails.name}</span></h2>
+            <h2 className="text-center mb-4 form-header">Product  Details : <span color='brown'>{product.name}</span></h2>
             <section className="py-1">
               <div className="container">
                 <section className="dash-form-wrapper">
@@ -90,6 +90,13 @@ const ProductSellDetails = () => {
                                   <span className="label">Unit:</span>
                                   <span className="value">
                                     {product?.unit ?? "-"}
+                                  </span>
+                                </div>
+                                
+                                <div className="field-row">
+                                  <span className="label">Created By:</span>
+                                  <span className="value">
+                                    {product?.vendor ?? "-"}
                                   </span>
                                 </div>
                               </div>
