@@ -34,6 +34,7 @@ import AdminProducts from './components/Admin/ProductsList.jsx';
 import ProductSellDetails from './components/Admin/ProductSellDetails.jsx';
 import ContactList from './components/Admin/ContactUs.jsx';
 import ContactUs from './components/ContactUs.jsx';
+import UpgradePlan from './components/Billing/UpgradePlan.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8000/api';
 
@@ -69,6 +70,7 @@ function App() {
           <Route path='/PlanSelection' element={<PlanSelection />} />
           <Route path='/companyDetails' element={<CompanyDetails />} />
           <Route path='/contactUs' element={<ContactUs />} />
+           <Route path='/upgrade-plan' element={<UpgradePlan />} />
           
 
           {/* Protected Routes for Basic + Pro Plans */}
