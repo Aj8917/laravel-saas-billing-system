@@ -19,7 +19,6 @@ use Auth;
 use DB;
 use Hash;
 use Illuminate\Http\Request;
-
 use Illuminate\Notifications\Notifiable;
 use Validator;
 use Carbon\Carbon;
@@ -44,7 +43,9 @@ class UserController extends Controller
             //  \Log::info('Role  '.$user->role->name );
             if ($plan->end_date->isPast()) {
                 return response()->json([
-                    'message' => "Your subscription for {$plan->plan->name} has expired!"
+                    'message' => "Your subscription for {$plan->plan->name} has expired!",
+                    'activationID' => encrypt($user->tenant_id)
+
                 ], 403);
             }
 

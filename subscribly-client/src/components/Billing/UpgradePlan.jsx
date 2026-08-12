@@ -3,16 +3,18 @@ import asyncHandler from '../../util/asyncHandler';
 import messageHandler from '../../util/messageHandler';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams } from "react-router-dom";
 
-const UpgradePlan = () => { 
+const UpgradePlan = () => {
 
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [plans, setPlans] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const { activationID } = useParams();
   const navigate = useNavigate();
 
- 
-    // Fetch plans from backend
+
+  // Fetch plans from backend
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -28,7 +30,7 @@ const UpgradePlan = () => {
             annually: plan.price * 0.8, // Example: 20% discount for annual
           },
           features: typeof plan.features === 'string' ? JSON.parse(plan.features) : plan.features,
-          cta: plan.name === 'Basic' ? 'Start Free Trial' : plan.name === 'Pro' ? 'Purchase Now!' : 'Contact Sales',
+          cta: plan.name === 'Basic' ? 'Start Free Trial' : plan.name === 'Pro' ? 'Purchase Now!' : 'Purchase Now!',
           variant: plan.name === 'Pro' ? 'primary' : 'outline-primary',
           popular: plan.name === 'Pro',
         }));
@@ -44,9 +46,9 @@ const UpgradePlan = () => {
 
   const handlePlanSelect = asyncHandler(async (planName) => {
     try {
-      const tenant_id = localStorage.getItem('tenantId');
+      const tenant_id = activationID
       const status = "pending";
-      
+
       if (!selectedPlan) {
         messageHandler('error', 'Please select a plan first.');
         return;
@@ -58,8 +60,8 @@ const UpgradePlan = () => {
         status
       });
 
-      messageHandler(response.data.success, planName ,"successfuly activated! ");
-      navigate('/companyDetails');
+      messageHandler(response.data.success, planName, "successfuly activated! ");
+      navigate('/signin');
 
     } catch (error) {
       const errors = error.response?.data?.errors;

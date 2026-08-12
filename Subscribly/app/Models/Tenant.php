@@ -24,7 +24,8 @@ class Tenant extends Model
     }
     public function subscription()
     {
-        return $this->hasOne(Subscriptions::class, 'tenant_id', 'id');
+        return $this->hasOne(Subscriptions::class, 'tenant_id', 'id')
+            ->latestOfMany('id');
     }
 
     public function toArray()

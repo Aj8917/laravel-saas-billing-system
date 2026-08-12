@@ -70,8 +70,11 @@ function App() {
           <Route path='/PlanSelection' element={<PlanSelection />} />
           <Route path='/companyDetails' element={<CompanyDetails />} />
           <Route path='/contactUs' element={<ContactUs />} />
-           <Route path='/upgrade-plan' element={<UpgradePlan />} />
-          
+          <Route
+            path="/upgrade-plan/:activationID"
+            element={<UpgradePlan />}
+          />
+
 
           {/* Protected Routes for Basic + Pro Plans */}
           <Route
@@ -88,13 +91,13 @@ function App() {
               path='/'
               element={<DashboardLayout appName={appName} isAuthenticated={isAuthenticated} />}
             >
-              <Route 
-                    path='/VendorDashboard'
-                    element={
-                               role==="Admin" ?(<AdminDashboard/>):(
-                              <VendorDashboard />)
-                          }
-               />
+              <Route
+                path='/VendorDashboard'
+                element={
+                  role === "Admin" ? (<AdminDashboard />) : (
+                    <VendorDashboard />)
+                }
+              />
               <Route
                 path="/invoice"
                 element={
@@ -124,32 +127,32 @@ function App() {
                   />
                 }
               />
-            <Route
+              <Route
                 path="/ProductSellDetails/:uuid"
                 element={
-                    <ProductSellDetails />
+                  <ProductSellDetails />
                 }
               />
 
-               <Route
+              <Route
                 path="/helpdesk"
                 element={
-                  role==="Admin" ?(<AdminHelpDesk/>):(
-                  <PlanBasedRoute
-                    basicComponent={HelpDesk}
-                    proComponent={HelpDesk}
-                  />
+                  role === "Admin" ? (<AdminHelpDesk />) : (
+                    <PlanBasedRoute
+                      basicComponent={HelpDesk}
+                      proComponent={HelpDesk}
+                    />
                   )
                 }
               />
               <Route path='/products'
-                     element={role==="Admin" ?(<AdminProducts />):(<Products />)} 
-                />
-            
-               <Route path='/contact_messages' element={<ContactList />} />
-            
+                element={role === "Admin" ? (<AdminProducts />) : (<Products />)}
+              />
+
+              <Route path='/contact_messages' element={<ContactList />} />
+
             </Route>
-          </Route> 
+          </Route>
 
           {/* Protected Routes for Pro Plan Only */}
           <Route
@@ -161,10 +164,10 @@ function App() {
               />
             }
 
-            
+
           >
             <Route path='/' element={<DashboardLayout />}>
-             
+
               <Route path='/stock' element={<StockTopUp />} />
               <Route path='/account' element={<Account />} />
               <Route path='/MontlyReport' element={<MonthlyReport />} />

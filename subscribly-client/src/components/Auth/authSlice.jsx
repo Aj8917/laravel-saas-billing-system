@@ -5,7 +5,7 @@ import axios from "axios";
 // Load From LocalStorage Only Once (Best Practice)
 // ---------------------------------------------
 const storedUser = JSON.parse(localStorage.getItem("user")) || null;
-const storedRole = localStorage.getItem("role")||null;
+const storedRole = localStorage.getItem("role") || null;
 const storedPermissions = JSON.parse(localStorage.getItem("permissions")) || [];
 const storedToken = localStorage.getItem("token") || null;
 const storedPlan = localStorage.getItem("plan") || null;
@@ -14,7 +14,7 @@ const storedAuth = localStorage.getItem("isAuthenticated") === "true";
 const initialState = {
     userData: {
         user: storedUser,
-        role:storedRole,
+        role: storedRole,
         permissions: storedPermissions,
     },
     token: storedToken,
@@ -46,17 +46,19 @@ export const signin = createAsyncThunk(
             // Store in localStorage once user logs in
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(userData));
-            localStorage.setItem("role",role);
+            localStorage.setItem("role", role);
             localStorage.setItem("permissions", JSON.stringify(userData.permissions));
             localStorage.setItem("plan", plan);
             localStorage.setItem("isAuthenticated", "true");
 
             return { userData, token, plan };
         } catch (error) {
-          return thunkAPI.rejectWithValue({
+            return thunkAPI.rejectWithValue({
                 status: error.response?.status,
                 message: error.response?.data?.message,
+                activationID: error.response.data.activationID,
                 errors: error.response?.data?.errors || null
+
             });
         }
     }
