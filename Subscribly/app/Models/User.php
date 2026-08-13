@@ -59,7 +59,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
-
+    public function tenantUserAccess()
+    {
+        return $this->hasOne(TenantUserAccess::class, 'user_id', 'id');
+    }
     public function hasPermission($slug)
     {
         if (!$this->role)

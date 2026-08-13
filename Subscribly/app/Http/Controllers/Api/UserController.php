@@ -364,10 +364,13 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        $company_details = Tenant::with('companyDetails', 'users')
+        $company_details = Tenant::with([
+            'companyDetails',
+            'activeSubVendors',
+            'tenantUserAccess'
+        ])
             ->where('id', $user->tenant_id)
             ->first();
-
         return response()->json(['details' => $company_details]);
     }//fetchComapnyDetails
 

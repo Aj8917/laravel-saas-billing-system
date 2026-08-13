@@ -27,7 +27,18 @@ class Tenant extends Model
         return $this->hasOne(Subscriptions::class, 'tenant_id', 'id')
             ->latestOfMany('id');
     }
-
+    public function tenantUserAccess()
+    {
+        return $this->hasMany(TenantUserAccess::class, 'tenant_id', 'id');
+    }
+    public function activeSubVendors()
+    {
+        return $this->hasMany(User::class, 'tenant_id', 'id')
+            ->where('role_id', 3)
+            ->whereHas('tenantUserAccess', function ($query) {
+                $query->where('status', 'active');
+            });
+    }
     public function toArray()
     {
         return [
@@ -36,11 +47,12 @@ class Tenant extends Model
             'gstin' => $this->companyDetails?->gstin,
             'pan' => $this->companyDetails?->pan,
             'pincode' => $this->companyDetails?->pincode,
-            'subVendors' => $this->users->where('role_id', 3)
+            'subVendors' => $this->activeSubVendors
                 ->map(fn($user) => [
                     'name' => $user->name,
                     'email' => $user->email
-                ])->values(),
+                ])
+                ->values(),
 
         ];
     }
