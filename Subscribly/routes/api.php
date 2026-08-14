@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware((['auth:sanctum','user.expired']));
 
 Route::get('/get-appname', function () {
     return response()->json(['name' => config('app.name', 'app.env')]);
@@ -26,15 +26,15 @@ Route::controller(UserController::class)->group(function () {
     Route::get('/company-details', 'fetchComapnyDetails');
     Route::post('/company-details', 'companyDetails');
     Route::get('/dashboard-details', 'dashboardDetails');
-     Route::get('/admin-dashboard-details', 'adminDashboardDetails');
-    Route::post('/sub-vendors', 'addSubVendor');
+    Route::get('/admin-dashboard-details', 'adminDashboardDetails')->middleware(['auth:sanctum','user.expired']);
+    Route::post('/sub-vendors', 'addSubVendor')->middleware(['auth:sanctum','user.expired']);
 
 });
 
 Route::controller(ContactController::class)->group(function(){
     Route::get('/contacts', 'index');
     Route::post('/contact-us', 'store');
-    Route::put('/contacts/{contact}', 'update')->middleware('auth:sanctum');
+    Route::put('/contacts/{contact}', 'update')->middleware(['auth:sanctum','user.expired']);
 });
 
 
@@ -56,23 +56,23 @@ Route::controller(InvoiceController::class)->group(function () {
     Route::get('/pro-invoice/{encryptedId}', 'showProInvoice');
     Route::post('/pro-monthly-report', 'showProMonthlyReport');
 
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum','user.expired']);
 
 Route::controller(CategoryController::class)->group(function () {
     Route::get('/categories', 'index');
     Route::post('/categories', 'store');
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum','user.expired']);
 
 Route::controller(ProductController::class)->group(function () {
     Route::get('/products', 'index');
     Route::post('/products', 'storeProduct');
     Route::post('/update-stock', 'updateStock');
     Route::get('/products/{uuid}', 'showProductDetails');
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum','user.expired']);
 
 Route::controller(TicketController::class)->group(function () {
     Route::get('/tickets', 'index');
     Route::post('/tickets', 'store');
     Route::put('/tickets/{ticket}', 'update');
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum','user.expired']);
 
