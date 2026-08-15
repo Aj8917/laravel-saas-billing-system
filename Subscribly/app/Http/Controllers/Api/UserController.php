@@ -44,8 +44,8 @@ class UserController extends Controller
             if ($plan->end_date->isPast()) {
                 return response()->json([
                     'message' => "Your subscription for {$plan->plan->name} has expired!",
-                    'activationID' => encrypt($user->tenant_id)
-
+                    'activationID' => encrypt($user->tenant_id),
+                    'subVendor' => $user->parent_id !== null,
                 ], 403);
             }
 
@@ -57,7 +57,6 @@ class UserController extends Controller
                 'plan' => $plan->plan->name,
                 'company_name' => $company->tenant->business_name,
                 'permissions' => $user->role?->getCachedPermissions(true) ?? [],
-
             ]);
 
         }

@@ -13,30 +13,42 @@ const Signin = () => {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
     const [isExpired, setIsExpired] = useState(false);
+    const [isSubVendor, setisSubVendor] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        try {
+            const result = await dispatch(signin({ email, password }));
 
-        const result = await dispatch(signin({ email, password }));
-
-        if (signin.fulfilled.match(result)) {
-            messageHandler('Login Successfully!', 'success');
-            naviagte('/VendorDashboard');
-        } else {
-            const serverErrors = result.payload?.errors;
-
-            if (serverErrors) {
-
-                setErrors(serverErrors); // Backend errors like: { email: ['Required'], password: ['Invalid'] }
-                //messageHandler('Login failed: ' + Object.values(serverErrors).flat().join(', '), 'error');
-                messageHandler('Login failed: ' + serverErrors, 'error');
+            if (signin.fulfilled.match(result)) {
+                messageHandler('Login Successfully!', 'success');
+                naviagte('/VendorDashboard');
             } else {
+                const serverErrors = result.payload?.errors;
 
-                messageHandler(serverErrors || result.payload?.message || 'Login failed', 'info');
-                if (result.payload.status === 403) {
-                    setactivationID(result.payload?.activationID)
-                    setIsExpired(true);
+                if (serverErrors) {
+
+                    setErrors(serverErrors); // Backend errors like: { email: ['Required'], password: ['Invalid'] }
+                    //messageHandler('Login failed: ' + Object.values(serverErrors).flat().join(', '), 'error');
+                    messageHandler('Login failed: ' + serverErrors, 'error');
+                } else {
+
+                    messageHandler(serverErrors || result.payload?.message || 'Login failed', 'info');
+                    if (result.payload.status === 403) {
+                        setactivationID(result.payload?.activationID)
+                        setIsExpired(true);
+                        setisSubVendor(result.payload?.subVendor);
+
+                    }
                 }
             }
+        } catch (error) {
+
+            const data = error.response?.data;
+
+            setIsExpired(data?.is_expired === true);
+            setisSubVendor(data?.subvendor === true);
+            setactivationID(data?.activationID || '');
         }
     };
 
@@ -81,15 +93,21 @@ const Signin = () => {
                         <button type="submit" className="btn btn-primary w-100" disabled={loading}>
                             {loading ? 'Signing In...' : 'Sign In'}
                         </button>
-                        {isExpired && (
+                        {isExpired === true && (
                             <div className="alert alert-warning text-center mt-3">
                                 <div className="mb-2">
                                     Your subscription has expired
                                 </div>
+                                {isSubVendor === true ? (
 
-                                <a href={`/upgrade-plan/${activationID}`} className="btn btn-dark btn-sm px-3">
-                                    Reactivate Plan
-                                </a>
+                                    <div className="text-danger">
+                                        Your main vendor account is blocked. Please contact the administrator.
+                                    </div>
+                                ) : (
+                                    <a href={`/upgrade-plan/${activationID}`} className="btn btn-dark btn-sm px-3">
+                                        Reactivate Plan
+                                    </a>
+                                )}
                             </div>
                         )}
                     </form>

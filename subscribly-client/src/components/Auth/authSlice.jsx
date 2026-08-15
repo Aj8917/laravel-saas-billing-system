@@ -57,6 +57,7 @@ export const signin = createAsyncThunk(
                 status: error.response?.status,
                 message: error.response?.data?.message,
                 activationID: error.response.data.activationID,
+                subVendor: error.response.data.subVendor,
                 errors: error.response?.data?.errors || null
 
             });
