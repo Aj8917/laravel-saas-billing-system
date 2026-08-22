@@ -8,24 +8,27 @@ class Subscriptions extends Model
 {
 
     protected $casts = [
-    'end_date' => 'datetime',
-];
-
-
-   public function plan()
-   {
-    return $this->belongsTo(Plan::class,'plan_id','id');
-   }
-
-   public function Tenant()
-   {
-    return $this->belongsTo(Tenant::class,'tenant_id','id');
-   }
- 
-   public function toArray(){
-    return [
-        'plan'=>$this->plan->name,
-
+        'end_date' => 'datetime',
     ];
-   }
+
+    protected $fillable = [
+        'status'
+    ];
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class, 'plan_id', 'id');
+    }
+
+    public function Tenant()
+    {
+        return $this->belongsTo(Tenant::class, 'tenant_id', 'id');
+    }
+
+    public function toArray()
+    {
+        return [
+            'plan' => $this->plan->name,
+
+        ];
+    }
 }

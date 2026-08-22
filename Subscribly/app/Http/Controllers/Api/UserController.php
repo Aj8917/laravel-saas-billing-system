@@ -15,6 +15,7 @@ use App\Models\Tenant;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\VendorOffer;
+use App\Services\DisableSubVendorService;
 use Auth;
 use DB;
 use Hash;
@@ -26,7 +27,7 @@ use Carbon\Carbon;
 class UserController extends Controller
 {
     use Notifiable;
-    public function singin(Request $request)
+    public function singin(Request $request, DisableSubVendorService $disableSubVendorService)
     {
 
         $credentials = $request->only('email', 'password');
@@ -42,6 +43,11 @@ class UserController extends Controller
             $plan = $user->tenant->subscription;
             //  \Log::info('Role  '.$user->role->name );
             if ($plan->end_date->isPast()) {
+                $disableSubVendorService->disableUser(
+                    $user->tenant_id,
+                    'Plan Expired'
+                );
+
                 return response()->json([
                     'message' => "Your subscription for {$plan->plan->name} has expired!",
                     'activationID' => encrypt($user->tenant_id),
