@@ -88,7 +88,7 @@ class TicketController extends Controller
 
         } catch (\Exception $e) {
 
-            // 🔒 Log real error (hidden from user)
+            //  Log real error (hidden from user)
             \Log::error('Ticket update failed', [
                 'error' => $e->getMessage(),
                 'ticket_id' => $ticket->id

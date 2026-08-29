@@ -33,4 +33,25 @@ class DisableSubVendorService
             ]);
     }
 
+     public function enableUser(int $tenantId, string $reason): void
+    {
+        $subscription = Subscriptions::where('tenant_id', $tenantId)
+            ->where('status', '!=', 'expired')
+            ->latest('created_at')
+            ->first();
+
+        if ($subscription) {
+            $subscription->update([
+                'status' => 'paid',
+            ]);
+        }
+
+        // TenantUserAccess::where('tenant_id', $tenantId)
+        //     ->where('status', '!=', 'suspended')
+        //     ->update([
+        //         'status' => 'active',
+        //         'reason' => $reason,
+        //     ]);
+    }
+
 }//DisableSubVendorService

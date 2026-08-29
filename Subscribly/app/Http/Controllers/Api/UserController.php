@@ -12,6 +12,7 @@ use App\Models\Plan;
 use App\Models\ProInvoice;
 use App\Models\Subscriptions;
 use App\Models\Tenant;
+use App\Models\TenantUserAccess;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\VendorOffer;
@@ -439,4 +440,105 @@ class UserController extends Controller
 
 
     }//addSubVendor
+    public function activateSubVendor($id)
+    {
+        try {
+            // Decrypt the ID received from React
+            $decryptedId = decrypt($id);
+            $user = Auth::user();
+
+            $subscription = $user->tenant->subscription;
+            // Find the sub-vendor
+            $tenantUserAccess = TenantUserAccess::where('user_id', $decryptedId)
+                ->where('tenant_id', $user->tenant_id)
+                ->first();
+
+
+            if (!$subscription || !$subscription->plan) {
+                return response()->json([
+                    'message' => 'No active subscription plan found.',
+                ], 403);
+            }
+
+            $planName = $subscription->plan->name;
+
+            // Plan activation limits
+            $planLimits = [
+                'Basic' => 0,
+                'Pro' => 2,
+                'Premium' => 5,
+            ];
+
+            $planLimit = $planLimits[$planName] ?? 0;
+
+            // Already active - don't count it again
+            if ($tenantUserAccess->status === 'active') {
+                return response()->json([
+                    'message' => 'User is already active.',
+                    'status' => 'active',
+                    'plan' => $planName,
+                    'active_users' => TenantUserAccess::where('tenant_id', $user->tenant_id)
+                        ->where('status', 'active')
+                        ->count(),
+                    'limit' => $planLimit,
+                ], 200);
+            }
+
+            // Count currently active users
+            $activeUsers = TenantUserAccess::where('tenant_id', $user->tenant_id)
+                ->where('status', 'active')
+                ->count();
+
+            // Check plan limit
+            if ($activeUsers >= $planLimit) {
+                return response()->json([
+                    'message' => 'Plan user limit reached.',
+                    'plan' => $planName,
+                    'limit' => $planLimit,
+                    'active_users' => $activeUsers,
+                ], 422);
+            }
+
+            // Activate user
+            $tenantUserAccess->update([
+                'status' => 'active',
+                'reason' => "payment"
+            ]);
+
+            return response()->json([
+                'message' => 'User activated successfully.',
+                'plan' => $planName,
+                'active_users' => $activeUsers + 1,
+                'limit' => $planLimit,
+            ], 200);
+
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+
+            \Log::warning('Invalid encrypted sub-vendor ID', [
+                'id' => $id,
+            ]);
+
+            return response()->json([
+                'message' => 'Invalid user ID.',
+            ], 400);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
+            return response()->json([
+                'message' => 'Sub-vendor not found.',
+            ], 404);
+
+        } catch (\Exception $e) {
+
+            \Log::error('Sub-vendor activation failed', [
+                'error' => $e->getMessage(),
+                'id' => $id,
+            ]);
+
+            return response()->json([
+                'message' => 'Something went wrong. Please try again later.',
+            ], 500);
+        }
+    }//activateSubVendor
+
 }//UserController

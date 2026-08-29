@@ -36,8 +36,13 @@ class Tenant extends Model
         return $this->hasMany(User::class, 'tenant_id', 'id')
             ->where('role_id', 3)
             ->whereHas('tenantUserAccess', function ($query) {
-                $query->where('status', 'active');
-            });
+                $query->whereIn('status', ['active', 'suspended']);
+            })
+            ->with([
+                'tenantUserAccess' => function ($query) {
+                    $query->whereIn('status', ['active', 'suspended']);
+                }
+            ]);
     }
     public function toArray()
     {
@@ -49,8 +54,10 @@ class Tenant extends Model
             'pincode' => $this->companyDetails?->pincode,
             'subVendors' => $this->activeSubVendors
                 ->map(fn($user) => [
+                    'id'=>encrypt($user->id),
                     'name' => $user->name,
-                    'email' => $user->email
+                    'email' => $user->email,
+                    'status' => $user->tenantUserAccess->status
                 ])
                 ->values(),
 
