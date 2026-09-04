@@ -8,7 +8,8 @@ class TenantUserAccess extends Model
 {
     protected $table = 'tenant_user_access';
     protected $fillable = [
-        'status'
+        'status',
+        'reason',
     ];
     public function tenant()
     {

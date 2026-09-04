@@ -16,24 +16,31 @@ const Account = () => {
     const [errors, setErrors] = useState({});
     const plan = useSelector((state) => state.auth.plan);
     const [subVendors, setSubVendors] = useState([]);
-    
-    useEffect(() => {
-        asyncHandler(async () => {
-            try {
-                const response = await axiosAuth.get('/company-details');
-                if (response?.data?.details) {
-                    const details = response.data.details; setCompany(details);
-                    
-                    setCompany(details);
 
-                    setSubVendors( 
-                                    details?.subVendors ? Object.values(details.subVendors) : [] 
-                                 );
-                }
-            } catch (error) {
-                console.log(`Error fetching company details: ${error.message}`);
+    const fetchCompanyDetails = async () => {
+        try {
+            const response = await axiosAuth.get("/company-details");
+
+            if (response?.data?.details) {
+                const details = response.data.details;
+
+                setCompany(details);
+
+                setSubVendors(
+                    details?.subVendors
+                        ? Object.values(details.subVendors)
+                        : []
+                );
             }
-        })();
+        } catch (error) {
+            console.error(
+                "Error fetching company details:",
+                error.message
+            );
+        }
+    };
+    useEffect(() => {
+        fetchCompanyDetails();
     }, []);
 
     const handleSubmit = asyncHandler(async (e) => {
@@ -105,14 +112,17 @@ const Account = () => {
         try {
             setLoading(true);
             const response = await axiosAuth.patch(`/sub-vendors/${subVendorId}`);
+            //console.log(subVendorId);   
+            // Refresh table data
+            fetchCompanyDetails();
+
             if (response.data?.success) {
                 messageHandler(response.data.success, "success");
-               
             } else {
                 messageHandler(response.data?.message || "Unable to activate user.", "error");
             }
         } catch (error) {
-            console.error("Activate user error:", error);
+            //console.error("Activate user error:", error);
             messageHandler(error.response?.data?.message || "Something went wrong while activating the user.", "error");
         }
         finally {
@@ -126,7 +136,7 @@ const Account = () => {
     const suspendedUsers = subVendors.filter(user => user.status === "suspended").length;
     const planLimit = plan === "Pro" ? 2 : plan === "Premium" ? 5 : 0;
     const canAddUser = activeUsers < planLimit;
-    const show= suspendedUsers>0;
+    const show = suspendedUsers > 0;
 
     return (
         <section className="py-1">
@@ -350,7 +360,7 @@ const Account = () => {
                                                                 <div> Active Users:{" "}
                                                                     <strong> {activeUsers} / {planLimit} </strong>
                                                                 </div>
-                                                                { show
+                                                                {show
                                                                     &&
                                                                     (
                                                                         <div className="mt-1">
@@ -384,65 +394,65 @@ const Account = () => {
 
                         {/* Sub-Vendors Table - Below Company/User Details */}
                         {
-                           
-                                <Row className="mt-2">
-                                    <Col xs={12}>
-                                        <Card className="shadow-lg border-0 rounded-4 p-4 ">
-                                            <Card.Body>
-                                                <h5 className="mb-4 fw-bold text-dark">
-                                                    Sub-Vendors
-                                                </h5>
 
-                                                <div className="table-responsive">
-                                                    <table className="table table-bordered table-hover align-middle mb-0">
-                                                        <thead className="table-light">
+                            <Row className="mt-2">
+                                <Col xs={12}>
+                                    <Card className="shadow-lg border-0 rounded-4 p-4 ">
+                                        <Card.Body>
+                                            <h5 className="mb-4 fw-bold text-dark">
+                                                Sub-Vendors
+                                            </h5>
+
+                                            <div className="table-responsive">
+                                                <table className="table table-bordered table-hover align-middle mb-0">
+                                                    <thead className="table-light">
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Name</th>
+                                                            <th>Email</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody>
+                                                        {loading ? (
                                                             <tr>
-                                                                <th>#</th>
-                                                                <th>Name</th>
-                                                                <th>Email</th>
-                                                                <th>Status</th>
+                                                                <td
+                                                                    colSpan="4"
+                                                                    className="text-center py-4"
+                                                                >
+                                                                    <Loader />
+                                                                </td>
                                                             </tr>
-                                                        </thead>
-
-                                                        <tbody>
-                                                            {loading ? (
-                                                                <tr>
-                                                                    <td
-                                                                        colSpan="4"
-                                                                        className="text-center py-4"
-                                                                    >
-                                                                        <Loader />
-                                                                    </td>
-                                                                </tr>
-                                                            ) : (
-                                                                subVendors
-                                                                    .map((subVendor, idx) => (
-                                                                        <tr key={idx}>
-                                                                            <td>{idx + 1}</td>
-                                                                            <td>{subVendor.name}</td>
-                                                                            <td>{subVendor.email}</td>
-                                                                            <td>
-                                                                                {subVendor.status ===
-                                                                                    "suspended" ? (
-                                                                                    <i className="bi bi-ban text-danger"
-                                                                                        onClick={() => handleActivate(subVendor.id)}
-                                                                                          style={{ cursor: "pointer" }}
-                                                                                    > {subVendor.status} </i>
-                                                                                ) : (
-                                                                                    <i className="bi bi-check-circle-fill text-success">{subVendor.status}</i>
-                                                                                )}
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))
-                                                            )}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </Card.Body>
-                                        </Card>
-                                    </Col>
-                                </Row>
-                            }
+                                                        ) : (
+                                                            subVendors
+                                                                .map((subVendor, idx) => (
+                                                                    <tr key={idx}>
+                                                                        <td>{idx + 1}</td>
+                                                                        <td>{subVendor.name}</td>
+                                                                        <td>{subVendor.email}</td>
+                                                                        <td>
+                                                                            {subVendor.status ===
+                                                                                "suspended" ? (
+                                                                                <i className="bi bi-ban text-danger"
+                                                                                    onClick={() => handleActivate(subVendor.id)}
+                                                                                    style={{ cursor: "pointer" }}
+                                                                                > {subVendor.status} </i>
+                                                                            ) : (
+                                                                                <i className="bi bi-check-circle-fill text-success">{subVendor.status}</i>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            </Row>
+                        }
                     </div>
                 </section>
             </div>
