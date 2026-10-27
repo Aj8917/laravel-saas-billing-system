@@ -97,7 +97,12 @@ const Signup = () => {
           <div className="form-floating-label mb-4">
             <input type="password"
               id="confirmPassword"
-              className={`form-input ${errors.confirmPassword ? 'is-valid' : ''}`}
+              className={`form-input ${confirmPassword
+                ? password === confirmPassword
+                  ? 'is-valid'
+                  : 'is-invalid'
+                : ''
+                }`}
               value={confirmPassword || ''}
               onChange={e => {
                 setConfirmPassword(e.target.value)
@@ -105,7 +110,9 @@ const Signup = () => {
               }}
               required />
             <label htmlFor="confirmPassword">Confirm Password</label>
-
+             {confirmPassword && password !== confirmPassword && (
+              <div className="error-text">Passwords do not match.</div>
+            )}
           </div>
           <div className="form-floating-label mb-4">
             <input
@@ -129,6 +136,7 @@ const Signup = () => {
             <label htmlFor="terms" className="form-check-label">
               I agree to the Terms of Service and Privacy Policy
             </label>
+           
           </div>
 
           <button type="submit" className="btn btn-primary w-100">
