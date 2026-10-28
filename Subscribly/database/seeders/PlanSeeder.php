@@ -12,7 +12,7 @@ class PlanSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('plans')->insert([
+        $plans = [
             [
                 'name' => 'Basic',
                 'price' => 0.00,
@@ -31,6 +31,13 @@ class PlanSeeder extends Seeder
                 'features' => '["Up to 5 users", "Billing with stock notifications via email", "Advanced analytics reports"]',
                 'is_active' => true,
             ],
-        ]);
+        ];
+
+        foreach ($plans as $plan) {
+            DB::table('plans')->updateOrInsert(
+                ['name' => $plan['name']],
+                $plan
+            );
+        }
     }//run
 }//planseeder
