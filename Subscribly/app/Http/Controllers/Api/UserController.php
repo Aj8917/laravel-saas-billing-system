@@ -43,7 +43,8 @@ class UserController extends Controller
 
             $plan = $user->tenant->subscription;
             //  \Log::info('Role  '.$user->role->name );
-            if ($plan->end_date->isPast()) {
+            
+            if ($user->role->name !="Admin" && $plan->end_date->isPast()) {
                 $disableSubVendorService->disableUser(
                     $user->tenant_id,
                     'Plan Expired'

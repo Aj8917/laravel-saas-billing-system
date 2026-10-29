@@ -30,7 +30,7 @@ class CheckUserExpiration
         $plan = $user->tenant->subscription;
 
 
-        if ($plan->end_date && now()->greaterThanOrEqualTo($plan->end_date)) {
+        if ($user->role->name !="Admin" && $plan->end_date && now()->greaterThanOrEqualTo($plan->end_date)) {
 
             $this->disableSubVendorService->disableUser(
                 $user->tenant_id,
