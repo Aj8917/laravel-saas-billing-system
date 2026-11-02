@@ -114,6 +114,11 @@ class ProductController extends Controller
                         'attribute_id' => $attribute->id,
                         'value' => $value,
                     ]);
+
+                  $product->attributes()->syncWithoutDetaching([
+                    $attribute->id
+                  ]);
+
                 }
 
                 // Save vendor offer for the variant

@@ -31,6 +31,13 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    public function attributes()
+    {
+        return $this->belongsToMany(
+            Attribute::class,
+            'product_attributes'
+        )->withTimestamps();
+    }
     public function toArray()
     {
         $variant = $this->variants->first();
