@@ -7,7 +7,7 @@ import messageHandler from '../../../util/messageHandler';
 const ProInvoice = () => {
   const [productOptions, setProductOptions] = useState([]);
   const [invoiceProducts, setInvoiceProducts] = useState([
-    { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '' }
+    { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '', selectedAttributes: {} }
   ]);
 
   const [customerName, setCustomerName] = useState('');
@@ -26,7 +26,14 @@ const ProInvoice = () => {
           label: item.product,
           sku: item.sku,
           price: item.price,
-          stock: item.stock
+          stock: item.stock,
+          attribute: item.attribute?.map((attr) => ({
+            name: attr.name,
+            values: attr.values.map((val) => ({
+              id: val.id,
+              value: val.value,
+            })),
+          })) || [],
         }));
         setProductOptions(formatted);
       }
@@ -42,10 +49,11 @@ const ProInvoice = () => {
         stock: selectedOption.stock || 0,
         price: selectedOption.price || 0,
         productLabel: selectedOption.label,
-        quantity: updatedProducts[index].quantity || 1
+        quantity: updatedProducts[index].quantity || 1,
+        attribute: selectedOption.attribute,
       };
     } else {
-      updatedProducts[index] = { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '' };
+      updatedProducts[index] = { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '', attribute: [] };
     }
     setInvoiceProducts(updatedProducts);
     setErrors(prev => ({ ...prev, [`product-${index}`]: null }));
@@ -69,7 +77,21 @@ const ProInvoice = () => {
     updatedProducts.splice(index, 1);
     setInvoiceProducts(updatedProducts);
   };
-
+  const handleAttributeSelect = (index, attributeName, selected) => {
+  setInvoiceProducts((prev) =>
+    prev.map((item, i) =>
+      i === index
+        ? {
+            ...item,
+            selectedAttributes: {
+              ...item.selectedAttributes,
+              [attributeName]: selected?.value ?? null
+            }
+          }
+        : item
+    )
+  );
+};
   const handleSubmit = asyncHandler(async (e) => {
     e.preventDefault();
 
@@ -202,8 +224,8 @@ const ProInvoice = () => {
                     <Select
                       options={productOptions
                         .filter(
-                        (opt) => !invoiceProducts.some((p, i) => i !== index && p.uuid === opt.value)
-                      )}
+                          (opt) => !invoiceProducts.some((p, i) => i !== index && p.uuid === opt.value)
+                        )}
                       value={
                         product.uuid
                           ? {
@@ -244,13 +266,51 @@ const ProInvoice = () => {
                       <div className="form-floating-label flex-fill">
                         <input
                           type="number"
-                          className={`form-input ${product.stock === 0 ? 'text-danger fw-bold':''}` }
-                         value={product.stock === 0 ? 'Out of Stock' : product.stock}
+                          className={`form-input ${product.stock === 0 ? 'text-danger fw-bold' : ''}`}
+                          value={product.stock === 0 ? 0 : product.stock}
                           readOnly
                         />
                         <label>Stock</label>
                       </div>
+
+                      <div className="form-floating-label flex-fill">
+                        <div className="mb-3">
+                          {product.attribute?.map((attr) => (
+                            <div className="form-floating-label flex-fill" key={attr.name}>
+                              <div className="mb-3">
+                                <label className="form-label">{attr.name}</label>
+
+                                <Select
+                                  options={attr.values.map((val) => ({
+                                    value: val.id,
+                                    label: val.value
+                                  }))}
+                                  value={
+                                    attr.values
+                                      .map((val) => ({
+                                        value: val.id,
+                                        label: val.value
+                                      }))
+                                      .find(
+                                        (option) =>
+                                          option.value ===
+                                          invoiceProducts[index].selectedAttributes?.[attr.name]
+                                      ) || null
+                                  }
+                                  onChange={(selected) =>
+                                    handleAttributeSelect(index, attr.name, selected)
+                                  }
+                                  isClearable
+                                  placeholder={`Select ${attr.name}...`}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
+
+
                   )}
 
                   <div className="mb-3">
@@ -260,7 +320,7 @@ const ProInvoice = () => {
                       className={`form-control ${errors[`quantity-${index}`] ? 'is-invalid' : ''}`}
                       min="1"
                       value={product.quantity}
-                       disabled={product.stock === 0} // 🔹 Disable if out of stock
+                      disabled={product.stock === 0} //  Disable if out of stock
                       onChange={(e) => handleQuantityChange(index, e.target.value)}
                       required
                     />

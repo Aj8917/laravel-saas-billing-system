@@ -30,15 +30,16 @@ class ProductController extends Controller
                     ->get();
             } else {
                 $query = Product::with(['variants']);
-                $perPage = $request->get('per_page', 50);
-                $search = $request->get('search');
-                if (!empty($search)) {
-                    $query->where('name', 'like', '%' . $search . '%');
-                }
+                 $perPage = $request->get('per_page', 50);
+                 $search = $request->get('search');
+                 if (!empty($search)) {
+                     $query->where('name', 'like', '%' . $search . '%');
+                 }
                 $VendorOffer = $query->orderBy('created_at', 'desc')
                     ->paginate($perPage);
 
             }
+            
             return response()->json(['products' => $VendorOffer]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error fetching products', 'error' => $e->getMessage()], 500);

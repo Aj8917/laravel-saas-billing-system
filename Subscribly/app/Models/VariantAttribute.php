@@ -10,8 +10,9 @@ class VariantAttribute extends Model
         'attribute_id',
         'value',
        ];  
-    public function attributes()
+     public function attribute()
     {
-        return $this->belongsTo(Attribute::class);
+        return $this->belongsTo(Attribute::class, 'attribute_id');
     }
+    
 }

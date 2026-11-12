@@ -35,8 +35,10 @@ class Product extends Model
     {
         return $this->belongsToMany(
             Attribute::class,
-            'product_attributes'
-        )->withTimestamps();
+            'product_attributes',
+            'product_id',
+            'attribute_id'
+        )->withPivot('id');
     }
     public function toArray()
     {
@@ -48,7 +50,7 @@ class Product extends Model
             'base_sku' => $variant->base_sku ?? null,
             'unit' => $variant->unit ?? null,
             'price' => $variant->offers->first()->price ?? null,
-            'attribute' => $variant->attributes->value ?? null,
+            'attribute' => $variant->attributes->value ?? 1,
             'vendor' => $variant->offers->first()?->vendor?->name,
 
 

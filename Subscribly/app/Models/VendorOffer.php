@@ -32,13 +32,34 @@ class VendorOffer extends Model
     }
     public function toArray()
     {
+        $product = $this->variant->product;
+
+        $attributeIds = $product->attributes()->pluck('attributes.id');
+
+        $attributes = VariantAttribute::with('attribute:id,name')
+            ->whereIn('attribute_id', $attributeIds)
+            ->get(['id', 'attribute_id', 'value'])
+            ->groupBy('attribute_id')
+            ->map(function ($items) {
+                return [
+                    //'id' => $items->first()->attribute_id,
+                    'name' => $items->first()->attribute->name ?? null,
+                    'values' => $items->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'value' => $item->value,
+                        ];
+                    })->unique('id')->values(),
+                ];
+            })->values();
+
         return [
             "sku" => $this->vendor_sku,
             "price" => $this->price,
             "stock" => $this->stock_qty,
-            "uuid" => $this->variant->product->uuid,
-            "product" => $this->variant->product->name,
-
+            "uuid" => $product->uuid,
+            "product" => $product->name,
+            "attribute" => $attributes
         ];
     }
 
