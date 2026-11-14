@@ -14,5 +14,13 @@ class VariantAttribute extends Model
     {
         return $this->belongsTo(Attribute::class, 'attribute_id');
     }
-    
+     public function invoices()
+    {
+        return $this->belongsToMany(
+            ProInvoice::class,
+            'pro_invoice_product_attribute',
+            'product_attribute_id',
+            'invoice_id'
+        )->withTimestamps();
+    }
 }

@@ -164,6 +164,7 @@ class InvoiceController extends Controller
 
     public function storePro(Request $request, InvoiceNumberGenerator $generator)
     {
+        
         $user = Auth::user();
         $tenant = $user->tenant;
         $planName = Subscriptions::with('tenant')
@@ -180,6 +181,8 @@ class InvoiceController extends Controller
             'products' => 'required|array|min:1',
             'products.*.uuid' => 'required|uuid|exists:products,uuid',
             'products.*.quantity' => 'required|numeric|min:1',
+            'products.*.product_attribute_ids' => 'nullable|array',
+            'products.*.product_attribute_ids.*' => 'integer|exists:variant_attributes,id',
         ]);
 
         DB::beginTransaction();
@@ -266,6 +269,12 @@ class InvoiceController extends Controller
                     'issued_at' => now(),
                     'subvendor_id' => $user->role_id == 3 ? $user->id : null,
                 ]);
+                // Insert product attributes if provided
+                $attributeIds = $productData['product_attribute_ids'] ?? [];
+
+                if (!empty($attributeIds)) {
+                    $invoice->productAttributes()->attach($attributeIds);
+                }
 
                 // Optional: reduce stock
                 // $offer->decrement('stock_qty', $quantity);
@@ -398,3 +407,4 @@ class InvoiceController extends Controller
 
 
 }//InvoiceController
+ 

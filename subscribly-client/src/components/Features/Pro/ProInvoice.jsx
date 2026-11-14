@@ -7,7 +7,7 @@ import messageHandler from '../../../util/messageHandler';
 const ProInvoice = () => {
   const [productOptions, setProductOptions] = useState([]);
   const [invoiceProducts, setInvoiceProducts] = useState([
-    { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '', selectedAttributes: {} }
+    { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '', attribute: [], selectedAttributes: {} }
   ]);
 
   const [customerName, setCustomerName] = useState('');
@@ -50,10 +50,11 @@ const ProInvoice = () => {
         price: selectedOption.price || 0,
         productLabel: selectedOption.label,
         quantity: updatedProducts[index].quantity || 1,
-        attribute: selectedOption.attribute,
+        attribute: selectedOption.attribute || [],
+        selectedAttributes: {}
       };
     } else {
-      updatedProducts[index] = { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '', attribute: [] };
+      updatedProducts[index] = { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '', attribute: [], selectedAttributes: {} };
     }
     setInvoiceProducts(updatedProducts);
     setErrors(prev => ({ ...prev, [`product-${index}`]: null }));
@@ -68,7 +69,7 @@ const ProInvoice = () => {
   const handleAddProduct = () => {
     setInvoiceProducts([
       ...invoiceProducts,
-      { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '' }
+      { uuid: '', quantity: 1, sku: '', stock: '', price: '', productLabel: '', attribute: [] }
     ]);
   };
 
@@ -77,21 +78,19 @@ const ProInvoice = () => {
     updatedProducts.splice(index, 1);
     setInvoiceProducts(updatedProducts);
   };
-  const handleAttributeSelect = (index, attributeName, selected) => {
-  setInvoiceProducts((prev) =>
-    prev.map((item, i) =>
-      i === index
-        ? {
-            ...item,
-            selectedAttributes: {
-              ...item.selectedAttributes,
-              [attributeName]: selected?.value ?? null
-            }
-          }
-        : item
-    )
-  );
-};
+  const handleAttributeSelect = (index, attrName, selected) => {
+    const updatedProducts = [...invoiceProducts];
+
+    updatedProducts[index] = {
+      ...updatedProducts[index],
+      selectedAttributes: {
+        ...updatedProducts[index].selectedAttributes,
+        [attrName]: selected ? selected.value : null
+      }
+    };
+
+    setInvoiceProducts(updatedProducts);
+  };
   const handleSubmit = asyncHandler(async (e) => {
     e.preventDefault();
 
@@ -131,7 +130,10 @@ const ProInvoice = () => {
       customerMobile: customerMobile,
       products: invoiceProducts.map(p => ({
         uuid: p.uuid,
-        quantity: p.quantity
+        quantity: p.quantity,
+        product_attribute_ids: Object.values(
+          p.selectedAttributes || {}
+        ).filter(id => id !== null)
       }))
     };
 

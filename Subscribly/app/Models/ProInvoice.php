@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProInvoice extends Model
 {
     protected $hidden = ['cust_id'];
-    protected $fillable = ['cust_id', 'offer_id', 'invoice_no', 'sell_quantity', 'issued_at', 'price', 'subtotal', 'tax_total', 'total','subvendor_id'];
+    protected $fillable = ['cust_id', 'offer_id', 'invoice_no', 'sell_quantity', 'issued_at', 'price', 'subtotal', 'tax_total', 'total', 'subvendor_id'];
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'cust_id', 'id');
@@ -17,7 +17,7 @@ class ProInvoice extends Model
     {
         return $this->belongsTo(VendorOffer::class, 'offer_id', 'id');
     }
-     // 🔹 Indirect relationship: ProInvoice → Offer → Variant → Product
+    // 🔹 Indirect relationship: ProInvoice → Offer → Variant → Product
     public function product()
     {
         return $this->hasOneThrough(
@@ -38,24 +38,32 @@ class ProInvoice extends Model
 
     public function subvendor()
     {
-        return $this->belongsTo(User::class,'subvendor_id','id');
+        return $this->belongsTo(User::class, 'subvendor_id', 'id');
     }
-
+    public function productAttributes()
+    {
+        return $this->belongsToMany(
+            VariantAttribute::class,
+            'pro_invoice_product_attribute',
+            'invoice_id',
+            'product_attribute_id'
+        )->withTimestamps();
+    }
     public function toArray()
     {
         return [
             "name" => $this->customer->name,
             "mobile" => $this->customer->mobile,
             "invoice_no" => $this->invoice_no,
-            "product_name" =>  $this->offer->variant->product->name,
+            "product_name" => $this->offer->variant->product->name,
             "price" => $this->price,
-            "unit"=>$this->offer->variant->unit??null,
+            "unit" => $this->offer->variant->unit ?? null,
             "sell_quantity" => $this->sell_quantity,
             "subtotal" => $this->subtotal,
             "tax_total" => $this->tax_total,
             "total" => $this->total,
             "issued_at" => $this->issued_at,
-            "print_by"=>$this->subvendor?->name,
+            "print_by" => $this->subvendor?->name,
         ];
     }
 }
