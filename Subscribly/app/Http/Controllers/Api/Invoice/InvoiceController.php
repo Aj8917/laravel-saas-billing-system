@@ -309,7 +309,7 @@ class InvoiceController extends Controller
 
             $perPage = $request->get('per_page', 50);
             $search = $request->get('search');
-            $query = ProInvoice::with(['offer.variant.product', 'Customer'])
+            $query = ProInvoice::with(['offer.variant.product', 'Customer','productAttributes'])
                 ->whereHas('offer', function ($q) use ($vendorId) {
                     $q->where('vendor_id', $vendorId);
                 })

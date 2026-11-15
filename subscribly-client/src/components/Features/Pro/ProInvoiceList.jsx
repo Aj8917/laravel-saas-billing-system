@@ -65,7 +65,7 @@ const ProInvoiceList = () => {
         }
         navigate(`/PrintInvoice/${invoiceNo}`);
     };
-
+   
     return (
         <div className="container mt-4">
             <h2 className="mb-4">Proforma Invoices List</h2>
@@ -124,6 +124,7 @@ const ProInvoiceList = () => {
                                 <thead className="table-light">
                                     <tr>
                                         <th>Product</th>
+                                        <th>Type / Attributes</th>
                                         <th>Quantity</th>
                                         <th>Price</th>
                                         <th>Subtotal</th>
@@ -135,11 +136,28 @@ const ProInvoiceList = () => {
                                     {items.map((item, index) => (
                                         <tr key={index}>
                                             <td>{item.product_name}</td>
-                                            <td>{item.sell_quantity}</td>
-                                            <td>₹ {item.price}</td>
-                                            <td>₹ {item.subtotal}</td>
-                                            <td>₹ {item.tax_total}</td>
-                                            <td><strong>₹ {item.total}</strong></td>
+
+                                            <td>
+                                                {item.variant_attributes?.length > 0 ? (
+                                                    <div className="d-flex flex-column gap-1">
+                                                        {item.variant_attributes.map(attr => (
+                                                            <div key={attr.id}>
+                                                                <span className="text-muted">
+                                                                    {attr.name}:
+                                                                </span>{" "}
+                                                                <strong>{attr.value}</strong>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    "-"
+                                                )}
+                                                </td>
+                                                <td>{item.sell_quantity}</td>
+                                                <td>₹ {item.price}</td>
+                                                <td>₹ {item.subtotal}</td>
+                                                <td>₹ {item.tax_total}</td>
+                                                <td><strong>₹ {item.total}</strong></td>
                                         </tr>
                                     ))}
                                 </tbody>

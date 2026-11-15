@@ -49,6 +49,11 @@ class ProInvoice extends Model
             'product_attribute_id'
         )->withTimestamps();
     }
+
+
+
+
+
     public function toArray()
     {
         return [
@@ -56,6 +61,13 @@ class ProInvoice extends Model
             "mobile" => $this->customer->mobile,
             "invoice_no" => $this->invoice_no,
             "product_name" => $this->offer->variant->product->name,
+            "variant_attributes" => $this->productAttributes->map(function ($item) {
+                return [
+                    "id" => $item->id,
+                    "name" => $item->attribute?->name,
+                    "value" => $item->value,
+                ];
+            })->values(),
             "price" => $this->price,
             "unit" => $this->offer->variant->unit ?? null,
             "sell_quantity" => $this->sell_quantity,

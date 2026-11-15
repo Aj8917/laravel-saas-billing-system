@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import messageHandler from '../../../util/messageHandler';
 import axiosAuth from '../../../api/axiosAuth';
 const ProInvoicePrint = () => {
-    const { invoiceNo } = useParams();
+  const { invoiceNo } = useParams();
   const [invoice, setInvoice] = useState([]);
   const [customer, setCustomer] = useState({ name: '', mobile: '' });
   const [loading, setLoading] = useState(true);
@@ -68,6 +68,7 @@ const ProInvoicePrint = () => {
                 <thead>
                     <tr>
                         <th className="invoice__table-header">Product</th>
+                        <th className="invoice__table-header">Type / Attributes</th>
                         <th className="invoice__table-header">Quantity</th>
                         <th className="invoice__table-header">Price</th>
                         <th className="invoice__table-header">Subtotal</th>
@@ -80,6 +81,21 @@ const ProInvoicePrint = () => {
                     {invoice.map((item, index) => (
                         <tr key={index}>
                             <td className="invoice__table-cell">{item.product_name}</td>
+                             <td className="invoice__table-cell"> {item.variant_attributes?.length > 0 ? (
+                                                    <div className="d-flex flex-column gap-1">
+                                                        {item.variant_attributes.map(attr => (
+                                                            <div key={attr.id}>
+                                                                <span className="text-muted">
+                                                                    {attr.name}:
+                                                                </span>{" "}
+                                                                <strong>{attr.value}</strong>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    "-"
+                                                )}
+                            </td>
                             <td className="invoice__table-cell">{item.sell_quantity}{item.unit || '-'}</td>
                             <td className="invoice__table-cell">${Number(item.price).toFixed(2)}</td>
                             <td className="invoice__table-cell">${Number(item.subtotal).toFixed(2)}</td>
@@ -89,15 +105,15 @@ const ProInvoicePrint = () => {
                     ))}
                    
                     <tr>
-                        <td colSpan="5" className="invoice__table-cell"><strong>Subtotal</strong></td>
+                        <td colSpan="6" className="invoice__table-cell"><strong>Subtotal</strong></td>
                         <td className="invoice__table-cell">${Number(allsubtotal).toFixed(2)}</td>
                     </tr>
                     <tr>
-                        <td colSpan="5" className="invoice__table-cell"><strong>Tax</strong></td>
+                        <td colSpan="6" className="invoice__table-cell"><strong>Tax</strong></td>
                         <td className="invoice__table-cell">${Number(totaltax).toFixed(2)}</td>
                     </tr>
                     <tr>
-                        <td colSpan="5" className="invoice__table-cell"><strong>Total</strong></td>
+                        <td colSpan="6" className="invoice__table-cell"><strong>Total</strong></td>
                         <td className="invoice__table-cell">${Number(Finaltotal).toFixed(2)}</td>
                     </tr>
                 </tbody>
