@@ -50,7 +50,24 @@ class Product extends Model
             'base_sku' => $variant->base_sku ?? null,
             'unit' => $variant->unit ?? null,
             'price' => $variant->offers->first()->price ?? null,
-            'attribute' => $variant->attributes->value ?? 1,
+            $attributeIds = $variant->product->attributes()->pluck('attributes.id'),
+            $attributes = VariantAttribute::with('attribute:id,name')
+            ->whereIn('attribute_id', $attributeIds)
+            ->get(['id', 'attribute_id', 'value'])
+            ->groupBy('attribute_id')
+            ->map(function ($items) {
+                return [
+                    //'id' => $items->first()->attribute_id,
+                    'name' => $items->first()->attribute->name ?? null,
+                    'values' => $items->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'value' => $item->value,
+                        ];
+                    })->unique('id')->values(),
+                ];
+            })->values(),
+            "attribute" => $attributes,
             'vendor' => $variant->offers->first()?->vendor?->name,
 
 

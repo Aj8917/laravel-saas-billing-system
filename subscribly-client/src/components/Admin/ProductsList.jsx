@@ -28,7 +28,7 @@ const ProductsList = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       fetchProducts(page, search);
@@ -46,6 +46,7 @@ const ProductsList = () => {
 
       const data = response.data.products ?? [];
       // console.log(data.data)
+
       if (Array.isArray(data?.data) && data.data.length > 0) {
         setList(data.data);
         setTotalPages(data.last_page || 1);
@@ -59,12 +60,13 @@ const ProductsList = () => {
     } finally {
       setLoading(false);
     }
+
   };
 
   const viewProduct = (uuid) => {
-       // alert(base_sku)
-        navigate(`/ProductSellDetails/${uuid}`);
-    };
+    // alert(base_sku)
+    navigate(`/ProductSellDetails/${uuid}`);
+  };
   return (
     <div className="container mt-4">
       <h2>Product Lists</h2>
@@ -89,6 +91,7 @@ const ProductsList = () => {
             <th>Name</th>
             <th>SKU </th>
             <th>Unit</th>
+            <th>Type / Attributes</th>
             <th>Created By</th>
 
           </tr>
@@ -111,12 +114,36 @@ const ProductsList = () => {
             list.map((item, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
-                <td 
-                 onClick={() => viewProduct(item.uuid)}
-                                style={{ cursor: 'pointer' }}
+                <td
+                  onClick={() => viewProduct(item.uuid)}
+                  style={{ cursor: 'pointer' }}
                 >{item.name}</td>
                 <td>{item.base_sku}</td>
                 <td>{item.unit}</td>
+
+
+                <td>
+                  {Array.isArray(item.attribute) && item.attribute.length > 0 ? (
+                    <div className="d-flex flex-column gap-1">
+                      {item.attribute.map((attr, index) => (
+                        <div key={index}>
+                          <span className="text-muted">
+                            {attr.name.charAt(0).toUpperCase()+attr.name.slice(1)}:
+                          </span>{" "}
+                          <strong>
+                            {Array.isArray(attr.values) && attr.values.length > 0
+                              ? attr.values.map(v => v.value.charAt(0).toUpperCase()+v.value.slice(1)).join(", ")
+                              : "-"}
+                          </strong>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+
+
                 <td>{item.vendor}</td>
               </tr>
             ))
