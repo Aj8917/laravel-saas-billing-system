@@ -15,13 +15,13 @@ const ProductSellDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!uuid) {
-       // console.error('No uuid ID Found');
+        // console.error('No uuid ID Found');
         return;
       }
 
       try {
         const response = await axiosAuth.get(`/products/${uuid}`);
-        //console.log(response.data);
+        console.log(response.data);
         //console.log('res 2'+response.data[0].sales_chart);
 
         // Set customer and invoice data
@@ -92,7 +92,7 @@ const ProductSellDetails = () => {
                                     {product?.unit ?? "-"}
                                   </span>
                                 </div>
-                                
+
                                 <div className="field-row">
                                   <span className="label">Created By:</span>
                                   <span className="value">
@@ -127,48 +127,73 @@ const ProductSellDetails = () => {
                                 </span>
                               </div>
                             ) : (
-                              <div className="d-flex flex-column gap-3">
-                                <div className="field-row">
-                                  <span className="label">Total Unit Sell:</span>
-                                  <span className="value">
-                                    {product?.total_sell ?? 0}
-                                  </span>
-                                </div>
-
-                                <div className="field-row">
-                                  <span className="label">SubTotal:</span>
-                                  <span className="value">
-                                    {product?.subtotal ?? 0}
-                                  </span>
-                                </div>
-
-                                <div className="field-row">
-                                  <span className="label">Tax:</span>
-                                  <span className="value">
-                                    {product?.total_tax ?? 0}
-                                  </span>
-                                </div>
+                              <>
+                                {Array.isArray(product?.sell_by_attribute) &&
+                                  product.sell_by_attribute.length > 0 && (
+                                    <div className="d-flex flex-column gap-2">
+                                      {product.sell_by_attribute.map((item) => (
+                                        <div
+                                          className="field-row"
+                                          key={`${item.attribute_id}-${item.value}`}
+                                        >
+                                          <span className="label">
+                                            {item.attribute ?? '-'} — {item.value ?? '-'}:
+                                          </span>
+                                          <span className="value">{item.total_sell ?? 0}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 <hr></hr>
-                                <div className="field-row">
-                                  <span className="label">Total:</span>
-                                  <span className="value">
-                                    {product?.total ?? 0}
-                                  </span>
+                                <div className="d-flex flex-column gap-3">
+                                  <div className="field-row">
+                                    <span className="label">Total Unit Sell:</span>
+                                    <span className="value">
+                                      {product?.total_sell ?? 0}
+                                    </span>
+                                  </div>
+
+                                  <div className="field-row">
+                                    <span className="label">SubTotal:</span>
+                                    <span className="value">
+                                      {product?.subtotal ?? 0}
+                                    </span>
+                                  </div>
+
+                                  <div className="field-row">
+                                    <span className="label">Tax:</span>
+                                    <span className="value">
+                                      {product?.total_tax ?? 0}
+                                    </span>
+                                  </div>
+                                  <hr />
+
+                                  <div className="field-row">
+                                    <span className="label">Total:</span>
+                                    <span className="value">
+                                      {product?.total ?? 0}
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
+                              </>
                             )}
+
                           </Card.Body>
                         </Card>
                       </Col>
 
                     </Row>
+
                   </div>
 
                 </section>
               </div>
             </section>
             <Container sx={{ mt: 4 }}>
-              <ProductSellPieChart chart={product?.sales_chart} />
+              <ProductSellPieChart
+  sellByAttribute={product?.sell_by_attribute}
+  chart={product?.sales_chart}
+/>
             </Container>
           </div>
         </section>

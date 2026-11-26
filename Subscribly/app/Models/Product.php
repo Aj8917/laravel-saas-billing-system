@@ -40,65 +40,77 @@ class Product extends Model
             'attribute_id'
         )->withPivot('id');
     }
+
     public function toArray()
     {
-        $variant = $this->variants->first();
+        $variant = $this->variants()
+            ->with([
+                'offers.vendor',
+                'offers.invoices.productAttributes.attribute',
+            ])
+            ->first();
 
-        return [
-            'name' => $this->name,
-            'uuid' => $variant->product->uuid ?? null,
-            'base_sku' => $variant->base_sku ?? null,
-            'unit' => $variant->unit ?? null,
-            'price' => $variant->offers->first()->price ?? null,
-            $attributeIds = $variant->product->attributes()->pluck('attributes.id'),
-            $attributes = VariantAttribute::with('attribute:id,name')
+        $offers = $variant?->offers ?? collect();
+        $invoices = $offers->flatMap(fn($offer) => $offer->invoices);
+
+        $attributeIds = $this->attributes()->pluck('attributes.id');
+
+        $attributes = VariantAttribute::with('attribute:id,name')
             ->whereIn('attribute_id', $attributeIds)
             ->get(['id', 'attribute_id', 'value'])
             ->groupBy('attribute_id')
             ->map(function ($items) {
                 return [
-                    //'id' => $items->first()->attribute_id,
-                    'name' => $items->first()->attribute->name ?? null,
-                    'values' => $items->map(function ($item) {
-                        return [
-                            'id' => $item->id,
-                            'value' => $item->value,
-                        ];
-                    })->unique('id')->values(),
+                    'name' => $items->first()->attribute?->name,
+                    'values' => $items->map(fn($item) => [
+                        'id' => $item->id,
+                        'value' => $item->value,
+                    ])->unique('id')->values(),
                 ];
-            })->values(),
-            "attribute" => $attributes,
-            'vendor' => $variant->offers->first()?->vendor?->name,
+            })
+            ->values();
 
+        $sellByAttribute = $invoices
+            ->flatMap(function ($invoice) {
+                return $invoice->productAttributes->map(fn($item) => [
+                    'attribute_id' => $item->attribute_id,
+                    'attribute' => $item->attribute?->name,
+                    'value' => $item->value,
+                    'sell_quantity' => (float) $invoice->sell_quantity,
+                ]);
+            })
+            ->groupBy('attribute_id')
+            ->flatMap(fn($items) => $items->groupBy('value')->map(function ($valueItems) {
+                $first = $valueItems->first();
 
-            // Total sold quantity from all invoices
-            'total_sell' => $variant->offers
-                ->flatMap(fn($offer) => $offer->invoices)
-                ->sum('sell_quantity'),
+                return [
+                    'attribute_id' => $first['attribute_id'],
+                    'attribute' => ucfirst($first['attribute']),
+                    'value' => ucfirst($first['value']),
+                    'total_sell' => $valueItems->sum('sell_quantity'),
+                ];
+            }))
+            ->values();
 
-            // Total subtotal from all invoices
-            'subtotal' => $variant->offers
-                ->flatMap(fn($offer) => $offer->invoices)
-                ->sum('subtotal'),
-            'total_tax' => $variant->offers
-                ->flatMap(fn($offer) => $offer->invoices)
-                ->sum('tax_total'),
-            'total' => $variant->offers
-                ->flatMap(fn($offer) => $offer->invoices)
-                ->sum('total'),
-
-            'sales_chart' => collect(
-                $variant->offers->flatMap(fn($offer) => $offer->invoices)
-            )
-                ->groupBy(function ($invoice) {
-                    return \Carbon\Carbon::parse($invoice->issued_at)->format('M');
-                })
-                ->map(function ($items, $month) {
-                    return [
-                        'month' => $month,
-                        'sales' => $items->sum('sell_quantity'),
-                    ];
-                })
+        return [
+            'name' => $this->name,
+            'uuid' => $this->uuid,
+            'base_sku' => $variant?->base_sku,
+            'unit' => $variant?->unit,
+            'price' => $offers->first()?->price,
+            'attribute' => $attributes,
+            'sell_by_attribute' => $sellByAttribute,
+            'vendor' => $offers->first()?->vendor?->name,
+            'total_sell' => $invoices->sum('sell_quantity'),
+            'subtotal' => $invoices->sum('subtotal'),
+            'total_tax' => $invoices->sum('tax_total'),
+            'total' => $invoices->sum('total'),
+            'sales_chart' => $invoices
+                ->groupBy(fn($invoice) => \Carbon\Carbon::parse($invoice->issued_at)->format('M'))
+                ->map(fn($items, $month) => [
+                    'month' => $month,
+                    'sales' => $items->sum('sell_quantity'),
+                ])
                 ->values(),
         ];
     }

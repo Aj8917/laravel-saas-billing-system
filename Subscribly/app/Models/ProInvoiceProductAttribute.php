@@ -12,4 +12,8 @@ class ProInvoiceProductAttribute extends Model
         'invoice_id',
         'product_attribute_id',
     ];
+    public function productAttribute()
+    {
+        return $this->belongsTo(ProductAttribute::class, 'product_attribute_id');
+    }
 }
